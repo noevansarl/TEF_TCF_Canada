@@ -409,4 +409,389 @@ INSERT INTO public.questions (
   '2026-05',
   false,
   NULL
-);
+),
+
+-- ==========================================
+-- V. COMPRÉHENSION ORALE (CO) - EXPANSION
+-- ==========================================
+
+-- Q17. CO TCF Canada - B1 (Météo/Climat)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c017',
+  'CO',
+  'TCF_CANADA',
+  'B1',
+  'Selon le bulletin météorologique, quelles consignes de sécurité les autorités émettent-elles pour la soirée ?',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+  2,
+  NULL,
+  '{"A": "Éviter tout déplacement sur les routes secondaires", "B": "Fermer les commerces du centre-ville", "C": "Couper l''alimentation électrique générale", "D": "Rester confiné dans les sous-sols"}',
+  'A',
+  NULL,
+  'Le présentateur météo avertit que les chaussées seront glissantes et conseille fortement de limiter les déplacements non essentiels, en particulier sur le réseau secondaire non salé.',
+  'Environnement et Climat',
+  4,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q18. CO TEF Canada - B2 (Économie/Emploi)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c018',
+  'CO',
+  'TEF_CANADA',
+  'B2',
+  'Quelle est la réaction majoritaire des syndicats de la logistique face à la mise en place d''entrepôts automatisés ?',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+  2,
+  NULL,
+  '{"A": "Une opposition totale avec menaces de grève générale", "B": "Une approbation enthousiaste des nouvelles technologies", "C": "Une acceptation sous réserve de garanties sur le maintien des emplois", "D": "Une indifférence totale face au changement"}',
+  'C',
+  NULL,
+  'Le porte-parole indique que les syndicats ne s''opposent pas à la modernisation mais réclament un accord sur la reconversion des employés et le maintien des effectifs.',
+  'Monde du travail et économie',
+  6,
+  true,
+  false,
+  '2026-05',
+  true,
+  'Nouveau · Mai 2026'
+),
+
+-- Q19. CO TCF Canada - C1 (Culture/Art)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c019',
+  'CO',
+  'TCF_CANADA',
+  'C1',
+  'Selon la directrice de la galerie, comment la crise sanitaire a-t-elle redéfini le rôle des musées d''art contemporain ?',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+  2,
+  NULL,
+  '{"A": "En les transformant en simples espaces de stockage physiques", "B": "En les incitant à devenir des plateformes d''échanges communautaires et numériques", "C": "En provoquant la disparition définitive de l''intérêt pour l''art", "D": "En limitant l''accès uniquement aux artistes locaux"}',
+  'B',
+  NULL,
+  'Elle explique que l''obligation de fermer physiquement a forcé les musées à réinventer l''expérience de visite via des galeries virtuelles et des débats en ligne, renforçant le rôle de communauté d''échange.',
+  'Culture et Art',
+  8,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q20. CO TEF Canada - C2 (Science/Éthique)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c020',
+  'CO',
+  'TEF_CANADA',
+  'C2',
+  'Quelle est la critique éthique majeure formulée par le neuroscientifique à l''égard des puces cérébrales grand public ?',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+  1,
+  NULL,
+  '{"A": "Elles sont trop chères pour la classe moyenne", "B": "Elles risquent d''entraîner un piratage de la pensée et une perte d''autonomie cognitive", "C": "Elles ne fonctionnent pas sur les sujets âgés", "D": "Elles provoquent des allergies cutanées graves"}',
+  'B',
+  NULL,
+  'Le scientifique souligne le danger d''ingérence extérieure directe sur le flux de pensée consciente et sur le libre arbitre individuel via des algorithmes propriétaires.',
+  'Sciences et éthique',
+  10,
+  true,
+  true,
+  '2026-05',
+  true,
+  'Sujet Chaud · Mai 2026'
+),
+
+-- ==========================================
+-- VI. COMPRÉHENSION ÉCRITE (CE) - EXPANSION
+-- ==========================================
+
+-- Q21. CE TCF Canada - B1 (Tourisme/Gaspésie)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c021',
+  'CE',
+  'TCF_CANADA',
+  'B1',
+  'Quel conseil important l''office de tourisme donne-t-il aux randonneurs visitant le parc national de la Gaspésie ?',
+  NULL,
+  2,
+  'Le parc national de la Gaspésie invite les randonneurs à la prudence en raison de la présence accrue d''orignaux et d''ours noirs sur les sentiers d''altitude. Il est strictement conseillé de ne pas s''approcher des animaux à moins de 50 mètres pour prendre des photos et de ranger toute nourriture dans des bacs hermétiques pour ne pas les attirer.',
+  '{"A": "Ne pas emporter de nourriture du tout", "B": "Garder une distance minimale de 50 mètres avec la faune", "C": "Faire de la randonnée uniquement la nuit", "D": "Engager obligatoirement un guide armé"}',
+  'B',
+  NULL,
+  'Le texte indique explicitement : « Il est strictement conseillé de ne pas s''approcher des animaux à moins de 50 mètres... ».',
+  'Voyages et tourisme',
+  4,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q22. CE TEF Canada - B2 (Alimentation/Santé)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c022',
+  'CE',
+  'TEF_CANADA',
+  'B2',
+  'Quel effet l''introduction du Nutri-Score obligatoire a-t-elle eu sur les fabricants de céréales du petit-déjeuner ?',
+  NULL,
+  2,
+  'Depuis l''adoption réglementaire du Nutri-Score sur tous les emballages, les industriels de l''agroalimentaire ont été contraints de revoir leurs formules. Pour éviter un classement "D" ou "E" pénalisant auprès des consommateurs, les fabricants de céréales ont diminué le taux de sucre raffiné de 15 % en moyenne et augmenté la part de fibres en remplaçant la farine blanche par du blé complet.',
+  '{"A": "Ils ont augmenté leurs prix de vente de 15 %", "B": "Ils ont retiré leurs produits du marché européen", "C": "Ils ont reformulé leurs recettes pour en améliorer le profil nutritionnel", "D": "Ils ont poursuivi la commission européenne en justice"}',
+  'C',
+  NULL,
+  'Le texte explique que pour éviter une mauvaise note, les fabricants « ont diminué le taux de sucre raffiné... et augmenté la part de fibres », ce qui équivaut à reformuler les recettes.',
+  'Alimentation et santé publique',
+  6,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q23. CE TCF Canada - C1 (Société/Vieillissement)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c023',
+  'CE',
+  'TCF_CANADA',
+  'C1',
+  'Quelle opportunité le rapport du Conseil économique voit-il dans le vieillissement rapide de la population active canadienne ?',
+  NULL,
+  2,
+  'Si le vieillissement démographique du Canada fait souvent peser des craintes sur le financement des retraites et sur la pénurie de main-d''œuvre, le Conseil économique national y décèle un levier d''innovation sous-exploité. Ce choc pousse en effet les entreprises à accélérer l''automatisation des tâches répétitives et à investir massivement dans l''ergonomie et la formation continue, augmentant à terme la productivité globale par travailleur.',
+  '{"A": "Une baisse inévitable de la compétitivité industrielle", "B": "Une incitation à accélérer l''automatisation et la formation continue", "C": "L''obligation de reculer l''âge de départ à la retraite à 70 ans", "D": "Le démantèlement des programmes sociaux publics"}',
+  'B',
+  NULL,
+  'Le texte souligne que ce choc démographique « pousse en effet les entreprises à accélérer l''automatisation... et à investir massivement dans l''ergonomie et la formation continue ».',
+  'Économie et démographie',
+  8,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q24. CE TEF Canada - C2 (Énergie/Hydrogène)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c024',
+  'CE',
+  'TEF_CANADA',
+  'C2',
+  'Quelle nuance technique essentielle l''auteur apporte-t-il au sujet de l''hydrogène vert comme solution miracle décarbonée ?',
+  NULL,
+  2,
+  'La promotion effrénée de l''hydrogène comme vecteur énergétique de la transition écologique occulte trop souvent des réalités thermodynamiques incontournables. Son rendement de conversion global reste médiocre, nécessitant une quantité massive d''électricité renouvelable en amont. De plus, sa faible densité volumétrique impose des contraintes de compression ou de liquéfaction cryogénique si énergivores qu''elles amputent l''intérêt de son transport sur de longues distances, limitant son efficacité à un usage localisé.',
+  '{"A": "L''hydrogène vert produit plus de CO2 que le pétrole lors de sa combustion", "B": "Les coûts de compression cryogénique et le rendement médiocre réduisent sa viabilité pour le transport longue distance", "C": "Il est impossible d''obtenir de l''hydrogène par électrolyse de l''eau", "D": "Son usage doit être réservé exclusivement au secteur aéronautique"}',
+  'B',
+  NULL,
+  'L''auteur note que la compression cryogénique est si énergivore qu''elle ampute l''intérêt du transport longue distance et que le rendement global reste médiocre, contredisant l''idée de solution miracle universelle.',
+  'Énergies et technologies de demain',
+  10,
+  true,
+  true,
+  '2026-05',
+  true,
+  'Sujet Chaud · Mai 2026'
+),
+
+-- ==========================================
+-- VII. EXPRESSION ÉCRITE (EE) - EXPANSION
+-- ==========================================
+
+-- Q25. EE TCF Canada - A2/B1 (Message chalet)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c025',
+  'EE',
+  'TCF_CANADA',
+  'B1',
+  'Tâche 1 (Message amical) : Vous invitez un ami à passer le week-end dans un chalet au Québec. Écrivez un courriel d''environ 80 mots pour lui proposer des activités (randonnée, kayak, feu de camp) et lui donner des précisions sur le point de rendez-vous et ce qu''il doit apporter.',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'Salut Thomas,\n\nJ''espère que tu vas bien ! Je t''écris pour t''inviter à passer le week-end prochain dans un superbe chalet au bord d''un lac en Mauricie. \n\nAu programme : randonnée en forêt, kayak sur le lac le samedi après-midi et grand feu de camp en soirée. \n\nOn se retrouve vendredi à 18h chez moi pour faire du covoiturage. Pense à apporter un sac de couchage chaud, des vêtements de sport et de bonnes chaussures de marche. \n\nDis-moi vite si tu es disponible !\n\nÀ bientôt,\nAlex',
+  'Le courriel doit adopter un ton amical et chaleureux. Le vocabulaire doit rester simple mais précis, et les détails logistiques (activités, heure, affaires à apporter) doivent être clairement exposés.',
+  'Vie quotidienne et loisirs au Canada',
+  4,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q26. EE TEF Canada - Section A - B2 (Robot livraison)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c026',
+  'EE',
+  'TEF_CANADA',
+  'B2',
+  'Sujet Section A : Un fait divers raconte qu''un robot de livraison autonome a bloqué la circulation routière pendant deux heures au centre-ville de Toronto. Rédigez un article de journal de 120 à 150 mots pour raconter l''incident, les réactions des automobilistes et l''intervention finale des policiers et techniciens.',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'Mardi après-midi, un incident pour le moins insolite a paralysé le centre-ville de Toronto. Un robot de livraison autonome, chargé de livrer des repas, s''est brusquement immobilisé au milieu d''un passage piéton sur la rue Yonge, bloquant la circulation pendant près de deux heures.\n\nLes automobilistes, bloqués dans un embouteillage monstre, ont rapidement manifesté leur agacement à coups de klaxon. « C’est ridicule de bloquer des centaines de personnes pour une boîte à roulettes ! » s''est emporté un chauffeur de taxi.\n\nLes policiers dépêchés sur place ont dû sécuriser la zone en attendant l''arrivée de techniciens de la compagnie de livraison. Ces derniers ont finalement désactivé le système de guidage défaillant pour déplacer manuellement le robot. Une enquête interne a été ouverte pour déterminer la cause de ce bug technologique majeur.',
+  'Le corps de l''article doit être structuré (qui, quoi, où, quand), inclure des témoignages et utiliser le vocabulaire de l''actualité et de la technologie au passé.',
+  'Faits divers et nouvelles canadiennes',
+  6,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q27. EE TCF Canada - C1 (Transport gratuit)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c027',
+  'EE',
+  'TCF_CANADA',
+  'C1',
+  'Sujet Tâche 3 : Faut-il rendre les transports publics entièrement gratuits pour encourager la transition écologique ? Rédigez un texte de 200 à 250 mots. Présentez des arguments économiques (financement, investissements) et environnementaux de manière claire et structurée.',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'L’opportunité d’instaurer la gratuité des transports en commun au nom de l’urgence climatique suscite d’importants débats parmi les urbanistes et économistes. Si cette mesure apparaît séduisante, elle mérite une analyse équilibrée.\n\nD’une part, la gratuité constitue un signal politique fort. En éliminant la barrière tarifaire, elle incite une partie des automobilistes à abandonner leur véhicule individuel, réduisant ainsi les émissions de gaz à effet de serre et la pollution urbaine. De plus, elle représente une mesure de justice sociale majeure pour les ménages modestes.\n\nD’autre part, cette gratuité pose un défi de financement colossal. Sans recettes de billetterie, les municipalités doivent augmenter les impôts locaux ou réduire les investissements de modernisation du réseau. Or, les enquêtes montrent que les usagers privilégient la ponctualité, la fréquence et le confort des trajets plutôt que le prix. Un réseau gratuit mais saturé et vétuste risquerait de décourager les automobilistes au lieu de les attirer.\n\nEn conclusion, la gratuité totale n’est pas une solution miracle. Il convient plutôt de proposer des tarifs ciblés et de concentrer les financements publics sur l’extension et l’amélioration de l’offre de transport.',
+  'L''essai doit présenter une structure claire en paragraphes distincts, utiliser des connecteurs de haut niveau (d''une part, d''autre part, néanmoins) et présenter un vocabulaire C1 fluide et précis.',
+  'Environnement et aménagement urbain',
+  8,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q28. EE TEF Canada - Section B - C2 (Lettre panneaux solaires)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c028',
+  'EE',
+  'TEF_CANADA',
+  'C2',
+  'Sujet Section B : Vous écrivez au syndic de copropriété de votre immeuble pour proposer l''installation de panneaux solaires sur le toit de la résidence. Rédigez une lettre d''au moins 200 mots. Argumentez en faveur de la réduction des charges collectives, de l''autonomie énergétique et de la valorisation immobilière de l''immeuble.',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'Chers Copropriétaires,\n\nJe me permets de soumettre à votre attention un projet d''avenir pour notre résidence : l''installation de panneaux solaires photovoltaïques sur la toiture commune du bâtiment.\n\nPremièrement, cette initiative permettrait de réduire drastiquement nos charges collectives. L’électricité produite pourrait alimenter l’éclairage des parties communes, l’ascenseur et le chauffage, amortissant rapidement l’investissement initial grâce à l’autoconsommation.\n\nDeuxièmement, cette transition vers l’autonomie énergétique nous protègera contre la volatilité future des prix de l’énergie. \n\nEnfin, l’installation d’infrastructures durables valorisera notre patrimoine immobilier commun sur le marché locatif et de la revente.\n\nJe propose d''inscrire ce projet à l''ordre du jour de notre prochaine assemblée générale.\n\nBien cordialement,\nUn copropriétaire engagé',
+  'La lettre formelle C2 doit démontrer une maîtrise des formules administratives et de politesse, un vocabulaire argumentatif riche et des tournures de phrases complexes (subordonnées, gérondif, subjonctif).',
+  'Énergie et gestion immobilière',
+  10,
+  true,
+  true,
+  '2026-05',
+  true,
+  'Sujet Chaud · Mai 2026'
+),
+
+-- ==========================================
+-- VIII. EXPRESSION ORALE (EO) - EXPANSION
+-- ==========================================
+
+-- Q29. EO TCF Canada - B1 (Présentation livre)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c029',
+  'EO',
+  'TCF_CANADA',
+  'B1',
+  'Tâche 1 (Monologue simple) : Présentez un livre ou un film qui vous a particulièrement marqué. Décrivez brièvement l''histoire, le personnage principal, et expliquez pourquoi cette œuvre vous a touché. (Sans préparation · Parole : 2 min)',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'Exemple de monologue B1 :\n- Introduction : Présenter l''œuvre choisie (titre, auteur/réalisateur).\n- Description : Raconter l''intrigue générale de manière linéaire sans entrer dans trop de détails techniques. Présenter le héros ou l''héroïne et son défi principal.\n- Impressions personnelles : Expliquer les émotions ressenties (joie, tristesse, réflexion) et ce que l''on retient du message principal de l''œuvre.\n- Conclusion : Inviter l''interlocuteur à lire ou regarder cette œuvre.',
+  'Le candidat doit parler de manière continue pendant 2 minutes, utiliser un vocabulaire personnel et des temps du passé/présent corrects, sans longues hésitations.',
+  'Loisirs et culture générale',
+  3,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q30. EO TEF Canada - Section A - B2 (École immersion)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c030',
+  'EO',
+  'TEF_CANADA',
+  'B2',
+  'Sujet Section A (Demande d''informations) : Vous téléphonez à une école de langues bilingue au Canada pour inscrire votre enfant à leur programme d''immersion en français. Préparez au moins 5 questions concernant les critères d''admission, l''âge requis, les tarifs, le calendrier scolaire et les activités extrascolaires. (Préparation : 1 min · Parole : 3 min)',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'Exemples de questions attendues (B2) :\n- « Bonjour, je souhaite inscrire mon fils de 8 ans à votre programme d''immersion pour la prochaine rentrée. Quel est l''âge minimum requis pour ce programme ? »\n- « Les enfants doivent-ils avoir des notions de français avant d''être admis, ou le programme s''adresse-t-il aussi aux débutants complets ? »\n- « Quels sont les frais de scolarité annuels et proposez-vous des facilités de paiement par trimestre ? »\n- « Pouvez-vous me préciser les dates limites de dépôt de dossier pour le semestre d''automne ? »\n- « Proposez-vous un service de garde périscolaire ou des activités culturelles en français après les cours ? »',
+  'Le candidat doit poser des questions de façon naturelle et courtoise, s''adapter aux réponses simulées de l''examinateur et maintenir un dialogue dynamique au registre formel/neutre.',
+  'Éducation et intégration des enfants',
+  5,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q31. EO TCF Canada - Tâche 3 - C1 (Voyages virtuels)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c031',
+  'EO',
+  'TCF_CANADA',
+  'C1',
+  'Tâche 3 (Exposé argumenté) : Les casques de réalité virtuelle vont-ils remplacer les voyages physiques ? Développez un monologue argumenté et nuancé de 4 minutes. Présentez les avantages écologiques et économiques de la réalité virtuelle ainsi que les limites de l''expérience virtuelle par rapport au contact humain réel. (Préparation : 1 min · Parole : 4 min)',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'Arguments oraux attendus (C1) :\n- Avantages de la réalité virtuelle (VR) : Accès économique à des destinations lointaines pour tous, réduction immédiate de l''empreinte carbone liée au transport aérien, préservation des sites touristiques saturés (surtourisme).\n- Limites de la VR : Absence de sensations physiques (climat, odeurs, fatigue), absence de contact humain spontané avec les populations locales, l''expérience reste solitaire et médiatisée par un écran.\n- Synthèse : La VR est un excellent outil de découverte éducative ou de préparation au voyage, mais elle ne peut pas remplacer l''expérience existentielle, sensorielle et sociale d''un véritable voyage physique.',
+  'L''exposé doit durer 4 minutes, posséder une introduction avec problématique, un développement structuré et nuancé, et une conclusion ouverte. Le débit doit être régulier et le vocabulaire recherché.',
+  'Technologies et société de consommation',
+  8,
+  true,
+  false,
+  '2026-05',
+  false,
+  NULL
+),
+
+-- Q32. EO TEF Canada - Section B - C2 (Convaincre ami carrière)
+(
+  'd74bb36a-297c-48c0-bc66-3d6825d1c032',
+  'EO',
+  'TEF_CANADA',
+  'C2',
+  'Sujet Section B (Convaincre un ami) : Votre ami travaille dans la finance traditionnelle mais s''ennuie. Vous avez vu une annonce pour un poste de consultant en transition écologique. Convainquez-le de postuler à cette offre en mettant en avant le sens du travail, l''éthique, et les opportunités d''évolution dans ce secteur d''avenir. (Préparation : 1 min · Parole : 4 min)',
+  NULL,
+  2,
+  NULL,
+  NULL,
+  NULL,
+  'Pistes de persuasion orale C2 :\n- Démarrer la conversation de façon naturelle et amicale.\n- Argument du sens et de l''utilité : Expliquer que travailler dans le développement durable offre une satisfaction personnelle qu''on ne trouve pas dans la finance spéculative.\n- Argument d''avenir économique : Le marché vert est en pleine croissance, les compétences en finance durable et transition sont très recherchées et garantissent une sécurité de l''emploi à long terme.\n- Répondre aux craintes de l''ami : S''il s''inquiète de la baisse de salaire, souligner que les salaires de consultants seniors dans le vert sont désormais très compétitifs, et que la qualité de vie au travail compense largement les écarts potentiels.',
+  'Le candidat doit faire preuve d''une grande spontanéité et d''un sens aigu de l''interaction. Le vocabulaire de la persuasion doit être riche, varié et nuancé, avec un registre informel parfaitement maîtrisé.',
+  'Monde du travail et choix de carrière',
+  10,
+  true,
+  true,
+  '2026-05',
+  true,
+  'Sujet Chaud · Mai 2026'
+)
+;
