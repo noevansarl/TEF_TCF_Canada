@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 
@@ -112,7 +113,7 @@ export default function AffiliatePage() {
         .from('affiliates')
         .insert({
           user_id: user.id,
-          name: partnerName || 'Partenaire Francophonie',
+          name: partnerName || 'Partenaire ayePREP',
           email: user.email,
           code: cleanCode,
           payment_method: paymentMethod,
@@ -154,9 +155,7 @@ export default function AffiliatePage() {
         {/* Header */}
         <header className="bg-white border-b px-4 py-4 select-none">
           <div className="max-w-5xl mx-auto flex items-center justify-between">
-            <Link to="/" className="text-[#1B3A6B] font-extrabold text-sm uppercase tracking-wider">
-              Francophonie Academia
-            </Link>
+            <Logo />
             <div className="flex items-center gap-4">
               <Link to="/" className="text-xs text-gray-500 hover:text-gray-700 font-bold transition-colors">
                 ← Retour à l'accueil
@@ -175,7 +174,7 @@ export default function AffiliatePage() {
               Programme d'affiliation officiel
             </span>
             <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">
-              Recommandez Francophonie Academia & Gagnez 20%
+              Recommandez ayePREP & Gagnez 20%
             </h1>
             <p className="text-blue-100 text-lg max-w-2xl mx-auto mb-8">
               Aidez d'autres candidats à réussir leur TCF / TEF Canada et recevez une commission de 20% sur chaque vente générée grâce à votre lien unique.
@@ -240,7 +239,7 @@ export default function AffiliatePage() {
           <div className="text-center mb-8 border-b pb-4">
             <span className="text-5xl">🤝</span>
             <h1 className="text-3xl font-extrabold text-gray-900 mt-2 mb-1">Rejoindre le Programme d'Affiliation</h1>
-            <p className="text-gray-500">Devenez partenaire Francophonie Academia en quelques secondes.</p>
+            <p className="text-gray-500">Devenez partenaire ayePREP en quelques secondes.</p>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-6">

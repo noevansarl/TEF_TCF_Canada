@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 
 export default function CgvPage() {
   return (
@@ -6,12 +7,7 @@ export default function CgvPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-4 select-none">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-[#1B3A6B] font-extrabold text-sm uppercase tracking-wide">
-            <svg viewBox="0 0 40 40" className="w-8 h-8">
-              <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-            </svg>
-            Francophonie Academia
-          </Link>
+          <Logo />
           <Link to="/" className="text-sm font-semibold text-[#1B3A6B] hover:underline">
             Retour à l'accueil
           </Link>
@@ -34,7 +30,7 @@ export default function CgvPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-gray-900">1. Objet et acceptation des conditions</h2>
             <p>
-              Les présentes Conditions Générales de Vente (CGV) régissent toutes les ventes de formules de préparation d'examens et de forfaits d'entraînement (Bronze, Silver, Gold, Platinum) conclues entre la société éditrice de <strong>Francophonie Academia</strong> et le client utilisateur.
+              Les présentes Conditions Générales de Vente (CGV) régissent toutes les ventes de formules de préparation d'examens et de forfaits d'entraînement (Bronze, Silver, Gold, Platinum) conclues entre la société éditrice de <strong>ayePREP</strong> et le client utilisateur.
             </p>
             <p>
               Toute souscription à un pack payant sur la plateforme web ou sur l'application mobile implique l'acceptation sans réserve par l'utilisateur des présentes CGV.
@@ -69,7 +65,7 @@ export default function CgvPage() {
               Conformément à la législation sur la vente de contenus numériques en ligne et de services consommés instantanément, le droit de rétractation ne s'applique pas une fois que l'utilisateur a initié sa première session d'entraînement corrigée par l'IA.
             </p>
             <p>
-              Toutefois, Francophonie Academia propose une politique de garantie commerciale « Satisfait ou Remboursé » sous 14 jours si aucune épreuve n'a été commencée, ou en cas de problème technique majeur persistant empêchant l'accès au service. Consultez notre page <Link to="/remboursement" className="text-[#1B3A6B] underline font-semibold">Politique de remboursement</Link> pour initier une demande.
+              Toutefois, ayePREP propose une politique de garantie commerciale « Satisfait ou Remboursé » sous 14 jours si aucune épreuve n'a été commencée, ou en cas de problème technique majeur persistant empêchant l'accès au service. Consultez notre page <Link to="/remboursement" className="text-[#1B3A6B] underline font-semibold">Politique de remboursement</Link> pour initier une demande.
             </p>
           </section>
 
@@ -92,7 +88,7 @@ export default function CgvPage() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-400 select-none">
-        <p>© 2026 Francophonie Academia. Tous droits réservés.</p>
+        <p>© 2026 ayePREP. Tous droits réservés.</p>
       </footer>
     </div>
   )

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
 
 const TCF = {
@@ -81,19 +82,14 @@ export default function ComparisonPage() {
         "headline": "TCF Canada vs TEF Canada : Comparaison complète 2026",
         "description": "Différences entre TCF Canada et TEF Canada : durées, nombre de questions, organismes, reconnaissance IRCC. Quel examen choisir pour votre immigration ?",
         "inLanguage": "fr",
-        "author": { "@type": "Organization", "name": "FRANCOPHONIE ACADEMIA" }
+        "author": { "@type": "Organization", "name": "ayePREP" }
       })}} />
 
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white border-b px-4 py-4">
           <div className="max-w-5xl mx-auto flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 text-[#1B3A6B] font-extrabold text-sm uppercase">
-              <svg viewBox="0 0 40 40" className="w-8 h-8">
-                <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-              </svg>
-              Francophonie Academia
-            </Link>
+                      <Logo />
             <Link to="/register" className="text-sm font-semibold text-[#1B3A6B] hover:underline">
               Commencer gratuitement →
             </Link>
@@ -223,7 +219,7 @@ export default function ComparisonPage() {
           <div className="bg-gradient-to-r from-[#1B3A6B] to-[#2E75B6] rounded-2xl p-8 text-white text-center">
             <h3 className="text-2xl font-extrabold mb-3">Préparez les deux avec une seule plateforme</h3>
             <p className="opacity-80 mb-6">
-              Francophonie Academia couvre TCF Canada et TEF Canada avec des simulations officielles,
+              ayePREP couvre TCF Canada et TEF Canada avec des simulations officielles,
               corrections IA et sujets d'actualité. Commencez gratuitement.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">

@@ -338,7 +338,7 @@ export default function ResultsPage() {
                   : (totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0)
                 )
               
-              const shareText = `J'ai obtenu une estimation de ${estimateNclc} (${scorePercent}%) lors de ma préparation TCF/TEF Canada sur Francophonie Academia ! Préparez-vous avec moi : https://francophonia.academia`
+              const shareText = `J'ai obtenu une estimation de ${estimateNclc} (${scorePercent}%) lors de ma préparation TCF/TEF Canada sur ayePREP ! Préparez-vous avec moi : https://francophonia.academia`
               window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
             }}
             className="bg-[#25D366] hover:bg-[#1ebd59] text-white px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all flex items-center gap-2 shadow-sm"

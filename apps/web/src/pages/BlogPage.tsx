@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 import { BLOG_ARTICLES } from '../data/blogArticles'
 
 const CATEGORIES = ['Tout', 'TCF Canada', 'TEF Canada', 'NCLC', 'Immigration', 'Conjugaison & Grammaire']
@@ -22,12 +23,7 @@ export default function BlogPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-4 select-none">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-[#1B3A6B] font-extrabold text-sm uppercase tracking-wide">
-            <svg viewBox="0 0 40 40" className="w-8 h-8">
-              <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-            </svg>
-            Francophonie Academia
-          </Link>
+                    <Logo />
           <div className="flex items-center gap-4">
             <Link to="/calculateur-nclc" className="text-sm font-semibold text-gray-600 hover:text-gray-900 hidden sm:block">
               Calculateur NCLC
@@ -179,7 +175,7 @@ export default function BlogPage() {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-8 px-4 mt-12 text-center text-xs text-gray-500">
         <p className="max-w-xl mx-auto">
-          Francophonie Academia est un organisme indépendant de préparation linguistique. Les marques TCF et TEF appartiennent à leurs organismes respectifs.
+          ayePREP est un organisme indépendant de préparation linguistique. Les marques TCF et TEF appartiennent à leurs organismes respectifs.
         </p>
       </footer>
     </div>

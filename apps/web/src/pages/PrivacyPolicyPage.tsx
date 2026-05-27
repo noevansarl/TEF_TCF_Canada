@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 
 export default function PrivacyPolicyPage() {
   return (
@@ -6,12 +7,7 @@ export default function PrivacyPolicyPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-4 select-none">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-[#1B3A6B] font-extrabold text-sm uppercase tracking-wide">
-            <svg viewBox="0 0 40 40" className="w-8 h-8">
-              <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-            </svg>
-            Francophonie Academia
-          </Link>
+          <Logo />
           <Link to="/" className="text-sm font-semibold text-[#1B3A6B] hover:underline">
             Retour à l'accueil
           </Link>
@@ -34,7 +30,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-gray-900">1. Préambule et Responsable du traitement</h2>
             <p>
-              La plateforme <strong>Francophonie Academia</strong> est engagée dans la protection de la vie privée et des données personnelles de ses utilisateurs. Cette politique détaille la nature des informations que nous collectons, la finalité de leur utilisation, les mesures de sécurité prises pour les protéger, ainsi que les droits d'accès, de portabilité et de suppression dont vous bénéficiez conformément au Règlement Général sur la Protection des Données (RGPD) et à la Loi canadienne sur la protection des renseignements personnels et les documents électroniques (LPRPDE / PIPEDA).
+              La plateforme <strong>ayePREP</strong> est engagée dans la protection de la vie privée et des données personnelles de ses utilisateurs. Cette politique détaille la nature des informations que nous collectons, la finalité de leur utilisation, les mesures de sécurité prises pour les protéger, ainsi que les droits d'accès, de portabilité et de suppression dont vous bénéficiez conformément au Règlement Général sur la Protection des Données (RGPD) et à la Loi canadienne sur la protection des renseignements personnels et les documents électroniques (LPRPDE / PIPEDA).
             </p>
             <p>
               Le responsable du traitement des données est identifiable auprès de notre service d'administration à : <a href="mailto:privacy@francophonie.academia" className="text-[#1B3A6B] font-semibold underline">privacy@francophonie.academia</a>.
@@ -101,7 +97,7 @@ export default function PrivacyPolicyPage() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-400 select-none">
-        <p>© 2026 Francophonie Academia. Tous droits réservés.</p>
+        <p>© 2026 ayePREP. Tous droits réservés.</p>
       </footer>
     </div>
   )

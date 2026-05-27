@@ -7,9 +7,9 @@ export default function LandingPage() {
   const schemaOrg = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
-    "name": "FRANCOPHONIE ACADEMIA",
+    "name": "ayePREP",
     "description": "Plateforme n°1 de préparation au TCF Canada et TEF Canada.",
-    "url": "https://francophonie.academia",
+    "url": "https://ayeprep.com",
     "inLanguage": "fr",
     "sameAs": ["https://www.youtube.com/@francophoniAcademia"],
     "contactPoint": { "@type": "ContactPoint", "contactType": "customer support", "availableLanguage": "French" }
@@ -32,7 +32,7 @@ export default function LandingPage() {
       {
         "@type": "Question",
         "name": "Comment convertir un score TCF Canada en NCLC ?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Utilisez le calculateur NCLC gratuit de Francophonie Academia pour convertir vos scores TCF/TEF en niveaux NCLC/CLB officiels IRCC." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Utilisez le calculateur NCLC gratuit de ayePREP pour convertir vos scores TCF/TEF en niveaux NCLC/CLB officiels IRCC." }
       }
     ]
   })
@@ -99,11 +99,8 @@ export default function LandingPage() {
       {/* ===== HEADER ===== */}
       <header className="header scrolled" id="header">
         <nav className="nav container">
-          <Link to="/" className="nav__logo" aria-label="Accueil FRANCOPHONIE ACADEMIA">
-            <svg className="nav__logo-icon" aria-hidden="true" viewBox="0 0 40 40">
-              <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-            </svg>
-            <span className="nav__logo-text">FRANCOPHONIE<br/><strong>ACADEMIA</strong></span>
+          <Link to="/" className="nav__logo" aria-label="Accueil ayePREP" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logoayePREP.png" alt="ayePREP Logo" className="w-12 h-12 object-contain" />
           </Link>
           <div className={`nav__menu ${burgerOpen ? 'nav__menu--open' : ''}`}>
             <ul className="nav__links" role="list">
@@ -616,7 +613,7 @@ export default function LandingPage() {
               <article className="testimonial-card">
                 <div className="testimonial-card__rating">★★★★★</div>
                 <blockquote className="testimonial-card__quote">
-                  "Après 3 mois sur FRANCOPHONIE ACADEMIA, j'ai obtenu C1 au TCF Canada 
+                  "Après 3 mois sur ayePREP, j'ai obtenu C1 au TCF Canada 
                   avec 498 points. Les simulations en conditions réelles m'ont préparée. Les corrections IA étaient parfaites."
                 </blockquote>
                 <cite className="testimonial-card__author">
@@ -715,7 +712,9 @@ export default function LandingPage() {
       <footer className="footer">
         <div className="container footer__content">
           <div className="footer__brand">
-            <Link to="/" className="footer__logo">FRANCOPHONIE ACADEMIA</Link>
+            <Link to="/" className="footer__logo" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <img src="/logoayePREP.png" alt="ayePREP Logo" className="w-12 h-12 object-contain" />
+            </Link>
             <p className="footer__tagline">Préparez-vous comme si c'était le vrai jour J.</p>
             <div className="footer__social">
               <a href="#" aria-label="Instagram">Insta</a>
@@ -767,7 +766,7 @@ export default function LandingPage() {
           </nav>
         </div>
         <div className="footer__bottom">
-          <p>© 2026 FRANCOPHONIE ACADEMIA. Tous droits réservés. Hébergé en Europe (RGPD conforme).</p>
+          <p>© 2026 ayePREP. Tous droits réservés. Hébergé en Europe (RGPD conforme).</p>
         </div>
       </footer>
     </div>

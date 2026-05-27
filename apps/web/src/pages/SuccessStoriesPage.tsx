@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
 
 // ── Témoignages ────────────────────────────────────────────────────────
@@ -99,12 +100,7 @@ export default function SuccessStoriesPage() {
       {/* Header */}
       <header className="bg-white border-b px-4 py-4 select-none">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-[#1B3A6B] font-extrabold text-sm uppercase">
-            <svg viewBox="0 0 40 40" className="w-8 h-8">
-              <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-            </svg>
-            Francophonie Academia
-          </Link>
+                    <Logo />
           <Link to={user ? "/dashboard" : "/"} className="text-xs text-[#1B3A6B] hover:opacity-80 font-bold flex items-center gap-1">
             ← {user ? "Retour au tableau de bord" : "Retour à l'accueil"}
           </Link>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
 
 // Tables de conversion officielles IRCC (2026)
@@ -167,12 +168,7 @@ export default function NclcCalculatorPage() {
         {/* Header */}
         <header className="bg-white border-b border-gray-200 px-4 py-4">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 text-[#1B3A6B] font-extrabold text-sm uppercase tracking-wide">
-              <svg viewBox="0 0 40 40" className="w-8 h-8">
-                <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-              </svg>
-              Francophonie Academia
-            </Link>
+                      <Logo />
             <Link to="/register" className="text-sm font-semibold text-[#1B3A6B] hover:underline">
               Commencer la préparation →
             </Link>

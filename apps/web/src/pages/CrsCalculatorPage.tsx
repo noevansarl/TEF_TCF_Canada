@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
 
 // ── Types et Interfaces ────────────────────────────────────────────────
@@ -295,12 +296,7 @@ export default function CrsCalculatorPage() {
       {/* Header */}
       <header className="bg-slate-950 border-b border-slate-800 px-4 py-5 select-none">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-white font-extrabold text-sm uppercase tracking-wide">
-            <svg viewBox="0 0 40 40" className="w-8 h-8 text-[#2E75B6] fill-current">
-              <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" />
-            </svg>
-            Francophonie Academia
-          </Link>
+                    <Logo />
           <div className="flex items-center gap-4">
             <Link to="/calculateur-nclc" className="text-xs font-bold text-slate-400 hover:text-white transition-colors">
               Convertir TCF/TEF en NCLC

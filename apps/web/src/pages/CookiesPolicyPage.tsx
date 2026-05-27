@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Logo } from '../components/Logo'
 import { useCookieStore } from '../components/CookieBanner'
 
 export default function CookiesPolicyPage() {
@@ -9,12 +10,7 @@ export default function CookiesPolicyPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-4 select-none">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-[#1B3A6B] font-extrabold text-sm uppercase tracking-wide">
-            <svg viewBox="0 0 40 40" className="w-8 h-8">
-              <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" fill="#1B3A6B"/>
-            </svg>
-            Francophonie Academia
-          </Link>
+          <Logo />
           <Link to="/" className="text-sm font-semibold text-[#1B3A6B] hover:underline">
             Retour à l'accueil
           </Link>
@@ -99,7 +95,7 @@ export default function CookiesPolicyPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-gray-900">3. Comment gérer mes préférences ?</h2>
             <p>
-              Lors de votre première visite sur Francophonie Academia, une bannière de consentement vous invite à configurer vos préférences pour les cookies analytiques et marketing.
+              Lors de votre première visite sur ayePREP, une bannière de consentement vous invite à configurer vos préférences pour les cookies analytiques et marketing.
             </p>
             <p>
               Vous pouvez à tout moment modifier ou retirer votre consentement en utilisant les boutons d'activation ci-dessus, ou en cliquant sur les raccourcis globaux ci-dessous :
@@ -132,7 +128,7 @@ export default function CookiesPolicyPage() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-400 select-none">
-        <p>© 2026 Francophonie Academia. Tous droits réservés.</p>
+        <p>© 2026 ayePREP. Tous droits réservés.</p>
       </footer>
     </div>
   )

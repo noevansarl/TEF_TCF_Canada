@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { supabase } from '../lib/supabase'
 import { BadgeUnlockToast } from './BadgeUnlockToast'
+import { Logo } from './Logo'
 
 export default function PrivateLayout() {
   const { user, setUser } = useAuthStore()
@@ -39,12 +40,7 @@ export default function PrivateLayout() {
       <header className="bg-primary text-white shadow-md">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <Link to="/dashboard" className="font-bold text-lg hover:opacity-90 flex items-center gap-2">
-              <svg className="w-6 h-6 fill-current" viewBox="0 0 40 40">
-                <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z"/>
-              </svg>
-              <span>FRANCOPHONIE ACADEMIA</span>
-            </Link>
+            <Logo to="/dashboard" />
             <nav className="hidden md:flex gap-6">
               <Link to="/dashboard" className="hover:text-secondary transition-colors font-semibold text-sm">Tableau de bord</Link>
               <Link to="/modules" className="hover:text-secondary transition-colors font-semibold text-sm">Catalogue</Link>

@@ -21,7 +21,7 @@ export default function AdminLayout() {
           <div>
             <h2 className="font-extrabold text-lg tracking-tight">Portail Admin</h2>
             <span className="text-[10px] bg-white/20 text-gray-200 px-2 py-0.5 rounded font-bold uppercase">
-              Francophonie Academia
+              ayePREP
             </span>
           </div>
         </div>

@@ -9,9 +9,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'FRANCOPHONIE ACADEMIA',
-        short_name: 'Francophonie',
-        description: 'Préparez le TCF et TEF Canada',
+        name: 'ayePREP',
+        short_name: 'ayePREP',
+        description: 'Préparez le TCF et TEF Canada avec ayePREP',
         theme_color: '#1B3A6B',
         background_color: '#F8F9FA',
         display: 'standalone',
