@@ -6,9 +6,10 @@ interface AudioPlayerProps {
   audioUrl: string
   maxListens: number
   onListensExceeded?: () => void
+  isSimulation?: boolean
 }
 
-export function AudioPlayer({ audioUrl, maxListens, onListensExceeded }: AudioPlayerProps) {
+export function AudioPlayer({ audioUrl, maxListens, onListensExceeded, isSimulation = false }: AudioPlayerProps) {
   const [listens, setListens] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -27,19 +28,28 @@ export function AudioPlayer({ audioUrl, maxListens, onListensExceeded }: AudioPl
       barWidth: 3,
       barRadius: 2,
       barGap: 2,
+      interact: !isSimulation,
     })
 
     wsRef.current.load(audioUrl)
-    wsRef.current.on('ready', () => setIsLoading(false))
+    wsRef.current.on('ready', () => {
+      setIsLoading(false)
+      if (isSimulation) {
+        wsRef.current?.play()
+        setIsPlaying(true)
+        setListens(1)
+      }
+    })
     wsRef.current.on('finish', () => setIsPlaying(false))
 
     return () => {
       wsRef.current?.destroy()
     }
-  }, [audioUrl])
+  }, [audioUrl, isSimulation])
 
   const togglePlay = () => {
     if (!wsRef.current) return
+    if (isSimulation) return
     if (listens >= maxListens && !isPlaying) {
       onListensExceeded?.()
       return
@@ -55,13 +65,14 @@ export function AudioPlayer({ audioUrl, maxListens, onListensExceeded }: AudioPl
     <div className="bg-primary/5 rounded-xl p-4 flex items-center gap-4">
       <button
         onClick={togglePlay}
-        disabled={listens >= maxListens && !isPlaying}
+        disabled={isSimulation || (listens >= maxListens && !isPlaying)}
         aria-label={isPlaying ? 'Mettre en pause' : 'Lire le document audio'}
         className={cn(
           'w-12 h-12 rounded-full flex items-center justify-center',
           'bg-primary text-white transition-all duration-200',
           'hover:bg-primary-dark active:scale-95',
-          'disabled:opacity-40 disabled:cursor-not-allowed'
+          'disabled:opacity-40 disabled:cursor-not-allowed',
+          isSimulation && 'opacity-70 cursor-not-allowed hover:bg-primary'
         )}
       >
         {isLoading ? (

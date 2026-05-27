@@ -20,6 +20,7 @@ export default function ProgressionPage() {
   const [userStats, setUserStats] = useState<any>({ xp_points: 1240, streak_days: 7, simulations_completed: 4 })
   const [radarData, setRadarData] = useState<any[]>([])
   const [unlockedBadgeSlugs, setUnlockedBadgeSlugs] = useState<string[]>([])
+  const [historyData, setHistoryData] = useState<any[]>(mockHistoryData)
 
   useEffect(() => {
     async function loadProgressionData() {
@@ -72,6 +73,27 @@ export default function ProgressionPage() {
         } else {
           // Fallback mock slugs
           setUnlockedBadgeSlugs(['first-step', 'week-warrior', 'perfectionist'])
+        }
+
+        // 4. Fetch actual completed sessions history
+        const { data: sessionHistory } = await supabase
+          .from('sessions')
+          .select('created_at, score_auto')
+          .eq('status', 'completed')
+          .order('created_at', { ascending: true })
+
+        if (sessionHistory && sessionHistory.length > 0) {
+          const formattedHistory = sessionHistory.map((s: any) => {
+            const dateObj = new Date(s.created_at)
+            const day = String(dateObj.getDate()).padStart(2, '0')
+            const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+            const monthLabel = months[dateObj.getMonth()]
+            return {
+              date: `${day} ${monthLabel}`,
+              score: Math.round(s.score_auto || 70)
+            }
+          })
+          setHistoryData(formattedHistory)
         }
       } catch (err) {
         console.error("Error loading progress page data:", err)
@@ -173,7 +195,7 @@ export default function ProgressionPage() {
             </div>
             <div className="h-[300px] w-full bg-gray-50/50 p-4 rounded-2xl">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockHistoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={historyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#1B3A6B" stopOpacity={0.4}/>

@@ -573,6 +573,7 @@ export default function SessionPage() {
                     audioUrl={currentQuestion.audio_url}
                     maxListens={currentQuestion.max_listens || 2}
                     onListensExceeded={() => alert("Nombre maximum d'écoutes atteint pour cette question.")}
+                    isSimulation={isSimulation}
                   />
                 </div>
               )}
@@ -708,13 +709,15 @@ export default function SessionPage() {
                   return (
                     <button
                       key={q.id}
-                      onClick={() => goToQuestion(idx)}
+                      onClick={() => !isSimulation && goToQuestion(idx)}
+                      disabled={isSimulation}
                       className={cn(
                         'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all border shrink-0',
                         isCurrent && 'ring-2 ring-primary ring-offset-2 scale-105',
                         isAnswered
                           ? 'bg-primary text-white border-primary'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300',
+                        isSimulation && 'cursor-not-allowed'
                       )}
                     >
                       {idx + 1}
@@ -728,14 +731,14 @@ export default function SessionPage() {
             <div className="flex gap-3 select-none">
               <button
                 onClick={prevQuestion}
-                disabled={currentIndex === 0}
+                disabled={isSimulation || currentIndex === 0}
                 className="flex-1 py-2.5 px-4 border border-gray-300 rounded-xl font-semibold text-gray-700 disabled:opacity-40 hover:bg-gray-50 transition-all text-sm select-none"
               >
                 Précédent
               </button>
               <button
                 onClick={nextQuestion}
-                disabled={currentIndex === questions.length - 1}
+                disabled={currentIndex === questions.length - 1 || (isSimulation && !answers[currentQuestion.id])}
                 className="flex-1 py-2.5 px-4 border border-gray-300 rounded-xl font-semibold text-gray-700 disabled:opacity-40 hover:bg-gray-50 transition-all text-sm select-none"
               >
                 Suivant

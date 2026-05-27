@@ -18,6 +18,7 @@ interface StudentRecord {
     level_assessed: string
     target_test: string
     country: string
+    role?: string
   }
 }
 
@@ -57,28 +58,38 @@ export default function InstitutionDashboard() {
   const loadData = async () => {
     setLoading(true)
     try {
-      // 1. Fetch institution details
-      const { data: instData } = await supabase
-        .from('institutions')
-        .select('*')
-        .single()
+      // 1. Fetch institution membership for the current logged-in user
+      const { data: membership } = await supabase
+        .from('institution_students')
+        .select('institution_id')
+        .eq('user_id', user?.id)
+        .maybeSingle()
+
+      let instQuery = supabase.from('institutions').select('*')
+      if (membership) {
+        instQuery = instQuery.eq('id', membership.institution_id)
+      }
+      
+      const { data: instData } = await instQuery.single()
 
       if (instData) {
         setInstitution(instData)
 
-        // 2. Fetch student list
+        // 2. Fetch student list with joined user profile details
         const { data: studs } = await supabase
           .from('institution_students')
-          .select('*')
+          .select('*, user:users(*)')
+          .eq('institution_id', instData.id)
         
         if (studs) {
           setStudents(studs as StudentRecord[])
         }
 
-        // 3. Fetch class sessions
+        // 3. Fetch class sessions for this institution
         const { data: sessions } = await supabase
           .from('class_sessions')
           .select('*')
+          .eq('institution_id', instData.id)
           .order('created_at', { ascending: false })
 
         if (sessions) {
@@ -294,10 +305,12 @@ export default function InstitutionDashboard() {
     )
   }
 
-  // Filter students based on search query
+  // Filter students based on search query and role
   const filteredStudents = students.filter(s => {
     const query = searchQuery.toLowerCase()
-    return s.user?.full_name?.toLowerCase().includes(query) || s.user?.email?.toLowerCase().includes(query)
+    const matchesQuery = s.user?.full_name?.toLowerCase().includes(query) || s.user?.email?.toLowerCase().includes(query)
+    const isStudent = s.user?.role === 'user' || !s.user?.role
+    return matchesQuery && isStudent
   })
 
   // Calculate averages
