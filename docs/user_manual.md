@@ -1,7 +1,7 @@
-# 📘 Manuel d'Utilisateur — Francophonie Academia
+# 📘 Manuel d'Utilisateur — ayePREP
 ## Simulateur d'Examen TEF & TCF Canada
 
-Bienvenue dans le guide d'utilisation officiel de **Francophonie Academia**, la plateforme d'entraînement et de préparation intensive par Intelligence Artificielle pour les examens d'évaluation de français **TEF Canada** et **TCF Canada** (requis pour l'immigration Express Entry et la citoyenneté canadienne).
+Bienvenue dans le guide d'utilisation officiel de **ayePREP**, la plateforme d'entraînement et de préparation intensive par Intelligence Artificielle pour les examens d'évaluation de français **TEF Canada** et **TCF Canada** (requis pour l'immigration Express Entry et la citoyenneté canadienne).
 
 ---
 
@@ -14,7 +14,7 @@ Bienvenue dans le guide d'utilisation officiel de **Francophonie Academia**, la 
    *   Votre adresse e-mail.
    *   Un mot de passe sécurisé.
    *   Votre pays actuel (utilisé pour optimiser les modes de paiement locaux).
-3. Si vous avez été parrainé par un partenaire de Francophonie Academia, le code d'affiliation sera automatiquement appliqué pour récompenser votre parrain.
+3. Si vous avez été parrainé par un partenaire de ayePREP, le code d'affiliation sera automatiquement appliqué pour récompenser votre parrain.
 
 ### Profil et Progression
 *   **Tableau de Bord** : Affiche votre niveau actuel estimé (NCLC), votre nombre total de points d'expérience (XP) acquis, et les sessions terminées.

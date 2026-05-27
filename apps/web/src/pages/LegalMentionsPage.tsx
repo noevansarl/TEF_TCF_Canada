@@ -35,7 +35,7 @@ export default function LegalMentionsPage() {
             <ul className="list-disc pl-5 space-y-1.5">
               <li><strong>Dénomination sociale</strong> : Evans & Partners Ltd (Noevans SRL)</li>
               <li><strong>Siège social</strong> : Montréal, Québec, Canada</li>
-              <li><strong>Adresse électronique</strong> : <a href="mailto:contact@francophonie.academia" className="text-[#1B3A6B] font-semibold underline">contact@francophonie.academia</a></li>
+              <li><strong>Adresse électronique</strong> : <a href="mailto:contact@ayeprep.com" className="text-[#1B3A6B] font-semibold underline">contact@ayeprep.com</a></li>
               <li><strong>Directeur de la publication</strong> : Directeur général du département linguistique.</li>
             </ul>
           </section>
@@ -74,7 +74,7 @@ export default function LegalMentionsPage() {
           <section className="space-y-3 pt-4 border-t border-gray-100">
             <h2 className="text-base font-bold text-gray-900">Contact d'assistance légale</h2>
             <p className="text-xs text-gray-500">
-              Pour toute réclamation, notification de contenu inapproprié ou demande d'autorisation de reproduction, vous pouvez envoyer un courriel à <a href="mailto:legal@francophonie.academia" className="text-[#1B3A6B] underline font-semibold">legal@francophonie.academia</a>.
+              Pour toute réclamation, notification de contenu inapproprié ou demande d'autorisation de reproduction, vous pouvez envoyer un courriel à <a href="mailto:legal@ayeprep.com" className="text-[#1B3A6B] underline font-semibold">legal@ayeprep.com</a>.
             </p>
           </section>
 

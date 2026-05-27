@@ -1,4 +1,4 @@
-// landing/main.js — FRANCOPHONIE ACADEMIA
+// landing/main.js — ayePREP
 
 /* ========================
    1. Intersection Observer — animations d'entrée

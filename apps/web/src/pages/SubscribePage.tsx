@@ -210,7 +210,7 @@ export default function SubscribePage() {
           method: operator,
           phone_number: fullPhone,
           phone_country: country,
-          customer_name: customerName || user.email || 'Client Francophonie',
+          customer_name: customerName || user.email || 'Client ayePREP',
           customer_email: user.email
         }
       })

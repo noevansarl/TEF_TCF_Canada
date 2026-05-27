@@ -1,7 +1,7 @@
 # 🛠️ Manuel de Création, Réalisation, Mise en Œuvre et Déploiement
-## Guide Technique Complet — Francophonie Academia
+## Guide Technique Complet — ayePREP
 
-Ce guide fournit une description exhaustive de l'architecture du projet **Francophonie Academia**, des étapes d'installation en environnement de développement, de la configuration de la base de données, de la mise en œuvre des APIs d'IA, et de la procédure complète de déploiement en production.
+Ce guide fournit une description exhaustive de l'architecture du projet **ayePREP**, des étapes d'installation en environnement de développement, de la configuration de la base de données, de la mise en œuvre des APIs d'IA, et de la procédure complète de déploiement en production.
 
 ---
 

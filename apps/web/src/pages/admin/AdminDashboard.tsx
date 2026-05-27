@@ -24,14 +24,14 @@ export default function AdminDashboard() {
         setPendingCorrections([
           { id: 'c-1', user_name: 'Alioune Diop', test_type: 'TCF_CANADA', module: 'EE', submitted_at: new Date(Date.now() - 3600000).toISOString(), status: 'waiting' },
           { id: 'c-2', user_name: 'Marie Dupont', test_type: 'TEF_CANADA', module: 'EO', submitted_at: new Date(Date.now() - 7200000).toISOString(), status: 'waiting' },
-          { id: 'c-3', user_name: 'Candidat Francophonie', test_type: 'TCF_CANADA', module: 'EE', submitted_at: new Date(Date.now() - 14400000).toISOString(), status: 'assigned' }
+          { id: 'c-3', user_name: 'Candidat ayePREP', test_type: 'TCF_CANADA', module: 'EE', submitted_at: new Date(Date.now() - 14400000).toISOString(), status: 'assigned' }
         ])
 
         // Mock recent sessions
         setRecentSessions([
           { id: 's-101', user_name: 'Marie Dupont', test_type: 'TEF_CANADA', module: 'FULL_TEF', status: 'in_progress', started_at: new Date().toISOString() },
           { id: 's-102', user_name: 'Alioune Diop', test_type: 'TCF_CANADA', module: 'CO', status: 'completed', started_at: new Date(Date.now() - 1800000).toISOString() },
-          { id: 's-103', user_name: 'Candidat Francophonie', test_type: 'TCF_CANADA', module: 'FULL_TCF', status: 'completed', started_at: new Date(Date.now() - 7200000).toISOString() }
+          { id: 's-103', user_name: 'Candidat ayePREP', test_type: 'TCF_CANADA', module: 'FULL_TCF', status: 'completed', started_at: new Date(Date.now() - 7200000).toISOString() }
         ])
 
         if (usersData && sessionsData) {

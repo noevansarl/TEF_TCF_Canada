@@ -79,7 +79,7 @@ export default function CgvPage() {
           <section className="space-y-3 pt-4 border-t border-gray-100">
             <h2 className="text-base font-bold text-gray-900">Contact Facturation & Support</h2>
             <p className="text-xs text-gray-500">
-              Pour toute question relative à vos factures, abonnements ou demande de remboursement, veuillez écrire à : <a href="mailto:billing@francophonie.academia" className="text-[#1B3A6B] underline font-semibold">billing@francophonie.academia</a>.
+              Pour toute question relative à vos factures, abonnements ou demande de remboursement, veuillez écrire à : <a href="mailto:billing@ayeprep.com" className="text-[#1B3A6B] underline font-semibold">billing@ayeprep.com</a>.
             </p>
           </section>
 

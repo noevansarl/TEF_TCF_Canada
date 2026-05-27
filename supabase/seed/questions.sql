@@ -1,5 +1,5 @@
 -- ========================================================
--- FRANCOPHONIE ACADEMIA — Script de Données de Démonstration (Seed)
+-- ayePREP — Script de Données de Démonstration (Seed)
 -- Cible: public.questions
 -- ========================================================
 

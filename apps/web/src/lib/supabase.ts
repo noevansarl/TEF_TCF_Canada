@@ -340,11 +340,11 @@ export let mockQuestions = [
 
 // Mock users list - MUTABLE for Admin/User update simulation
 export let mockUsers = [
-  { id: 'mock-user-id', full_name: 'Candidat Francophonie', email: 'candidat@example.com', subscription_tier: 'institutionnel', xp_points: 1240, streak_days: 7, longest_streak: 15, target_test: 'TCF_CANADA', level_assessed: 'C1', country: 'Sénégal', role: 'user', created_at: '2026-05-01T12:00:00Z' },
+  { id: 'mock-user-id', full_name: 'Candidat ayePREP', email: 'candidat@example.com', subscription_tier: 'institutionnel', xp_points: 1240, streak_days: 7, longest_streak: 15, target_test: 'TCF_CANADA', level_assessed: 'C1', country: 'Sénégal', role: 'user', created_at: '2026-05-01T12:00:00Z' },
   { id: 'user-2', full_name: 'Marie Dupont', email: 'marie.dupont@gmail.com', subscription_tier: 'premium', xp_points: 2300, streak_days: 14, longest_streak: 20, target_test: 'TEF_CANADA', level_assessed: 'C2', country: 'France', role: 'user', created_at: '2026-04-15T09:30:00Z' },
   { id: 'user-3', full_name: 'Alioune Diop', email: 'alioune@yahoo.fr', subscription_tier: 'gratuit', xp_points: 450, streak_days: 2, longest_streak: 3, target_test: 'TCF_CANADA', level_assessed: 'B2', country: 'Sénégal', role: 'user', created_at: '2026-05-18T16:45:00Z' },
-  { id: 'user-4', full_name: 'Expert Pierre', email: 'pierre.expert@francophonie.com', subscription_tier: 'institutionnel', xp_points: 0, streak_days: 0, longest_streak: 0, target_test: 'BOTH', level_assessed: 'C2', country: 'Canada', role: 'expert', created_at: '2026-03-01T08:00:00Z' },
-  { id: 'user-5', full_name: 'Admin Jean', email: 'admin@francophonie.com', subscription_tier: 'institutionnel', xp_points: 0, streak_days: 0, longest_streak: 0, target_test: 'BOTH', level_assessed: 'C2', country: 'Québec', role: 'admin', created_at: '2026-01-10T10:00:00Z' }
+  { id: 'user-4', full_name: 'Expert Pierre', email: 'pierre.expert@ayeprep.com', subscription_tier: 'institutionnel', xp_points: 0, streak_days: 0, longest_streak: 0, target_test: 'BOTH', level_assessed: 'C2', country: 'Canada', role: 'expert', created_at: '2026-03-01T08:00:00Z' },
+  { id: 'user-5', full_name: 'Admin Jean', email: 'admin@ayeprep.com', subscription_tier: 'institutionnel', xp_points: 0, streak_days: 0, longest_streak: 0, target_test: 'BOTH', level_assessed: 'C2', country: 'Québec', role: 'admin', created_at: '2026-01-10T10:00:00Z' }
 ]
 
 export let mockSessions: any[] = []
@@ -352,7 +352,7 @@ export let mockAnswers: any[] = []
 export let mockPaymentAttempts: any[] = []
 
 export let mockAffiliates = [
-  { id: 'aff-mock-1', user_id: 'mock-user-id', name: 'Candidat Francophonie', email: 'candidat@example.com', code: 'CANDIDAT20', commission_rate: 0.20, payment_method: 'mobile_money', total_clicks: 142, total_conversions: 18, total_earned_eur: 107.92, is_active: true, created_at: '2026-05-10T08:00:00Z' }
+  { id: 'aff-mock-1', user_id: 'mock-user-id', name: 'Candidat ayePREP', email: 'candidat@example.com', code: 'CANDIDAT20', commission_rate: 0.20, payment_method: 'mobile_money', total_clicks: 142, total_conversions: 18, total_earned_eur: 107.92, is_active: true, created_at: '2026-05-10T08:00:00Z' }
 ]
 
 export let mockAffiliateClicks: any[] = [

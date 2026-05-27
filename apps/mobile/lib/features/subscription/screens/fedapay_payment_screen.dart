@@ -195,7 +195,7 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
           'phone_number': fullPhone,
           'phone_country': _selectedCountryCode,
           'customer_name': name,
-          'customer_email': supabaseService.currentUser?.email ?? 'client@francophonia.app',
+          'customer_email': supabaseService.currentUser?.email ?? 'client@ayeprep.com',
         },
       );
 

@@ -45,7 +45,7 @@ class SupabaseService {
         email: email,
         createdAt: DateTime.now().toIso8601String(),
         userMetadata: {
-          'full_name': 'Candidat Francophonie',
+          'full_name': 'Candidat ayePREP',
           'country': 'Canada',
         },
         appMetadata: {},

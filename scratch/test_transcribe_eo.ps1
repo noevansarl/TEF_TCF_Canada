@@ -1,7 +1,7 @@
 param (
     [string]$BaseUrl = "http://localhost:54321/functions/v1/transcribe-eo",
     [string]$Token,
-    [string]$Email = "test_candidat@francophonie.academia",
+    [string]$Email = "test_candidat@ayeprep.com",
     [string]$Password = "password123",
     [string]$AnonKey,
     [string]$ServiceRoleKey,

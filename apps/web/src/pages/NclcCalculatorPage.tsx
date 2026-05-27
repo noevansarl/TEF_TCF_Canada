@@ -157,7 +157,7 @@ export default function NclcCalculatorPage() {
         "@type": "WebApplication",
         "name": "Calculateur NCLC TCF TEF Canada",
         "description": "Convertissez vos scores TCF ou TEF Canada en niveaux NCLC/CLB officiels. Gratuit et sans inscription.",
-        "url": "https://francophonie.academia/calculateur-nclc",
+        "url": "https://ayeprep.com/calculateur-nclc",
         "applicationCategory": "EducationalApplication",
         "inLanguage": "fr",
         "isAccessibleForFree": true,

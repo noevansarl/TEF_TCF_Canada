@@ -134,7 +134,7 @@ export default function AffiliatePage() {
 
   const copyToClipboard = () => {
     if (!affiliate) return
-    const link = `https://francophonie.academia?ref=${affiliate.code}`
+    const link = `https://ayeprep.com?ref=${affiliate.code}`
     navigator.clipboard.writeText(link)
     setCopySuccess(true)
     setTimeout(() => setCopySuccess(false), 2000)
@@ -305,7 +305,7 @@ export default function AffiliatePage() {
   }
 
   // ── 3. ÉTAT AFFILIÉ INSCRIT (DASHBOARD) ──
-  const affiliateUrl = `https://francophonie.academia?ref=${affiliate.code}`
+  const affiliateUrl = `https://ayeprep.com?ref=${affiliate.code}`
   const conversionRate = affiliate.total_clicks > 0
     ? ((affiliate.total_conversions / affiliate.total_clicks) * 100).toFixed(1)
     : '0.0'

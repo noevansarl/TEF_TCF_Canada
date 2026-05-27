@@ -80,7 +80,7 @@ export default function RefundPage() {
             <h2 className="text-lg font-bold text-gray-900 mb-3">5. Procédure de remboursement</h2>
             <p className="text-gray-700 mb-4">Pour demander un remboursement :</p>
             <ol className="space-y-2 text-gray-700 list-decimal list-inside">
-              <li>Envoyez un email à <a href="mailto:remboursement@francophonie.academia" className="text-[#1B3A6B] underline">remboursement@francophonie.academia</a></li>
+              <li>Envoyez un email à <a href="mailto:remboursement@ayeprep.com" className="text-[#1B3A6B] underline">remboursement@ayeprep.com</a></li>
               <li>Indiquez votre email de compte et la raison de la demande</li>
               <li>Délai de traitement : 5 jours ouvrables</li>
               <li>Le remboursement est effectué sur le même moyen de paiement utilisé lors de l'achat</li>
@@ -106,7 +106,7 @@ export default function RefundPage() {
         <div className="mt-10 p-6 bg-[#1B3A6B]/5 rounded-2xl text-center">
           <p className="text-gray-700 mb-4">Une question sur notre politique ?</p>
           <a
-            href="mailto:support@francophonie.academia"
+            href="mailto:support@ayeprep.com"
             className="inline-block bg-[#1B3A6B] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#152e56] transition-colors"
           >
             Contacter le support

@@ -108,7 +108,7 @@ export default function BlogPostPage() {
       "name": "ayePREP",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://francophonie.academia/logo.png"
+        "url": "https://ayeprep.com/logo.png"
       }
     }
   }

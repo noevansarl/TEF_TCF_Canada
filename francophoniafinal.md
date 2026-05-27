@@ -1,4 +1,4 @@
-# FRANCOPHONIE ACADEMIA — Plan Full-Stack Complet (End-to-End)
+# ayePREP — Plan Full-Stack Complet (End-to-End)
 **Version** : 3.0 — Mai 2026 *(mise à jour majeure : packs, FedaPay, affiliation, parcours, SEO)*  
 **Auteur** : Spécification rédigée par un développeur full-stack senior  
 **Contact porteur de projet** : ayebouyaovi@gmail.com  
@@ -46,7 +46,7 @@
 
 ### 1.1 Mission
 
-FRANCOPHONIE ACADEMIA est la plateforme de référence mondiale pour la préparation aux tests TCF Canada et TEF Canada. Elle reproduit fidèlement les conditions réelles d'examen et accompagne chaque candidat jusqu'au niveau C2 (CLB 11–12).
+ayePREP est la plateforme de référence mondiale pour la préparation aux tests TCF Canada et TEF Canada. Elle reproduit fidèlement les conditions réelles d'examen et accompagne chaque candidat jusqu'au niveau C2 (CLB 11–12).
 
 ### 1.2 Problème résolu
 
@@ -196,7 +196,7 @@ Visiteur clique lien ?ref=CODE → AffiliateTracker (React)
 ## 3. Structure du monorepo
 
 ```
-francophonie-academia/
+ayeprep/
 ├── .github/
 │   ├── workflows/
 │   │   ├── web-ci.yml           # Tests + build + deploy Vercel
@@ -350,9 +350,9 @@ La landing page est une **page statique haute performance** (score Lighthouse �
   <meta name="description" content="Préparez le TCF et TEF Canada avec la plateforme 
     n°1 des candidats à l'immigration. Corrections IA, simulations officielles, 
     suivi personnalisé. Commencez gratuitement.">
-  <meta property="og:title" content="FRANCOPHONIE ACADEMIA — Réussir le TCF/TEF Canada">
+  <meta property="og:title" content="ayePREP — Réussir le TCF/TEF Canada">
   <meta property="og:image" content="/assets/og-image.jpg">
-  <title>FRANCOPHONIE ACADEMIA — Préparez-vous comme si c'était le vrai jour J.</title>
+  <title>ayePREP — Préparez-vous comme si c'était le vrai jour J.</title>
 
   <!-- Préchargement polices -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -369,14 +369,14 @@ La landing page est une **page statique haute performance** (score Lighthouse �
   <!-- ===== HEADER ===== -->
   <header class="header" id="header">
     <nav class="nav container">
-      <a href="/" class="nav__logo" aria-label="Accueil FRANCOPHONIE ACADEMIA">
+      <a href="/" class="nav__logo" aria-label="Accueil ayePREP">
         <svg class="nav__logo-icon" aria-hidden="true" viewBox="0 0 40 40">
           <!-- Icône fleur de lys stylisée -->
           <path d="M20 2 L23 12 L33 8 L26 17 L36 22 L26 27 L33 36 L23 32 L20 42 
                    L17 32 L7 36 L14 27 L4 22 L14 17 L7 8 L17 12 Z" 
                 fill="var(--color-primary)"/>
         </svg>
-        <span class="nav__logo-text">FRANCOPHONIE<br><strong>ACADEMIA</strong></span>
+        <span class="nav__logo-text"><strong>ayePREP</strong></span>
       </a>
       <ul class="nav__links" role="list">
         <li><a href="#modules" class="nav__link">Modules</a></li>
@@ -452,7 +452,7 @@ La landing page est une **page statique haute performance** (score Lighthouse �
           <div class="mockup-browser__dots">
             <span></span><span></span><span></span>
           </div>
-          <div class="mockup-browser__url">francophonie.academia/session</div>
+          <div class="mockup-browser__url">ayeprep.com/session</div>
         </div>
         <div class="mockup-browser__screen">
           <!-- Mini UI simulation dans le hero -->
@@ -833,7 +833,7 @@ La landing page est une **page statique haute performance** (score Lighthouse �
           <article class="testimonial-card">
             <div class="testimonial-card__rating" aria-label="5 étoiles">★★★★★</div>
             <blockquote class="testimonial-card__quote">
-              "Après 3 mois sur FRANCOPHONIE ACADEMIA, j'ai obtenu C1 au TCF Canada 
+              "Après 3 mois sur ayePREP, j'ai obtenu C1 au TCF Canada 
               avec 498 points. Les simulations en conditions réelles m'ont préparée 
               psychologiquement. Les corrections IA de mes rédactions étaient 
               remarquablement précises."
@@ -987,7 +987,7 @@ La landing page est une **page statique haute performance** (score Lighthouse �
   <footer class="footer">
     <div class="container footer__content">
       <div class="footer__brand">
-        <a href="/" class="footer__logo">FRANCOPHONIE ACADEMIA</a>
+        <a href="/" class="footer__logo">ayePREP</a>
         <p class="footer__tagline">Préparez-vous comme si c'était le vrai jour J.</p>
         <div class="footer__social">
           <a href="#" aria-label="Instagram">Insta</a>
@@ -1023,7 +1023,7 @@ La landing page est une **page statique haute performance** (score Lighthouse �
       </nav>
     </div>
     <div class="footer__bottom">
-      <p>© 2026 FRANCOPHONIE ACADEMIA. Tous droits réservés. 
+      <p>© 2026 ayePREP. Tous droits réservés. 
          Hébergé en Europe (RGPD conforme).</p>
     </div>
   </footer>
@@ -1038,7 +1038,7 @@ La landing page est une **page statique haute performance** (score Lighthouse �
 ```css
 /* ========================
    landing/style.css
-   FRANCOPHONIE ACADEMIA
+   ayePREP
    ======================== */
 
 /* --- Variables CSS --- */
@@ -1764,7 +1764,7 @@ ul[role="list"] { list-style: none; }
 ### 4.3 JavaScript de la landing page
 
 ```javascript
-// landing/main.js — FRANCOPHONIE ACADEMIA
+// landing/main.js — ayePREP
 
 /* ========================
    1. Intersection Observer — animations d'entrée
@@ -1953,8 +1953,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'FRANCOPHONIE ACADEMIA',
-        short_name: 'Francophonie',
+        name: 'ayePREP',
+        short_name: 'ayePREP',
         description: 'Préparez le TCF et TEF Canada',
         theme_color: '#1B3A6B',
         background_color: '#F8F9FA',
@@ -2691,7 +2691,7 @@ export default function App() {
 
 ```yaml
 # pubspec.yaml
-name: francophonie_academia
+name: ayeprep
 description: Préparez le TCF et TEF Canada
 
 environment:
@@ -3067,7 +3067,7 @@ class _QcmQuestionWidgetState extends ConsumerState<QcmQuestionWidget>
 
 ```sql
 -- ================================================
--- FRANCOPHONIE ACADEMIA — Schéma PostgreSQL 15
+-- ayePREP — Schéma PostgreSQL 15
 -- Supabase Cloud — eu-central-1
 -- Version: 2.0
 -- ================================================
@@ -4659,7 +4659,7 @@ et quotas sont définis exclusivement dans l'Edge Function `activate-pack`, jama
 ```
 FEDAPAY_SECRET_KEY=sk_live_xxxx       # Clé API FedaPay production
 FEDAPAY_WEBHOOK_SECRET=whsec_xxxx     # Secret pour vérification HMAC
-APP_URL=https://francophonia.app      # URL de retour après paiement
+APP_URL=https://ayeprep.com      # URL de retour après paiement
 ```
 
 ---
@@ -5442,7 +5442,7 @@ VITE_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
 VITE_MIXPANEL_TOKEN=xxx
 
 # App
-VITE_APP_URL=https://francophonie.academia
+VITE_APP_URL=https://ayeprep.com
 VITE_APP_ENV=production
 
 # Edge Functions uniquement (secrets Supabase)
@@ -5868,7 +5868,7 @@ Programme de commissions 20% pour influenceurs, YouTubeurs et partenaires franco
 ### 26.2 Flux technique complet
 
 ```
-1. Affilié crée son lien : https://francophonia.app/?ref=MAMADOU15
+1. Affilié crée son lien : https://ayeprep.com/?ref=MAMADOU15
 2. Visiteur clique → AffiliateTracker.tsx détecte ?ref=MAMADOU15
 3. useAffiliateTracking() → localStorage (fa_affiliate_code, TTL 30j)
 4. Edge Function track-affiliate → RPC track_affiliate_click()
@@ -5982,7 +5982,7 @@ accès aux corrections IA (essais `ai_trials_remaining = 0`) ou aux simulations 
 | Comparaison | `/tcf-vs-tef-canada` | "différence TCF TEF Canada" | Article |
 | Test rapide | `/test-rapide` | "test niveau français gratuit" | — |
 | Packs | `/packs` | "TCF Canada prix préparation" | — |
-| Témoignages | `/reussites` | "avis francophonie academia" | — |
+| Témoignages | `/reussites` | "avis ayePREP" | — |
 
 ### 28.2 Données structurées Schema.org (LandingPage)
 
@@ -5993,11 +5993,11 @@ Deux blocs JSON-LD injectés via `dangerouslySetInnerHTML` dans le `<head>` :
 {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
-  "name": "FRANCOPHONIE ACADEMIA",
+  "name": "ayePREP",
   "description": "Plateforme n°1 de préparation au TCF Canada et TEF Canada.",
-  "url": "https://francophonie.academia",
+  "url": "https://ayeprep.com",
   "inLanguage": "fr",
-  "sameAs": ["https://www.youtube.com/@francophoniAcademia"],
+  "sameAs": ["https://www.youtube.com/@ayeprep"],
   "contactPoint": { "@type": "ContactPoint", "contactType": "customer support" }
 }
 ```
@@ -6173,7 +6173,7 @@ REVENUECAT_WEBHOOK_SECRET=       # Edge Function
 # === FEDAPAY (Mobile Money Afrique) ===
 FEDAPAY_SECRET_KEY=              # Clé API FedaPay production (sk_live_xxxx)
 FEDAPAY_WEBHOOK_SECRET=          # Secret HMAC-SHA256 pour webhook
-APP_URL=https://francophonia.app # URL callback après paiement Mobile Money
+APP_URL=https://ayeprep.com # URL callback après paiement Mobile Money
 
 # === FIREBASE ===
 VITE_FIREBASE_API_KEY=
@@ -6186,14 +6186,14 @@ FCM_SERVER_KEY=                  # Edge Function notifications
 CF_R2_ACCOUNT_ID=
 CF_R2_ACCESS_KEY_ID=
 CF_R2_SECRET_ACCESS_KEY=
-CF_CDN_URL=                      # https://audio.francophonie.academia
+CF_CDN_URL=                      # https://audio.ayeprep.com
 
 # === MONITORING ===
 VITE_SENTRY_DSN=
 VITE_MIXPANEL_TOKEN=
 
 # === APP ===
-VITE_APP_URL=https://francophonie.academia
+VITE_APP_URL=https://ayeprep.com
 VITE_APP_ENV=production
 ```
 
@@ -6236,7 +6236,7 @@ VITE_APP_ENV=production
 
 ---
 
-*FRANCOPHONIE ACADEMIA — Plan Full-Stack Complet v3.0*  
+*ayePREP — Plan Full-Stack Complet v3.0*  
 *Rédigé par un développeur full-stack senior — Mai 2026*  
 *Dernière mise à jour : Mai 2026 — Ajout packs FedaPay, affiliation, parcours, SEO, RGPD*
 *Contact porteur de projet : ayebouyaovi@gmail.com*  

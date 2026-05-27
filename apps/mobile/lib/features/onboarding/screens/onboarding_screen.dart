@@ -106,7 +106,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                           ),
                           const SizedBox(height: 24),
                           const Text(
-                            'FRANCOPHONIE\nACADEMIA',
+                            'ayePREP',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 32,

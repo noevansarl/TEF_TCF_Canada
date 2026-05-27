@@ -1,5 +1,5 @@
 -- ========================================================
--- FRANCOPHONIE ACADEMIA — Données de test pour fonctions Edge
+-- ayePREP — Données de test pour fonctions Edge
 -- Cible: public.users, public.questions, public.sessions, public.answers
 -- ========================================================
 
@@ -22,7 +22,7 @@ BEGIN
     ) VALUES (
         v_user_id,
         '00000000-0000-0000-0000-000000000000',
-        'test_candidat@francophonie.academia',
+        'test_candidat@ayeprep.com',
         -- Hash pour 'password123'
         '$2a$10$R9h/l5jDWS2f7MecHk4xqukPZ24eY2lT8LCOtH6H77W1U.X9f1K1C',
         NOW(),
@@ -39,7 +39,7 @@ BEGIN
         id, email, full_name, country, subscription_tier, subscription_expires_at, xp_points
     ) VALUES (
         v_user_id,
-        'test_candidat@francophonie.academia',
+        'test_candidat@ayeprep.com',
         'Jean Testeur',
         'France',
         'avance',

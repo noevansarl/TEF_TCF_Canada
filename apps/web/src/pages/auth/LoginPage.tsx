@@ -85,8 +85,7 @@ export default function LoginPage() {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="text-white font-black text-sm tracking-[0.2em] leading-none">FRANCOPHONIE</span>
-              <span className="text-[#C55A11] font-bold text-xs tracking-[0.1em] mt-0.5">ACADEMIA</span>
+              <span className="text-white font-black text-sm tracking-[0.2em] leading-none">ayePREP</span>
             </div>
           </div>
 

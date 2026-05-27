@@ -7,7 +7,7 @@
  *   - Envoie un clic au backend (Edge Function track-affiliate)
  *   - Expose `affiliateCode` pour l'utiliser au moment de l'inscription
  *
- * Exemple URL : https://francophonia.app/?ref=MAMADOU15
+ * Exemple URL : https://ayeprep.com/?ref=MAMADOU15
  */
 
 import { useEffect } from 'react'

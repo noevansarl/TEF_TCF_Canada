@@ -1,4 +1,4 @@
-# FRANCOPHONIE ACADEMIA — Améliorations V2.0
+# ayePREP — Améliorations V2.0
 ## Analyse comparative avec formation-tcfcanada.com
 **Date** : Mai 2026  
 **Basé sur** : Inspection du site https://www.formation-tcfcanada.com  
@@ -570,7 +570,7 @@ serve(async (req) => {
   const price_xof = pack.price_eur * 655.957 * 0.6  // EUR→XOF - 40%
   
   const transaction = await FedaPay.Transaction.create({
-    description: `Pack ${pack.name} — FRANCOPHONIE ACADEMIA`,
+    description: `Pack ${pack.name} — ayePREP`,
     amount: Math.round(price_xof),
     currency: { iso: currency || 'XOF' },
     callback_url: `${process.env.APP_URL}/payment/success`,
@@ -755,14 +755,14 @@ Centre d'aide
 {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
-  "name": "FRANCOPHONIE ACADEMIA",
+  "name": "ayePREP",
   "description": "Plateforme de préparation au TCF et TEF Canada",
-  "url": "https://francophonie.academia",
-  "logo": "https://francophonie.academia/logo.png",
+  "url": "https://ayeprep.com",
+  "logo": "https://ayeprep.com/logo.png",
   "sameAs": [
-    "https://www.youtube.com/@francophoniAcademia",
-    "https://www.instagram.com/francophoniAcademia",
-    "https://www.facebook.com/francophoniAcademia"
+    "https://www.youtube.com/@ayeprep",
+    "https://www.instagram.com/ayeprep",
+    "https://www.facebook.com/ayeprep"
   ],
   "contactPoint": {
     "@type": "ContactPoint",
@@ -782,7 +782,7 @@ Centre d'aide
   "description": "39 questions · 35 minutes · Niveau B1 à C2",
   "provider": {
     "@type": "Organization",
-    "name": "FRANCOPHONIE ACADEMIA"
+    "name": "ayePREP"
   },
   "offers": {
     "@type": "Offer",
@@ -839,7 +839,7 @@ interface AffiliatePartner {
 }
 
 // Tracking : URL avec paramètre affilié
-// https://francophonie.academia?ref=MAMADOU15
+// https://ayeprep.com?ref=MAMADOU15
 // → Cookie 30 jours
 // → Si inscription + paiement dans les 30j : commission versée
 ```
@@ -863,7 +863,7 @@ interface AffiliatePartner {
 **À ajouter — Page `/remboursement` et CGV :**
 
 ```markdown
-# Politique de remboursement — FRANCOPHONIE ACADEMIA
+# Politique de remboursement — ayePREP
 
 ## Abonnements mensuels/annuels
 - **Essai gratuit 7 jours** : Annulable à tout moment sans frais.
@@ -883,7 +883,7 @@ interface AffiliatePartner {
 - Si le délai garanti (48h EE / 72h EO) n'est pas respecté : avoir de 100% sur le prochain achat.
 
 ## Procédure
-Envoyez votre demande à : remboursement@francophonie.academia
+Envoyez votre demande à : remboursement@ayeprep.com
 Délai de traitement : 5 jours ouvrables.
 ```
 
@@ -980,7 +980,7 @@ const LPRPDE_REQUIREMENTS = {
   // 3. Responsable des données identifié
   data_officer: {
     name: "Responsable Protection des Données",
-    email: "privacy@francophonie.academia",
+    email: "privacy@ayeprep.com",
     address: "Montréal, Québec, Canada"
   },
   
@@ -1250,5 +1250,5 @@ analytics.track('result_shared', {
 ---
 
 *Document rédigé en mai 2026 — À intégrer dans francophoniafinal.md v3.0*  
-*Auteur : Équipe Produit FRANCOPHONIE ACADEMIA*  
+*Auteur : Équipe Produit ayePREP*  
 *Basé sur l'analyse comparative de formation-tcfcanada.com*

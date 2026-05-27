@@ -96,7 +96,7 @@ const CATEGORIES = [
       },
       {
         q: 'Y a-t-il une réduction pour les étudiants ?',
-        a: `Oui, -30% sur tous les plans avec un justificatif étudiant valide (carte étudiante, certificat de scolarité). Envoyez votre justificatif à etudiant@francophonie.academia pour activer la réduction sur votre compte.`,
+        a: `Oui, -30% sur tous les plans avec un justificatif étudiant valide (carte étudiante, certificat de scolarité). Envoyez votre justificatif à etudiant@ayeprep.com pour activer la réduction sur votre compte.`,
       },
       {
         q: 'Quelle est la politique de remboursement ?',
@@ -217,7 +217,7 @@ export default function HelpCenterPage() {
                 <span>💬</span> WhatsApp
               </a>
               <a
-                href="mailto:support@francophonie.academia"
+                href="mailto:support@ayeprep.com"
                 className="flex items-center gap-2 text-[#1B3A6B] font-semibold hover:underline"
               >
                 <span>✉️</span> Email support

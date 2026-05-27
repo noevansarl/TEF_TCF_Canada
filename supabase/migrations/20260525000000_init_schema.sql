@@ -1,5 +1,5 @@
 -- ================================================
--- FRANCOPHONIE ACADEMIA — Schéma PostgreSQL 15
+-- ayePREP — Schéma PostgreSQL 15
 -- Supabase Cloud — eu-central-1
 -- Version: 2.0
 -- ================================================
@@ -535,7 +535,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 INSERT INTO public.users (id, email, full_name, country, role, subscription_tier)
 VALUES (
   '00000000-0000-0000-0000-000000000000',
-  'anonyme@francophonie.academia',
+  'anonyme@ayeprep.com',
   'Utilisateur Anonyme',
   'Canada',
   'user',
@@ -552,7 +552,7 @@ BEGIN
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Candidat Francophonie'),
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Candidat ayePREP'),
     COALESCE(NEW.raw_user_meta_data->>'country', 'Canada'),
     'user',
     'gratuit'

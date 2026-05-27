@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
               La plateforme <strong>ayePREP</strong> est engagée dans la protection de la vie privée et des données personnelles de ses utilisateurs. Cette politique détaille la nature des informations que nous collectons, la finalité de leur utilisation, les mesures de sécurité prises pour les protéger, ainsi que les droits d'accès, de portabilité et de suppression dont vous bénéficiez conformément au Règlement Général sur la Protection des Données (RGPD) et à la Loi canadienne sur la protection des renseignements personnels et les documents électroniques (LPRPDE / PIPEDA).
             </p>
             <p>
-              Le responsable du traitement des données est identifiable auprès de notre service d'administration à : <a href="mailto:privacy@francophonie.academia" className="text-[#1B3A6B] font-semibold underline">privacy@francophonie.academia</a>.
+              Le responsable du traitement des données est identifiable auprès de notre service d'administration à : <a href="mailto:privacy@ayeprep.com" className="text-[#1B3A6B] font-semibold underline">privacy@ayeprep.com</a>.
             </p>
           </section>
 
@@ -88,7 +88,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3 pt-4 border-t border-gray-100">
             <h2 className="text-base font-bold text-gray-900">Contact & Support Confidentialité</h2>
             <p className="text-xs text-gray-500">
-              Pour toute question relative à l'exercice de vos droits, vous pouvez contacter notre Responsable de la Protection des Données par courrier électronique à <a href="mailto:privacy@francophonie.academia" className="text-[#1B3A6B] underline font-semibold">privacy@francophonie.academia</a>.
+              Pour toute question relative à l'exercice de vos droits, vous pouvez contacter notre Responsable de la Protection des Données par courrier électronique à <a href="mailto:privacy@ayeprep.com" className="text-[#1B3A6B] underline font-semibold">privacy@ayeprep.com</a>.
             </p>
           </section>
 

@@ -60,7 +60,7 @@ final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
     return {
       'id': auth.id,
       'email': auth.email,
-      'full_name': auth.userMetadata?['full_name'] ?? 'Candidat Francophonie',
+      'full_name': auth.userMetadata?['full_name'] ?? 'Candidat ayePREP',
       'country': auth.userMetadata?['country'] ?? 'Canada',
       'subscription_tier': mockTier,
       'xp_points': 120,

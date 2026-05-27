@@ -11,7 +11,7 @@ export default function LandingPage() {
     "description": "Plateforme n°1 de préparation au TCF Canada et TEF Canada.",
     "url": "https://ayeprep.com",
     "inLanguage": "fr",
-    "sameAs": ["https://www.youtube.com/@francophoniAcademia"],
+    "sameAs": ["https://www.youtube.com/@ayeprep"],
     "contactPoint": { "@type": "ContactPoint", "contactType": "customer support", "availableLanguage": "French" }
   })
 
@@ -197,7 +197,7 @@ export default function LandingPage() {
               <div className="mockup-browser__dots">
                 <span></span><span></span><span></span>
               </div>
-              <div className="mockup-browser__url">francophonie.academia/session</div>
+              <div className="mockup-browser__url">ayeprep.com/session</div>
             </div>
             <div className="mockup-browser__screen">
               <div className="mini-session">
@@ -759,7 +759,7 @@ export default function LandingPage() {
               <h4>Support</h4>
               <ul>
                 <li><a href="https://wa.me/22890116744" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a></li>
-                <li><a href="mailto:support@francophonie.academia">Email support</a></li>
+                <li><a href="mailto:support@ayeprep.com">Email support</a></li>
                 <li><Link to="/aide">Centre d'aide</Link></li>
               </ul>
             </div>

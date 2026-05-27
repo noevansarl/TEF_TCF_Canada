@@ -114,10 +114,10 @@ serve(async (req: Request) => {
   // Ref: https://docs.fedapay.com/api/transactions
   try {
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/fedapay-webhook`
-    const returnUrl   = `${Deno.env.get('APP_URL') ?? 'https://francophonia.app'}/paiement-confirme`
+    const returnUrl   = `${Deno.env.get('APP_URL') ?? 'https://ayeprep.com'}/paiement-confirme`
 
     const transactionPayload = {
-      description: `${pack.name} — Francophonia`,
+      description: `${pack.name} — ayePREP`,
       amount: pack.price_xof,
       currency: { iso: 'XOF' },
       callback_url: callbackUrl,

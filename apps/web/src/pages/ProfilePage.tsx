@@ -39,7 +39,7 @@ export default function ProfilePage() {
           const targetDate = data.target_date || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
           
           setProfile({
-            full_name: data.full_name || 'Candidat Francophonie',
+            full_name: data.full_name || 'Candidat ayePREP',
             email: data.email || 'candidat@example.com',
             target_test: data.target_test || 'TCF_CANADA',
             target_date: targetDate,

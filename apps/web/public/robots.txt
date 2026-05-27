@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://francophonie.academia/sitemap.xml
+Sitemap: https://ayeprep.com/sitemap.xml
