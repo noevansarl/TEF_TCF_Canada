@@ -46,6 +46,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService(db, ref.watch(supabaseServiceProvider).useMock ? null : supabase);
 });
 
+// Provider pour stocker le plan d'abonnement simulé (mock) en développement local
+final mockSubscriptionTierProvider = StateProvider<String>((ref) => 'gratuit');
+
 // Provider du profil utilisateur complet (Supabase public.users)
 final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   final auth = ref.watch(authStateProvider).value;
@@ -53,12 +56,13 @@ final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
 
   final supabaseService = ref.watch(supabaseServiceProvider);
   if (supabaseService.useMock) {
+    final mockTier = ref.watch(mockSubscriptionTierProvider);
     return {
       'id': auth.id,
       'email': auth.email,
       'full_name': auth.userMetadata?['full_name'] ?? 'Candidat Francophonie',
       'country': auth.userMetadata?['country'] ?? 'Canada',
-      'subscription_tier': 'avance',
+      'subscription_tier': mockTier,
       'xp_points': 120,
     };
   }

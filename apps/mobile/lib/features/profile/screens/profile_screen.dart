@@ -106,13 +106,7 @@ class ProfileScreen extends ConsumerWidget {
                     value: tier.toUpperCase(),
                     trailing: TextButton(
                       onPressed: () {
-                        // Ouvrir page de souscription RevenueCat (mocké)
-                        ScaffoldMessenger.of(ref.context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Module de paiement RevenueCat activé.'),
-                            backgroundColor: Color(0xFFC55A11),
-                          ),
-                        );
+                        context.push('/pay-fedapay');
                       },
                       child: const Text('Modifier', style: TextStyle(color: Color(0xFFC55A11), fontWeight: FontWeight.bold)),
                     ),

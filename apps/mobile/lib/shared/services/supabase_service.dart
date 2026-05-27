@@ -208,4 +208,62 @@ class SupabaseService {
     }).select().single();
     return response;
   }
+
+  // Récupérer les réponses et questions d'une session
+  Future<List<Map<String, dynamic>>> fetchAnswersForSession(String sessionId) async {
+    if (useMock) {
+      return [
+        {
+          'id': 'ans-mock-1',
+          'session_id': sessionId,
+          'question_id': 'mock-q-1',
+          'user_answer': 'Dans mon pays d\'origine, l\'apprentissage du français est considéré comme une priorité absolue car cela favorise la mobilité professionnelle.',
+          'is_correct': null,
+          'auto_feedback': {
+            'criteres': {
+              'respect_tache': {'score': 8, 'commentaire': 'Excellent respect de la consigne et du sujet imposé.'},
+              'coherence': {'score': 7, 'commentaire': 'Le texte est bien structuré avec des connecteurs logiques appropriés.'},
+              'lexique': {'score': 8, 'commentaire': 'Vocabulaire riche et adapté au niveau B2/C1.'},
+              'morphosyntaxe': {'score': 6, 'commentaire': 'Quelques petites erreurs de conjugaison mais globalement très correct.'},
+              'conventions': {'score': 7, 'commentaire': 'Ponctuation et mise en page bien respectées.'}
+            },
+            'score_global': 72.0,
+            'suggestions': [
+              'Faites attention à l\'accord des adjectifs au féminin pluriel.',
+              'Essayez de diversifier vos structures de phrases complexes.'
+            ],
+            'points_forts': [
+              'Très bonne richesse de vocabulaire (ex: "priorité absolue", "mobilité professionnelle").',
+              'Arguments convaincants et clairs.'
+            ],
+            'resume': 'Le candidat démontre une excellente maîtrise des structures de base et intermédiaire, correspondant à un niveau B2 solide avec des prémices de C1.',
+            'nclc_estime': 'B2'
+          },
+          'question': {
+            'id': 'mock-q-1',
+            'module': 'EE',
+            'test_type': 'TCF_CANADA',
+            'level': 'B2',
+            'question_text': 'Tâche 1 : Rédigez une lettre de motivation pour postuler à un emploi au Canada.',
+            'options': null,
+            'correct_answer': null,
+            'explanation': 'La lettre doit comporter une formule de politesse, un objet, des arguments et un ton formel.',
+            'theme': 'Vie professionnelle',
+            'difficulty_score': 6
+          }
+        }
+      ];
+    }
+
+    try {
+      final response = await client
+          .from('answers')
+          .select('*, question:questions(*)')
+          .eq('session_id', sessionId);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint('Error fetching answers online: $e');
+      return [];
+    }
+  }
 }
