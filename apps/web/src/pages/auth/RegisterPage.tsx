@@ -42,6 +42,24 @@ export default function RegisterPage() {
         setError(authErr.message)
       } else if (data?.user) {
         setUser({ id: data.user.id, email: data.user.email! }, 'user')
+
+        // Enregistrer la conversion de parrainage/affilié si présent
+        try {
+          const clickId = localStorage.getItem('fa_affiliate_click_id')
+          if (clickId) {
+            await supabase.rpc('convert_affiliate_click', {
+              p_click_id: clickId,
+              p_user_id: data.user.id
+            })
+            // Nettoyage après conversion
+            localStorage.removeItem('fa_affiliate_code')
+            localStorage.removeItem('fa_affiliate_click_id')
+            localStorage.removeItem('fa_affiliate_expiry')
+          }
+        } catch (affErr) {
+          console.error("Échec de la conversion de l'affilié:", affErr)
+        }
+
         navigate(from, { replace: true })
       }
     } catch (err: any) {
