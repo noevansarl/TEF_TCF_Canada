@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/models/question.dart';
 import '../../../shared/models/session.dart';
@@ -43,19 +47,179 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   // EO Oral recording attributes
   bool _isRecording = false;
+  String? _localAudioPath;
+
+  // Audio Player & Recorder
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioRecorder _audioRecorder = AudioRecorder();
+  
+  // Player state variables
+  bool _isPlaying = false;
+  int _listenCount = 0;
+  Duration _audioPosition = Duration.zero;
+  Duration _audioDuration = Duration.zero;
+  
+  // Stream subscriptions
+  StreamSubscription? _playerStateSub;
+  StreamSubscription? _positionSub;
+  StreamSubscription? _durationSub;
 
   @override
   void initState() {
     super.initState();
     _loadQuestions();
     _startTimer();
+    _initAudioPlayer();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _writtenAnswerController.dispose();
+    _playerStateSub?.cancel();
+    _positionSub?.cancel();
+    _durationSub?.cancel();
+    _audioPlayer.dispose();
+    _audioRecorder.dispose();
     super.dispose();
+  }
+
+  void _initAudioPlayer() {
+    _positionSub = _audioPlayer.positionStream.listen((pos) {
+      if (mounted) setState(() => _audioPosition = pos);
+    });
+    _durationSub = _audioPlayer.durationStream.listen((dur) {
+      if (mounted) setState(() => _audioDuration = dur ?? Duration.zero);
+    });
+    _playerStateSub = _audioPlayer.playerStateStream.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state.playing;
+          if (state.processingState == ProcessingState.completed) {
+            _audioPlayer.seek(Duration.zero);
+            _audioPlayer.pause();
+          }
+        });
+      }
+    });
+  }
+
+  void _resetAudioPlayerForNextQuestion() {
+    _audioPlayer.stop();
+    if (mounted) {
+      setState(() {
+        _listenCount = 0;
+        _audioPosition = Duration.zero;
+        _audioDuration = Duration.zero;
+      });
+    }
+  }
+
+  Future<void> _togglePlayPause(String? url, int maxListens) async {
+    if (url == null || url.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Aucun extrait audio disponible pour cette question.')),
+      );
+      return;
+    }
+
+    try {
+      if (_isPlaying) {
+        await _audioPlayer.pause();
+      } else {
+        if (_audioPlayer.audioSource == null || _audioPlayer.processingState == ProcessingState.idle) {
+          if (_listenCount >= maxListens) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Limite d\'écoutes ($maxListens) atteinte pour cette question.')),
+            );
+            return;
+          }
+          await _audioPlayer.setUrl(url);
+          setState(() {
+            _listenCount++;
+          });
+        }
+        await _audioPlayer.play();
+      }
+    } catch (e) {
+      debugPrint('Error playing audio: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur de lecture audio : $e')),
+      );
+    }
+  }
+
+  Future<void> _togglePlayPreview(String localPath) async {
+    try {
+      if (_isPlaying) {
+        await _audioPlayer.pause();
+      } else {
+        await _audioPlayer.setFilePath(localPath);
+        await _audioPlayer.play();
+      }
+    } catch (e) {
+      debugPrint('Error playing preview: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur de lecture de l\'aperçu : $e')),
+      );
+    }
+  }
+
+  Future<void> _startRecording(String questionId) async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        final tempDir = await getTemporaryDirectory();
+        final path = '${tempDir.path}/recording_${widget.sessionId}_$questionId.m4a';
+        
+        await _audioRecorder.start(
+          const RecordConfig(
+            encoder: AudioEncoder.aacLc,
+            sampleRate: 44100,
+            bitRate: 128000,
+          ),
+          path: path,
+        );
+        
+        setState(() {
+          _isRecording = true;
+          _localAudioPath = path;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('L\'autorisation du microphone est requise pour s\'enregistrer.')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error starting recording: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur de démarrage d\'enregistrement : $e')),
+      );
+    }
+  }
+
+  Future<void> _stopRecording(String questionId) async {
+    try {
+      final path = await _audioRecorder.stop();
+      setState(() {
+        _isRecording = false;
+      });
+      if (path != null) {
+        setState(() {
+          _answers[questionId] = path;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Enregistrement vocal sauvegardé localement.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error stopping recording: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur d\'arrêt d\'enregistrement : $e')),
+      );
+    }
   }
 
   void _startTimer() {
@@ -176,6 +340,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _nextQuestion() {
+    _resetAudioPlayerForNextQuestion();
     if (_currentIndex < _questions.length - 1) {
       setState(() {
         _currentIndex++;
@@ -351,7 +516,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                     children: [
                       // CO Audio Player placeholder
                       if (widget.module == 'CO') ...[
-                        _buildAudioPlayerCard(),
+                        _buildAudioPlayerCard(currentQuestion.audioUrl),
                         const SizedBox(height: 20),
                       ],
 
@@ -386,7 +551,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                   children: [
                     TextButton(
                       onPressed: _currentIndex > 0
-                          ? () => setState(() => _currentIndex--)
+                          ? () {
+                              _resetAudioPlayerForNextQuestion();
+                              setState(() => _currentIndex--);
+                            }
                           : null,
                       child: const Text('Précédent', style: TextStyle(color: Colors.white60)),
                     ),
@@ -413,7 +581,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
-  Widget _buildAudioPlayerCard() {
+  Widget _buildAudioPlayerCard(String? audioUrl) {
+    const int maxListens = 2;
+    final progress = _audioDuration.inMilliseconds > 0
+        ? _audioPosition.inMilliseconds / _audioDuration.inMilliseconds
+        : 0.0;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -421,24 +594,53 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFF1E3A6B)),
       ),
-      child: Row(
+      child: Column(
         children: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.play_circle_fill, color: Color(0xFFC55A11), size: 40),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Extrait audio de l\'épreuve',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => _togglePlayPause(audioUrl, maxListens),
+                icon: Icon(
+                  _isPlaying ? Icons.pause_circle_fill : Icons.play_circle_fill,
+                  color: const Color(0xFFC55A11),
+                  size: 40,
                 ),
-                SizedBox(height: 4),
-                Text('Écoute 1/2 autorisée', style: TextStyle(color: Colors.white60, fontSize: 12)),
-              ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Extrait audio de l\'épreuve',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Écoute $_listenCount/$maxListens autorisée(s)',
+                      style: TextStyle(
+                        color: _listenCount >= maxListens ? Colors.redAccent : Colors.white60,
+                        fontSize: 12,
+                        fontWeight: _listenCount >= maxListens ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '${_formatTime(_audioPosition.inSeconds)} / ${_formatTime(_audioDuration.inSeconds)}',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.white.withOpacity(0.05),
+              color: const Color(0xFFC55A11),
+              minHeight: 4,
             ),
           ),
         ],
@@ -482,6 +684,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildVoiceRecordingArea(Question question) {
+    final recordedPath = _answers[question.id];
+    final hasRecording = recordedPath != null && recordedPath.startsWith('/');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -493,43 +698,93 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         Center(
           child: Column(
             children: [
-              // Waveform representation or record button
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _isRecording ? Colors.red.withOpacity(0.2) : const Color(0xFFC55A11).withOpacity(0.2),
-                  border: Border.all(
-                    color: _isRecording ? Colors.red : const Color(0xFFC55A11),
-                    width: 3,
+              if (!hasRecording) ...[
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _isRecording ? Colors.red.withOpacity(0.2) : const Color(0xFFC55A11).withOpacity(0.2),
+                    border: Border.all(
+                      color: _isRecording ? Colors.red : const Color(0xFFC55A11),
+                      width: 3,
+                    ),
                   ),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _isRecording = !_isRecording;
+                  child: IconButton(
+                    onPressed: () {
                       if (_isRecording) {
-                        _answers[question.id] = 'audio_session_${widget.sessionId}_recorded';
+                        _stopRecording(question.id);
+                      } else {
+                        _startRecording(question.id);
                       }
-                    });
-                  },
-                  icon: Icon(
-                    _isRecording ? Icons.stop : Icons.mic,
-                    color: _isRecording ? Colors.red : const Color(0xFFC55A11),
-                    size: 40,
+                    },
+                    icon: Icon(
+                      _isRecording ? Icons.stop : Icons.mic,
+                      color: _isRecording ? Colors.red : const Color(0xFFC55A11),
+                      size: 40,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _isRecording ? 'Enregistrement en cours...' : 'Appuyez pour commencer à parler',
-                style: TextStyle(
-                  color: _isRecording ? Colors.red : Colors.white60,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
+                const SizedBox(height: 16),
+                Text(
+                  _isRecording ? 'Enregistrement en cours...' : 'Appuyez pour commencer à parler',
+                  style: TextStyle(
+                    color: _isRecording ? Colors.red : Colors.white60,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () => _togglePlayPreview(recordedPath),
+                                icon: Icon(
+                                  _isPlaying ? Icons.pause_circle_fill : Icons.play_circle_fill,
+                                  color: const Color(0xFFC55A11),
+                                  size: 32,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Aperçu de votre enregistrement',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              _resetAudioPlayerForNextQuestion();
+                              setState(() {
+                                _answers.remove(question.id);
+                              });
+                            },
+                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Vous pouvez écouter ou ré-enregistrer votre réponse avant de valider.',
+                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           ),
         ),

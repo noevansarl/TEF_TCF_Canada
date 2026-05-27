@@ -114,3 +114,6 @@ dist/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Supabase CLI temp files
+supabase/.temp/
