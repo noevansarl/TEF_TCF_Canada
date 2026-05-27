@@ -11,6 +11,7 @@ import '../../../shared/providers/providers.dart';
 import '../../../shared/models/question.dart';
 import '../../../shared/models/session.dart';
 import '../widgets/qcm_question_widget.dart';
+import '../widgets/interactive_roleplay_widget.dart';
 
 class SessionScreen extends ConsumerStatefulWidget {
   final String sessionId;
@@ -439,6 +440,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     final currentQuestion = _questions[_currentIndex];
+    final isRoleplay = widget.module == 'EO' &&
+        (currentQuestion.theme.toLowerCase().contains('roleplay') ||
+            currentQuestion.theme.toLowerCase().contains('jeu de rôle') ||
+            currentQuestion.questionText.toLowerCase().contains('jeu de rôle') ||
+            currentQuestion.questionText.toLowerCase().contains('roleplay'));
+    final canProceed = !isRoleplay || _answers.containsKey(currentQuestion.id);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
@@ -536,7 +543,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
                       // EO Voice Recording area
                       if (widget.module == 'EO') ...[
-                        _buildVoiceRecordingArea(currentQuestion),
+                        _buildEoArea(currentQuestion),
                       ],
                     ],
                   ),
@@ -559,10 +566,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                       child: const Text('Précédent', style: TextStyle(color: Colors.white60)),
                     ),
                     ElevatedButton(
-                      onPressed: _nextQuestion,
+                      onPressed: canProceed ? _nextQuestion : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC55A11),
-                        foregroundColor: Colors.white,
+                        backgroundColor: canProceed ? const Color(0xFFC55A11) : Colors.white12,
+                        foregroundColor: canProceed ? Colors.white : Colors.white30,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -790,5 +797,26 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildEoArea(Question question) {
+    final isRoleplay = question.theme.toLowerCase().contains('roleplay') ||
+        question.theme.toLowerCase().contains('jeu de rôle') ||
+        question.questionText.toLowerCase().contains('jeu de rôle') ||
+        question.questionText.toLowerCase().contains('roleplay');
+
+    if (isRoleplay) {
+      return InteractiveRoleplayWidget(
+        sessionId: widget.sessionId,
+        question: question,
+        onComplete: (resultJson) {
+          setState(() {
+            _answers[question.id] = resultJson;
+          });
+        },
+      );
+    } else {
+      return _buildVoiceRecordingArea(question);
+    }
   }
 }

@@ -266,4 +266,55 @@ class SupabaseService {
       return [];
     }
   }
+
+  // Envoyer une réplique vocale de jeu de rôle oral et obtenir la réponse de l'IA
+  Future<Map<String, dynamic>> sendRoleplayTurn({
+    required String sessionId,
+    required String questionId,
+    required int turnIndex,
+    required String localAudioPath,
+    required List<Map<String, String>> history,
+  }) async {
+    if (useMock) {
+      await Future.delayed(const Duration(seconds: 2));
+      // Simulation des répliques de l'examinateur selon le tour
+      String nextText = '';
+      if (turnIndex == 0) {
+        nextText = 'Le loyer est de 850 euros par mois charges comprises. Y a-t-il d\'autres détails que vous aimeriez connaître ?';
+      } else if (turnIndex == 1) {
+        nextText = 'Oui, l\'appartement dispose d\'une cuisine équipée neuve et d\'un grand balcon exposé sud. Des visites sont prévues ce samedi, seriez-vous libre ?';
+      } else {
+        nextText = 'Parfait, c\'est noté pour samedi à 10h. Je vous envoie l\'adresse exacte par message. Bonne journée !';
+      }
+
+      return {
+        'success': true,
+        'user_transcript': 'Question simulée pour le tour ${turnIndex + 1}',
+        'reply_text': nextText,
+        'reply_audio_url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+      };
+    }
+
+    try {
+      final response = await client.functions.invoke('transcribe-eo', body: {
+        'session_id': sessionId,
+        'question_id': questionId,
+        'turn_index': turnIndex,
+        'local_audio_path': localAudioPath,
+        'history': history,
+      });
+
+      final data = response.data;
+      return Map<String, dynamic>.from(data ?? {});
+    } catch (e) {
+      debugPrint('Error sending roleplay turn online: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+        'user_transcript': '[Transcription indisponible]',
+        'reply_text': 'D\'accord, je comprends. Poursuivons notre échange.',
+        'reply_audio_url': null,
+      };
+    }
+  }
 }
