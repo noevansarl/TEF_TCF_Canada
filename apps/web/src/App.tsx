@@ -37,6 +37,8 @@ const BlogPage            = lazy(() => import('./pages/BlogPage'))
 const BlogPostPage        = lazy(() => import('./pages/BlogPostPage'))
 const PrivacyPolicyPage   = lazy(() => import('./pages/PrivacyPolicyPage'))
 const CookiesPolicyPage   = lazy(() => import('./pages/CookiesPolicyPage'))
+const LegalMentionsPage   = lazy(() => import('./pages/LegalMentionsPage'))
+const CgvPage             = lazy(() => import('./pages/CgvPage'))
 
 // ── Pages protégées ────────────────────────────────────────
 const LearningPathPage    = lazy(() => import('./pages/LearningPathPage'))
@@ -89,6 +91,8 @@ const router = createBrowserRouter([
       { path: '/blog/:slug',          element: <BlogPostPage /> },
       { path: '/confidentialite',     element: <PrivacyPolicyPage /> },
       { path: '/cookies',             element: <CookiesPolicyPage /> },
+      { path: '/mentions-legales',    element: <LegalMentionsPage /> },
+      { path: '/cgv',                 element: <CgvPage /> },
       { path: '/paiement-confirme',   element: <Navigate to="/dashboard?payment=success" replace /> },
 
       // Pages protégées (utilisateur connecté)

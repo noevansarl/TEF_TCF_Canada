@@ -749,11 +749,11 @@ export default function LandingPage() {
             <div className="footer__col">
               <h4>Légal</h4>
               <ul>
-                <li><a href="/mentions-legales">Mentions légales</a></li>
+                <li><Link to="/mentions-legales">Mentions légales</Link></li>
                 <li><Link to="/confidentialite">Confidentialité</Link></li>
                 <li><Link to="/cookies">Gestion des cookies</Link></li>
                 <li><Link to="/remboursement">Remboursement</Link></li>
-                <li><a href="/cgv">CGV</a></li>
+                <li><Link to="/cgv">CGV</Link></li>
               </ul>
             </div>
             <div className="footer__col">
