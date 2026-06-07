@@ -12,16 +12,33 @@ export default function CataloguePage() {
     setLoadingModule(moduleType)
     try {
       const userId = user?.id || 'mock-user-id'
+
+      // Fetch user profile test preference
+      const { data: profile } = await supabase
+        .from('users')
+        .select('target_test, exam_type_pref')
+        .eq('id', userId)
+        .maybeSingle()
+
+      const prefTest = profile?.exam_type_pref || profile?.target_test || 'TCF_CANADA'
+      const testType = prefTest === 'BOTH' ? 'TCF_CANADA' : prefTest
+
+      let maxDuration = 3600
+      if (moduleType === 'CO') maxDuration = testType === 'TEF_CANADA' ? 2400 : 2100
+      else if (moduleType === 'CE') maxDuration = testType === 'TEF_CANADA' ? 3600 : 2100
+      else if (moduleType === 'EE') maxDuration = 3600
+      else if (moduleType === 'EO') maxDuration = testType === 'TEF_CANADA' ? 2100 : 720
+
       const { data, error } = await supabase
         .from('sessions')
         .insert({
           user_id: userId,
           module: moduleType,
           session_type: 'TRAINING',
-          test_type: 'TCF_CANADA',
+          test_type: testType,
           status: 'in_progress',
           started_at: new Date().toISOString(),
-          max_duration_s: moduleType === 'CO' ? 2100 : moduleType === 'CE' ? 2100 : moduleType === 'EE' ? 3600 : 720
+          max_duration_s: maxDuration
         })
         .select()
         .single()

@@ -18,7 +18,7 @@ export let mockQuestions = [
     test_type: "TCF_CANADA",
     level: "B2",
     question_text: "D'après le dialogue, quelle est la raison principale pour laquelle Marc souhaite s'installer à Sherbrooke plutôt qu'à Montréal ?",
-    audio_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3",
     max_listens: 2,
     options: {
       A: "Le coût de la vie y est moins élevé",
@@ -42,7 +42,7 @@ export let mockQuestions = [
     test_type: "TEF_CANADA",
     level: "B1",
     question_text: "Quelle annonce la conductrice du train fait-elle aux passagers concernant le retard ?",
-    audio_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/multi-track/lead-guitar.mp3",
     max_listens: 2,
     options: {
       A: "Une panne électrique paralyse le réseau",
@@ -66,7 +66,7 @@ export let mockQuestions = [
     test_type: "TCF_CANADA",
     level: "C1",
     question_text: "Quel jugement l'intervenante porte-t-elle sur les programmes d'accueil des nouveaux arrivants francophones hors-Québec ?",
-    audio_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/multi-track/bass-guitar.mp3",
     max_listens: 2,
     options: {
       A: "Ils sont totalement inadaptés aux réalités économiques",
@@ -90,7 +90,7 @@ export let mockQuestions = [
     test_type: "TEF_CANADA",
     level: "C2",
     question_text: "Selon le chercheur en astronomie, quelle est l'implication majeure de la découverte d'eau liquide sur ce satellite ?",
-    audio_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/multi-track/drums.mp3",
     max_listens: 1,
     options: {
       A: "Elle confirme la présence d'une vie extraterrestre complexe",
@@ -787,7 +787,7 @@ const mockClient: any = {
                   id: "a-4",
                   session_id: currentSessionId,
                   question_id: "q-4",
-                  user_answer: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                  user_answer: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3",
                   audio_transcript: "Bonjour, je souhaite présenter ma candidature pour convaincre mon ami. C'est une excellente idée car les cours de cuisine permettent de se détendre après le travail, d'apprendre des recettes saines et de partager un bon moment ensemble. Pour ce qui est du coût, c'est très abordable.",
                   is_correct: null,
                   questions: mockQuestions.find(q => q.id === 'q-4'),
@@ -845,7 +845,7 @@ const mockClient: any = {
     from: (_bucket: string) => ({
       upload: async (_path: string, _file: any) => ({ data: { path: _path }, error: null }),
       getPublicUrl: (_path: string) => ({
-        data: { publicUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }
+        data: { publicUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3' }
       })
     })
   },

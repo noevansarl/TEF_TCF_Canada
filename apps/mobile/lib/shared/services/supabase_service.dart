@@ -110,7 +110,7 @@ class SupabaseService {
           'test_type': testType,
           'level': level,
           'question_text': 'Selon l\'annonce radiophonique, quelle est la cause principale de la perturbation du trafic ferroviaire ce matin ?',
-          'audio_url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+          'audio_url': 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3',
           'passage_text': null,
           'options': {
             'A': 'Des conditions météo extrêmes',
@@ -291,7 +291,7 @@ class SupabaseService {
         'success': true,
         'user_transcript': 'Question simulée pour le tour ${turnIndex + 1}',
         'reply_text': nextText,
-        'reply_audio_url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        'reply_audio_url': 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/multi-track/lead-guitar.mp3',
       };
     }
 

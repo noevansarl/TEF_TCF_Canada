@@ -118,16 +118,27 @@ export default function DashboardPage() {
     setLoadingModule(moduleType)
     try {
       const userId = user?.id || 'mock-user-id'
+
+      // Fetch user profile test preference
+      const { data: profile } = await supabase
+        .from('users')
+        .select('target_test, exam_type_pref')
+        .eq('id', userId)
+        .maybeSingle()
+
+      const prefTest = profile?.exam_type_pref || profile?.target_test || 'TCF_CANADA'
+      const testType = prefTest === 'BOTH' ? 'TCF_CANADA' : prefTest
+
       const { data, error } = await supabase
         .from('sessions')
         .insert({
           user_id: userId,
           module: moduleType,
           session_type: 'TRAINING',
-          test_type: 'TCF_CANADA',
+          test_type: testType,
           status: 'in_progress',
           started_at: new Date().toISOString(),
-          max_duration_s: moduleType === 'EE' ? 3600 : 720
+          max_duration_s: moduleType === 'EE' ? 3600 : (testType === 'TEF_CANADA' ? 2100 : 720)
         })
         .select()
         .single()
