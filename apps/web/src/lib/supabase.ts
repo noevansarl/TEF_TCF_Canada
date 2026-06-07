@@ -18,7 +18,7 @@ export let mockQuestions = [
     test_type: "TCF_CANADA",
     level: "B2",
     question_text: "D'après le dialogue, quelle est la raison principale pour laquelle Marc souhaite s'installer à Sherbrooke plutôt qu'à Montréal ?",
-    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3",
+    audio_url: "https://ifbbwbyxdjxsbuilzzig.supabase.co/storage/v1/object/public/questions-audio/nubie-farida_khaled.mp3",
     max_listens: 2,
     options: {
       A: "Le coût de la vie y est moins élevé",
@@ -42,7 +42,7 @@ export let mockQuestions = [
     test_type: "TEF_CANADA",
     level: "B1",
     question_text: "Quelle annonce la conductrice du train fait-elle aux passagers concernant le retard ?",
-    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/multi-track/lead-guitar.mp3",
+    audio_url: "https://ifbbwbyxdjxsbuilzzig.supabase.co/storage/v1/object/public/questions-audio/handball-2.mp3",
     max_listens: 2,
     options: {
       A: "Une panne électrique paralyse le réseau",
@@ -66,7 +66,7 @@ export let mockQuestions = [
     test_type: "TCF_CANADA",
     level: "C1",
     question_text: "Quel jugement l'intervenante porte-t-elle sur les programmes d'accueil des nouveaux arrivants francophones hors-Québec ?",
-    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/multi-track/bass-guitar.mp3",
+    audio_url: "https://ifbbwbyxdjxsbuilzzig.supabase.co/storage/v1/object/public/questions-audio/hajar_ma_famille.mp3",
     max_listens: 2,
     options: {
       A: "Ils sont totalement inadaptés aux réalités économiques",
@@ -90,7 +90,7 @@ export let mockQuestions = [
     test_type: "TEF_CANADA",
     level: "C2",
     question_text: "Selon le chercheur en astronomie, quelle est l'implication majeure de la découverte d'eau liquide sur ce satellite ?",
-    audio_url: "https://raw.githubusercontent.com/mdn/webaudio-examples/main/multi-track/drums.mp3",
+    audio_url: "https://ifbbwbyxdjxsbuilzzig.supabase.co/storage/v1/object/public/questions-audio/ste-013-cassandre-ecole.mp3",
     max_listens: 1,
     options: {
       A: "Elle confirme la présence d'une vie extraterrestre complexe",

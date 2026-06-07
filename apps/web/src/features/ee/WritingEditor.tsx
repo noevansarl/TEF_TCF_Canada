@@ -9,7 +9,6 @@ interface WritingEditorProps {
 }
 
 export function WritingEditor({ value, onTextChange, targetWordCount, placeholder }: WritingEditorProps) {
-  const [text, setText] = useState(value)
   const [wordCount, setWordCount] = useState(0)
   const [lastSave, setLastSave] = useState<Date | null>(null)
   const autoSaveRef = useRef<number | null>(null)
@@ -17,17 +16,12 @@ export function WritingEditor({ value, onTextChange, targetWordCount, placeholde
   const countWords = (t: string) =>
     t.trim() === '' ? 0 : t.trim().split(/\s+/).length
 
-  // Sync state with parent value
+  // Calculate word count from value and setup autosave on value change
   useEffect(() => {
-    setText(value)
-  }, [value])
-
-  useEffect(() => {
-    const count = countWords(text)
+    const count = countWords(value)
     setWordCount(count)
-    onTextChange(text)
 
-    // Sauvegarde automatique toutes les 15s dans l'état parent
+    // Autosave notification after 15s of typing stop
     if (autoSaveRef.current) clearTimeout(autoSaveRef.current)
     autoSaveRef.current = setTimeout(() => {
       setLastSave(new Date())
@@ -36,7 +30,7 @@ export function WritingEditor({ value, onTextChange, targetWordCount, placeholde
     return () => {
       if (autoSaveRef.current) clearTimeout(autoSaveRef.current)
     }
-  }, [text])
+  }, [value])
 
   const isUnder = wordCount < targetWordCount.min
   const isOver = wordCount > targetWordCount.max
@@ -55,12 +49,12 @@ export function WritingEditor({ value, onTextChange, targetWordCount, placeholde
         )}
       </div>
       <textarea
-        value={text}
-        onChange={e => setText(e.target.value)}
+        value={value}
+        onChange={e => onTextChange(e.target.value)}
         placeholder={placeholder || 'Rédigez votre réponse ici...'}
         spellCheck={false}
         className={cn(
-          'w-full min-h-[300px] p-4 rounded-xl border-2 font-serif text-base',
+          'w-full min-h-[300px] p-4 rounded-xl border-2 font-serif text-base text-slate-900',
           'resize-none focus:outline-none focus:ring-2 transition-colors',
           'bg-white leading-relaxed',
           isGood && 'border-success focus:ring-success/30',
