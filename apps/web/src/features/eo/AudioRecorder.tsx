@@ -21,24 +21,51 @@ export function AudioRecorder({ taskIndex, sessionId, taskDurationSeconds, onRec
 
   useEffect(() => {
     if (!waveRef.current) return
-    wsRef.current = WaveSurfer.create({ container: waveRef.current, height: 64 })
+    
+    // Create WaveSurfer with specific styling
+    wsRef.current = WaveSurfer.create({
+      container: waveRef.current,
+      height: 64,
+      waveColor: '#ef4444',
+      progressColor: '#b91c1c',
+    })
+
+    // Register RecordPlugin with continuous scrolling waveform enabled
     recordRef.current = wsRef.current.registerPlugin(RecordPlugin.create({
-      renderRecordedAudio: false
+      scrollingWaveform: true,
+      renderRecordedAudio: false,
     }))
+
+    // Handle record-start event
+    recordRef.current.on('record-start', () => {
+      setIsRecording(true)
+    })
+
+    // Handle record-end event
     recordRef.current.on('record-end', async (blob) => {
       if (timerRef.current) clearInterval(timerRef.current)
       setIsUploading(true)
-      const filename = `eo/${sessionId}/task_${taskIndex}_${Date.now()}.webm`
-      const { data } = await supabase.storage
-        .from('audio-responses')
-        .upload(filename, blob, { contentType: 'audio/webm' })
-      if (data) {
-        const { data: { publicUrl } } = supabase.storage
-          .from('audio-responses').getPublicUrl(data.path)
-        onRecordingComplete(publicUrl)
+      try {
+        const filename = `eo/${sessionId}/task_${taskIndex}_${Date.now()}.webm`
+        const { data, error } = await supabase.storage
+          .from('audio-responses')
+          .upload(filename, blob, { contentType: 'audio/webm' })
+        
+        if (error) throw error
+        
+        if (data) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('audio-responses').getPublicUrl(data.path)
+          onRecordingComplete(publicUrl)
+        }
+      } catch (err: any) {
+        console.error("Erreur de sauvegarde audio:", err)
+        alert("Une erreur est survenue lors de l'enregistrement de votre réponse audio. Veuillez réessayer.")
+      } finally {
+        setIsUploading(false)
       }
-      setIsUploading(false)
     })
+
     return () => {
       wsRef.current?.destroy()
     }
@@ -62,12 +89,33 @@ export function AudioRecorder({ taskIndex, sessionId, taskDurationSeconds, onRec
   }, [isRecording])
 
   const startRecording = async () => {
-    await recordRef.current?.startRecording()
-    setIsRecording(true)
+    try {
+      if (!recordRef.current) {
+        alert("Le module d'enregistrement n'est pas prêt. Veuillez rafraîchir la page.")
+        return
+      }
+      
+      // Request mic permission and start monitoring stream
+      await recordRef.current.startMic()
+      
+      // Begin recording
+      await recordRef.current.startRecording()
+    } catch (err: any) {
+      console.error("Microphone access error:", err)
+      alert(
+        "Impossible d'accéder au microphone. Veuillez vous assurer :\n" +
+        "1. Qu'un microphone fonctionnel est bien connecté.\n" +
+        "2. Que vous avez autorisé l'accès au microphone dans les paramètres de votre navigateur."
+      )
+      setIsRecording(false)
+    }
   }
 
   const stopRecording = () => {
-    recordRef.current?.stopRecording()
+    if (recordRef.current) {
+      recordRef.current.stopRecording()
+      recordRef.current.stopMic()
+    }
     setIsRecording(false)
   }
 
