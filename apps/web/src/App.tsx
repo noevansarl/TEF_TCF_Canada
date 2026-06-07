@@ -56,6 +56,11 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return user && role === 'admin' ? <>{children}</> : <Navigate to="/dashboard" replace />
 }
 
+function ExpertRoute({ children }: { children: React.ReactNode }) {
+  const { user, role } = useAuthStore()
+  return user && (role === 'expert' || role === 'admin') ? <>{children}</> : <Navigate to="/dashboard" replace />
+}
+
 // ── Root Layout (Fournit le contexte Router aux widgets) ───
 function RootLayout() {
   return (
@@ -123,7 +128,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/expert/*',
-        element: <PrivateRoute><ExpertLayout /></PrivateRoute>
+        element: <ExpertRoute><ExpertLayout /></ExpertRoute>
       }
     ]
   }

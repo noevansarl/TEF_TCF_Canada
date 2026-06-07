@@ -17,7 +17,7 @@ CREATE EXTENSION IF NOT EXISTS "vector";         -- pgvector (embeddings futurs)
 -- USERS (profils utilisateurs)
 -- ----------------------
 -- Note: auth.users is managed by Supabase, we create public.users
-CREATE TABLE public.users (
+CREATE TABLE IF NOT EXISTS public.users (
   id                      UUID PRIMARY KEY, -- Will be set via trigger on auth.users or upserted
   email                   TEXT UNIQUE NOT NULL,
   full_name               TEXT NOT NULL CHECK (char_length(full_name) >= 2),
@@ -45,9 +45,9 @@ CREATE TABLE public.users (
   updated_at              TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX idx_users_country ON public.users(country);
-CREATE INDEX idx_users_subscription ON public.users(subscription_tier, subscription_expires_at);
-CREATE INDEX idx_users_stripe ON public.users(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_users_country ON public.users(country);
+CREATE INDEX IF NOT EXISTS idx_users_subscription ON public.users(subscription_tier, subscription_expires_at);
+CREATE INDEX IF NOT EXISTS idx_users_stripe ON public.users(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
 
 -- Trigger updated_at automatique
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -55,6 +55,7 @@ RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_users_updated ON public.users;
 CREATE TRIGGER trg_users_updated
   BEFORE UPDATE ON public.users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -62,7 +63,7 @@ CREATE TRIGGER trg_users_updated
 -- ----------------------
 -- QUESTIONS (banque de 2000+ sujets)
 -- ----------------------
-CREATE TABLE public.questions (
+CREATE TABLE IF NOT EXISTS public.questions (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   module           TEXT NOT NULL CHECK (module IN ('CO','CE','EE','EO')),
   test_type        TEXT NOT NULL CHECK (test_type IN ('TCF_CANADA','TEF_CANADA','BOTH')),
@@ -98,11 +99,12 @@ CREATE TABLE public.questions (
   updated_at       TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX idx_questions_module_level ON public.questions(module, level, is_active);
-CREATE INDEX idx_questions_test_type ON public.questions(test_type, module, level);
-CREATE INDEX idx_questions_theme ON public.questions USING gin(theme gin_trgm_ops);
-CREATE INDEX idx_questions_difficulty ON public.questions(difficulty_score, module, level);
+CREATE INDEX IF NOT EXISTS idx_questions_module_level ON public.questions(module, level, is_active);
+CREATE INDEX IF NOT EXISTS idx_questions_test_type ON public.questions(test_type, module, level);
+CREATE INDEX IF NOT EXISTS idx_questions_theme ON public.questions USING gin(theme gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_questions_difficulty ON public.questions(difficulty_score, module, level);
 
+DROP TRIGGER IF EXISTS trg_questions_updated ON public.questions;
 CREATE TRIGGER trg_questions_updated
   BEFORE UPDATE ON public.questions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -110,7 +112,7 @@ CREATE TRIGGER trg_questions_updated
 -- ----------------------
 -- SESSIONS (entraînements et simulations)
 -- ----------------------
-CREATE TABLE public.sessions (
+CREATE TABLE IF NOT EXISTS public.sessions (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id           UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   session_type      TEXT NOT NULL CHECK (session_type IN ('TRAINING','SIMULATION','DIAGNOSTIC')),
@@ -134,15 +136,15 @@ CREATE TABLE public.sessions (
   created_at        TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX idx_sessions_user_status ON public.sessions(user_id, status, created_at DESC);
-CREATE INDEX idx_sessions_module_type ON public.sessions(module, test_type, session_type);
-CREATE INDEX idx_sessions_completed ON public.sessions(user_id, completed_at DESC) 
+CREATE INDEX IF NOT EXISTS idx_sessions_user_status ON public.sessions(user_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sessions_module_type ON public.sessions(module, test_type, session_type);
+CREATE INDEX IF NOT EXISTS idx_sessions_completed ON public.sessions(user_id, completed_at DESC) 
   WHERE status = 'completed';
 
 -- ----------------------
 -- ANSWERS (réponses par question)
 -- ----------------------
-CREATE TABLE public.answers (
+CREATE TABLE IF NOT EXISTS public.answers (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id          UUID NOT NULL REFERENCES public.sessions(id) ON DELETE CASCADE,
   question_id         UUID NOT NULL REFERENCES public.questions(id),
@@ -161,14 +163,14 @@ CREATE TABLE public.answers (
   created_at          TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX idx_answers_session ON public.answers(session_id);
-CREATE INDEX idx_answers_user_question ON public.answers(user_id, question_id, created_at DESC);
-CREATE UNIQUE INDEX idx_answers_session_question ON public.answers(session_id, question_id);
+CREATE INDEX IF NOT EXISTS idx_answers_session ON public.answers(session_id);
+CREATE INDEX IF NOT EXISTS idx_answers_user_question ON public.answers(user_id, question_id, created_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_answers_session_question ON public.answers(session_id, question_id);
 
 -- ----------------------
 -- SUBSCRIPTIONS (abonnements)
 -- ----------------------
-CREATE TABLE public.subscriptions (
+CREATE TABLE IF NOT EXISTS public.subscriptions (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id              UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   plan                 TEXT NOT NULL CHECK (plan IN 
@@ -192,13 +194,13 @@ CREATE TABLE public.subscriptions (
   created_at           TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX idx_subscriptions_user ON public.subscriptions(user_id, status, expires_at);
-CREATE INDEX idx_subscriptions_stripe ON public.subscriptions(stripe_sub_id) WHERE stripe_sub_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON public.subscriptions(user_id, status, expires_at);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe ON public.subscriptions(stripe_sub_id) WHERE stripe_sub_id IS NOT NULL;
 
 -- ----------------------
 -- PURCHASE_HISTORY (achats unitaires)
 -- ----------------------
-CREATE TABLE public.purchase_history (
+CREATE TABLE IF NOT EXISTS public.purchase_history (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id          UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   product_type     TEXT NOT NULL CHECK (product_type IN (
@@ -218,7 +220,7 @@ CREATE TABLE public.purchase_history (
 -- ----------------------
 -- EXPERT_CORRECTIONS (corrections humaines)
 -- ----------------------
-CREATE TABLE public.expert_corrections (
+CREATE TABLE IF NOT EXISTS public.expert_corrections (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id       UUID NOT NULL REFERENCES public.sessions(id) ON DELETE CASCADE,
   answer_id        UUID NOT NULL REFERENCES public.answers(id),
@@ -242,9 +244,10 @@ CREATE TABLE public.expert_corrections (
   updated_at       TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX idx_expert_corrections_status ON public.expert_corrections(status, due_at ASC);
-CREATE INDEX idx_expert_corrections_expert ON public.expert_corrections(expert_id, status);
+CREATE INDEX IF NOT EXISTS idx_expert_corrections_status ON public.expert_corrections(status, due_at ASC);
+CREATE INDEX IF NOT EXISTS idx_expert_corrections_expert ON public.expert_corrections(expert_id, status);
 
+DROP TRIGGER IF EXISTS trg_expert_corrections_updated ON public.expert_corrections;
 CREATE TRIGGER trg_expert_corrections_updated
   BEFORE UPDATE ON public.expert_corrections
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -252,7 +255,7 @@ CREATE TRIGGER trg_expert_corrections_updated
 -- ----------------------
 -- BADGES (gamification)
 -- ----------------------
-CREATE TABLE public.badges (
+CREATE TABLE IF NOT EXISTS public.badges (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug        TEXT UNIQUE NOT NULL,
   name        TEXT NOT NULL,
@@ -266,7 +269,7 @@ CREATE TABLE public.badges (
   created_at  TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE TABLE public.user_badges (
+CREATE TABLE IF NOT EXISTS public.user_badges (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   badge_id    UUID NOT NULL REFERENCES public.badges(id),
@@ -277,7 +280,7 @@ CREATE TABLE public.user_badges (
 -- ----------------------
 -- PROGRESS_STATS (statistiques par module)
 -- ----------------------
-CREATE TABLE public.progress_stats (
+CREATE TABLE IF NOT EXISTS public.progress_stats (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id             UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   module              TEXT NOT NULL CHECK (module IN ('CO','CE','EE','EO')),
@@ -303,7 +306,7 @@ CREATE TABLE public.progress_stats (
 -- ----------------------
 -- NOTIFICATIONS (centre de notifications)
 -- ----------------------
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   type         TEXT NOT NULL CHECK (type IN (
@@ -318,12 +321,12 @@ CREATE TABLE public.notifications (
   created_at   TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE INDEX idx_notifications_user_read ON public.notifications(user_id, is_read, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_read ON public.notifications(user_id, is_read, created_at DESC);
 
 -- ----------------------
 -- OFFLINE_CACHE (gestion cache mobile)
 -- ----------------------
-CREATE TABLE public.offline_downloads (
+CREATE TABLE IF NOT EXISTS public.offline_downloads (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   module       TEXT NOT NULL CHECK (module IN ('CO','CE','EE','EO')),
@@ -371,12 +374,16 @@ RETURNS BOOLEAN AS $$
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- USERS
+DROP POLICY IF EXISTS "users_select_own" ON public.users;
 CREATE POLICY "users_select_own" ON public.users FOR SELECT USING (auth.uid() = id);
+DROP POLICY IF EXISTS "users_update_own" ON public.users;
 CREATE POLICY "users_update_own" ON public.users FOR UPDATE USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id AND role = (SELECT role FROM public.users WHERE id = auth.uid()));
+DROP POLICY IF EXISTS "users_admin_all" ON public.users;
 CREATE POLICY "users_admin_all" ON public.users FOR ALL USING (is_admin());
 
 -- QUESTIONS (lecture conditionnelle selon abonnement)
+DROP POLICY IF EXISTS "questions_read_active" ON public.questions;
 CREATE POLICY "questions_read_active" ON public.questions FOR SELECT USING (
   is_active = true AND (
     is_premium = false OR
@@ -389,28 +396,40 @@ CREATE POLICY "questions_read_active" ON public.questions FOR SELECT USING (
     is_admin()
   )
 );
+DROP POLICY IF EXISTS "questions_admin_all" ON public.questions;
 CREATE POLICY "questions_admin_all" ON public.questions FOR ALL USING (is_admin());
 
 -- SESSIONS
+DROP POLICY IF EXISTS "sessions_own" ON public.sessions;
 CREATE POLICY "sessions_own" ON public.sessions FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "sessions_admin" ON public.sessions;
 CREATE POLICY "sessions_admin" ON public.sessions FOR ALL USING (is_admin());
 
 -- ANSWERS
+DROP POLICY IF EXISTS "answers_own" ON public.answers;
 CREATE POLICY "answers_own" ON public.answers FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "answers_expert_corrections" ON public.answers FOR SELECT 
+DROP POLICY IF EXISTS "answers_expert_corrections" ON public.answers;
+CREATE POLICY "answers_expert_corrections" ON public.answers FOR SELECT
   USING (is_expert_or_admin());
 
 -- EXPERT_CORRECTIONS
+DROP POLICY IF EXISTS "corrections_user_view" ON public.expert_corrections;
 CREATE POLICY "corrections_user_view" ON public.expert_corrections FOR SELECT
   USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "corrections_expert" ON public.expert_corrections;
 CREATE POLICY "corrections_expert" ON public.expert_corrections FOR ALL
   USING (auth.uid() = expert_id OR is_admin());
 
 -- USER_BADGES, PROGRESS_STATS, NOTIFICATIONS, SUBSCRIPTIONS (même pattern)
+DROP POLICY IF EXISTS "user_badges_own" ON public.user_badges;
 CREATE POLICY "user_badges_own" ON public.user_badges FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "progress_stats_own" ON public.progress_stats;
 CREATE POLICY "progress_stats_own" ON public.progress_stats FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "notifications_own" ON public.notifications;
 CREATE POLICY "notifications_own" ON public.notifications FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "subscriptions_own" ON public.subscriptions;
 CREATE POLICY "subscriptions_own" ON public.subscriptions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "subscriptions_admin" ON public.subscriptions;
 CREATE POLICY "subscriptions_admin" ON public.subscriptions FOR ALL USING (is_admin());
 
 -- Calcul niveau NCLC à partir du score

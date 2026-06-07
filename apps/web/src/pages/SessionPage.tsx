@@ -435,13 +435,14 @@ export default function SessionPage() {
 
   if (error || !currentSession || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white p-8 rounded-2xl border shadow-md text-center space-y-6">
-          <h1 className="text-2xl font-extrabold text-red-600">Erreur</h1>
-          <p className="text-gray-600">{error || "Une erreur est survenue."}</p>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 font-sans relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+        <div className="max-w-md w-full bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-8 rounded-3xl shadow-xl text-center space-y-6 relative z-10">
+          <h1 className="text-2xl font-black text-rose-400 font-display">Erreur</h1>
+          <p className="text-slate-400 text-sm font-semibold">{error || "Une erreur est survenue."}</p>
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark"
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-650 text-white rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-95 shadow-lg shadow-blue-500/10 transition-all"
           >
             Retour au Tableau de Bord
           </button>
@@ -454,37 +455,41 @@ export default function SessionPage() {
   if (isSimulation && !isStarted) {
     const isTef = currentSession.test_type === 'TEF_CANADA'
     return (
-      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-6 font-sans">
-        <div className="max-w-xl w-full bg-white p-8 rounded-3xl border border-gray-100 shadow-xl text-center space-y-6">
-          <div className="w-16 h-16 bg-[#1B3A6B]/10 rounded-full flex items-center justify-center mx-auto text-[#1B3A6B] text-3xl">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 font-sans text-slate-100 relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+        <div className="absolute bottom-20 right-1/4 w-[600px] h-[600px] bg-indigo-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+        <div className="max-w-xl w-full bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-8 rounded-3xl shadow-xl text-center space-y-6 relative z-10">
+          <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto text-3xl select-none">
             🎓
           </div>
-          <div className="space-y-2 select-none">
-            <h1 className="text-3xl font-extrabold text-[#1B3A6B]">Simulation Officielle</h1>
-            <p className="text-sm bg-[#C55A11]/10 text-[#C55A11] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider w-max mx-auto">
+          <div className="space-y-3 select-none">
+            <h1 className="text-3xl font-black text-white font-display">Simulation Officielle</h1>
+            <p className={`text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider w-max mx-auto border ${
+              isTef ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+            }`}>
               {isTef ? 'TEF Canada' : 'TCF Canada'}
             </p>
           </div>
           
-          <div className="bg-[#F9FAFB] p-6 rounded-2xl text-left space-y-4 border border-gray-100">
-            <h3 className="font-bold text-[#1B3A6B] text-md flex items-center gap-2">
+          <div className="bg-slate-950/60 p-6 rounded-2xl text-left space-y-4 border border-slate-850">
+            <h3 className="font-bold text-amber-400 text-sm flex items-center gap-2">
               <span>⚠️ Consignes d'Examen Importantes :</span>
             </h3>
-            <ul className="space-y-3 text-sm text-gray-600 leading-relaxed">
-              <li className="flex gap-2">
-                <span className="text-[#1B3A6B] font-bold">1.</span>
-                <span>L'examen enchaîne les 4 épreuves : <strong>CO → CE → EE → EO</strong> de manière ininterrompue.</span>
+            <ul className="space-y-3 text-xs text-slate-350 font-semibold leading-relaxed">
+              <li className="flex gap-2.5">
+                <span className="text-blue-400 font-extrabold">1.</span>
+                <span>L'examen enchaîne les 4 épreuves : <strong className="text-white">CO → CE → EE → EO</strong> de manière ininterrompue.</span>
               </li>
-              <li className="flex gap-2">
-                <span className="text-[#1B3A6B] font-bold">2.</span>
-                <span><strong>Plein écran obligatoire</strong> : l'activation se fera au démarrage. Toute sortie du plein écran ou tentative de quitter annulera la session immédiatement.</span>
+              <li className="flex gap-2.5">
+                <span className="text-blue-400 font-extrabold">2.</span>
+                <span><strong className="text-white">Plein écran obligatoire</strong> : l'activation se fera au démarrage. Toute sortie du plein écran ou tentative de quitter annulera la session immédiatement.</span>
               </li>
-              <li className="flex gap-2">
-                <span className="text-[#1B3A6B] font-bold">3.</span>
-                <span>Le minuteur est <strong>bloquant</strong>. À l'expiration du temps, vos réponses sont enregistrées et l'épreuve suivante démarre sans pause.</span>
+              <li className="flex gap-2.5">
+                <span className="text-blue-400 font-extrabold">3.</span>
+                <span>Le minuteur est <strong className="text-white">bloquant</strong>. À l'expiration du temps, vos réponses sont enregistrées et l'épreuve suivante démarre sans pause.</span>
               </li>
-              <li className="flex gap-2">
-                <span className="text-[#1B3A6B] font-bold">4.</span>
+              <li className="flex gap-2.5">
+                <span className="text-blue-400 font-extrabold">4.</span>
                 <span>Assurez-vous que votre casque et votre micro fonctionnent correctement pour les épreuves de CO et d'EO.</span>
               </li>
             </ul>
@@ -498,17 +503,17 @@ export default function SessionPage() {
                 })
                 .catch((err) => {
                   console.error("Fullscreen error", err)
-                  setIsStarted(true) // Fallback if browser security blocks it
+                  setIsStarted(true)
                 })
             }}
-            className="w-full py-4 bg-[#C55A11] hover:bg-[#A84A0D] text-white rounded-2xl font-bold text-lg transition-all shadow-md active:scale-95 select-none mb-3"
+            className="w-full py-4 bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl font-extrabold text-sm uppercase tracking-wider hover:opacity-95 shadow-xl shadow-orange-500/15 active:scale-[0.99] transition-all select-none"
           >
             Activer le plein écran & Commencer l'examen
           </button>
 
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-bold text-sm transition-all select-none"
+            className="w-full py-3 bg-slate-950/60 border border-slate-850 hover:bg-slate-900/60 text-slate-400 hover:text-white rounded-2xl font-bold text-xs transition-all select-none"
           >
             Retour au Tableau de Bord
           </button>
@@ -520,28 +525,28 @@ export default function SessionPage() {
   const currentQuestion = questions[currentIndex]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100">
       {/* Header */}
-      <header className="bg-primary text-white px-6 py-4 flex justify-between items-center shadow-md select-none">
+      <header className="bg-slate-950/80 backdrop-blur-md border-b border-slate-850 text-white px-6 py-4 flex justify-between items-center shadow-lg select-none sticky top-0 z-40">
         <div>
-          <h1 className="text-xl font-bold flex items-center gap-2">
+          <h1 className="text-lg font-black flex items-center gap-2.5 font-display">
             <span>Session Active : {
               activeModule === 'CO' ? "Compréhension de l'Oral" :
               activeModule === 'CE' ? "Compréhension des Écrits" :
               activeModule === 'EE' ? "Expression Écrite" :
               activeModule === 'EO' ? "Expression Orale" : "Examen"
             }</span>
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded uppercase font-semibold">
+            <span className="text-[10px] bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2.5 py-1 rounded-lg uppercase font-extrabold tracking-wider">
               {currentSession.test_type || 'TCF/TEF'}
             </span>
           </h1>
-          <span className="text-xs opacity-75">Répondez à toutes les questions dans le temps imparti.</span>
+          <span className="text-[10px] text-slate-500 font-semibold">Répondez à toutes les questions dans le temps imparti.</span>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-5">
           <Timer />
           <button
             onClick={handleAbandon}
-            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-semibold transition-all shadow-sm"
+            className="px-3.5 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-extrabold hover:bg-rose-500/20 transition-all"
           >
             Quitter
           </button>
@@ -552,13 +557,13 @@ export default function SessionPage() {
       <main className="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Side: Question and Options */}
         <section className="md:col-span-2 flex flex-col gap-6">
-          <div className="bg-white p-6 rounded-2xl border shadow-sm flex-1 flex flex-col">
+          <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-6 rounded-3xl shadow-xl flex-1 flex flex-col">
             {/* Context Badge */}
-            <div className="flex justify-between items-center border-b pb-4 mb-4 select-none">
-              <span className="text-sm font-bold text-gray-500">
+            <div className="flex justify-between items-center border-b border-slate-800/60 pb-4 mb-4 select-none">
+              <span className="text-xs font-bold text-slate-450">
                 Question {currentIndex + 1} sur {questions.length}
               </span>
-              <span className="text-xs bg-primary/10 text-primary font-bold px-2 py-0.5 rounded uppercase">
+              <span className="text-[10px] bg-blue-500/10 border border-blue-500/20 text-blue-400 font-extrabold px-2.5 py-1 rounded-lg uppercase tracking-wider">
                 Niveau {currentQuestion.level}
               </span>
             </div>
@@ -567,9 +572,9 @@ export default function SessionPage() {
             <div className="flex-1 flex flex-col gap-6">
               {activeModule === 'CO' && currentQuestion.audio_url && (
                 <div className="mb-4">
-                  <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Écoute du Document</h3>
+                  <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">Écoute du Document</h3>
                   <AudioPlayer
-                    key={currentQuestion.id} // Re-mounts to reset WaveSurfer on index change
+                    key={currentQuestion.id}
                     audioUrl={currentQuestion.audio_url}
                     maxListens={currentQuestion.max_listens || 2}
                     onListensExceeded={() => alert("Nombre maximum d'écoutes atteint pour cette question.")}
@@ -581,15 +586,15 @@ export default function SessionPage() {
               {activeModule === 'CE' && currentQuestion.passage_text ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch flex-1">
                   {/* Left column: reading text */}
-                  <div className="border border-gray-200 bg-gray-50/50 p-4 rounded-xl overflow-y-auto max-h-[360px] md:max-h-none text-gray-700 leading-relaxed font-serif text-base">
-                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">Texte de passage</h4>
+                  <div className="border border-slate-850 bg-slate-950/60 p-5 rounded-2xl overflow-y-auto max-h-[360px] md:max-h-none text-slate-300 leading-relaxed font-serif text-sm">
+                    <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-3 select-none">Texte de passage</h4>
                     <p className="whitespace-pre-line">{currentQuestion.passage_text}</p>
                   </div>
 
                   {/* Right column: question text and choices */}
                   <div className="flex flex-col justify-between">
                     <div>
-                      <h2 className="text-lg font-bold text-gray-800 mb-6 leading-snug">
+                      <h2 className="text-base font-bold text-white mb-6 leading-snug">
                         {currentQuestion.question_text}
                       </h2>
                       <div className="grid grid-cols-1 gap-3">
@@ -600,19 +605,19 @@ export default function SessionPage() {
                               key={key}
                               onClick={() => submitAnswer(currentQuestion.id, key)}
                               className={cn(
-                                'flex items-center gap-4 p-4 rounded-xl border text-left transition-all duration-200',
+                                'flex items-center gap-4 p-3.5 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer',
                                 isSelected
-                                  ? 'border-primary bg-primary/5 text-primary font-semibold ring-2 ring-primary/20 shadow-sm'
-                                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                  ? 'border-blue-500/80 bg-blue-500/10 text-blue-300 font-semibold shadow-md shadow-blue-500/5'
+                                  : 'border-slate-850 bg-slate-950/40 text-slate-300 hover:border-slate-700 hover:bg-slate-900/40'
                               )}
                             >
                               <span className={cn(
-                                'w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm shrink-0 transition-colors',
-                                isSelected ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-500'
+                                'w-8 h-8 rounded-lg border flex items-center justify-center font-bold text-sm shrink-0 transition-colors',
+                                isSelected ? 'bg-blue-500 text-white border-blue-500' : 'border-slate-700 text-slate-500'
                               )}>
                                 {key}
                               </span>
-                              <span className="text-sm text-gray-700">{val}</span>
+                              <span className="text-xs font-semibold">{val}</span>
                             </button>
                           )
                         })}
@@ -622,7 +627,7 @@ export default function SessionPage() {
                 </div>
               ) : activeModule === 'EE' ? (
                 <div className="flex-1 flex flex-col gap-4">
-                  <h2 className="text-lg font-bold text-gray-800 leading-snug">
+                  <h2 className="text-base font-bold text-white leading-snug">
                     {currentQuestion.question_text}
                   </h2>
                   <WritingEditor
@@ -635,15 +640,15 @@ export default function SessionPage() {
                 </div>
               ) : activeModule === 'EO' ? (
                 <div className="flex-1 flex flex-col gap-4">
-                  <h2 className="text-lg font-bold text-gray-800 leading-snug">
+                  <h2 className="text-base font-bold text-white leading-snug">
                     {currentQuestion.question_text}
                   </h2>
                   <div className="space-y-4 mt-2">
                     {answers[currentQuestion.id] && (
-                      <div className="p-4 bg-success/10 border border-success/20 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="p-4 bg-emerald-500/5 border border-emerald-500/15 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
-                          <span className="text-success font-bold text-sm block">✓ Enregistrement effectué</span>
-                          <span className="text-xs text-gray-500">Votre audio a été sauvegardé. Vous pouvez ré-enregistrer si besoin.</span>
+                          <span className="text-emerald-400 font-bold text-xs block">✓ Enregistrement effectué</span>
+                          <span className="text-[10px] text-slate-500 font-semibold">Votre audio a été sauvegardé. Vous pouvez ré-enregistrer si besoin.</span>
                         </div>
                         <audio src={answers[currentQuestion.id]} controls className="h-10 shrink-0" />
                       </div>
@@ -661,7 +666,7 @@ export default function SessionPage() {
                 /* Standard layout for CO or simple questions */
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800 mb-6 leading-snug">
+                    <h2 className="text-base font-bold text-white mb-6 leading-snug">
                       {currentQuestion.question_text}
                     </h2>
                     <div className="grid grid-cols-1 gap-3">
@@ -672,19 +677,19 @@ export default function SessionPage() {
                             key={key}
                             onClick={() => submitAnswer(currentQuestion.id, key)}
                             className={cn(
-                              'flex items-center gap-4 p-4 rounded-xl border text-left transition-all duration-200',
+                              'flex items-center gap-4 p-3.5 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer',
                               isSelected
-                                ? 'border-primary bg-primary/5 text-primary font-semibold ring-2 ring-primary/20 shadow-sm'
-                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                ? 'border-blue-500/80 bg-blue-500/10 text-blue-300 font-semibold shadow-md shadow-blue-500/5'
+                                : 'border-slate-850 bg-slate-950/40 text-slate-300 hover:border-slate-700 hover:bg-slate-900/40'
                             )}
                           >
                             <span className={cn(
-                              'w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm shrink-0 transition-colors',
-                              isSelected ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-500'
+                              'w-8 h-8 rounded-lg border flex items-center justify-center font-bold text-sm shrink-0 transition-colors',
+                              isSelected ? 'bg-blue-500 text-white border-blue-500' : 'border-slate-700 text-slate-500'
                             )}>
                               {key}
                             </span>
-                            <span className="text-sm text-gray-700">{val}</span>
+                            <span className="text-xs font-semibold">{val}</span>
                           </button>
                         )
                       })}
@@ -698,9 +703,9 @@ export default function SessionPage() {
 
         {/* Right Side: Questions Matrix and Controls */}
         <section className="flex flex-col gap-6">
-          <div className="bg-white p-6 rounded-2xl border shadow-sm flex flex-col gap-6">
+          <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-6 rounded-3xl shadow-xl flex flex-col gap-6">
             <div>
-              <h3 className="text-md font-bold text-gray-800 mb-4 select-none">Navigation des Questions</h3>
+              <h3 className="text-sm font-bold text-white mb-4 select-none font-display">Navigation des Questions</h3>
               {/* Question list matrix */}
               <div className="grid grid-cols-5 gap-2 max-h-[220px] overflow-y-auto pr-1">
                 {questions.map((q, idx) => {
@@ -712,11 +717,11 @@ export default function SessionPage() {
                       onClick={() => !isSimulation && goToQuestion(idx)}
                       disabled={isSimulation}
                       className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all border shrink-0',
-                        isCurrent && 'ring-2 ring-primary ring-offset-2 scale-105',
+                        'w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs transition-all border shrink-0',
+                        isCurrent && 'ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-900 scale-105',
                         isAnswered
-                          ? 'bg-primary text-white border-primary'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300',
+                          ? 'bg-blue-500 text-white border-blue-500'
+                          : 'bg-slate-950/60 text-slate-450 border-slate-850 hover:border-slate-700',
                         isSimulation && 'cursor-not-allowed'
                       )}
                     >
@@ -732,14 +737,14 @@ export default function SessionPage() {
               <button
                 onClick={prevQuestion}
                 disabled={isSimulation || currentIndex === 0}
-                className="flex-1 py-2.5 px-4 border border-gray-300 rounded-xl font-semibold text-gray-700 disabled:opacity-40 hover:bg-gray-50 transition-all text-sm select-none"
+                className="flex-1 py-2.5 px-4 border border-slate-850 bg-slate-950/40 rounded-xl font-bold text-slate-400 disabled:opacity-30 hover:bg-slate-900/40 hover:text-white transition-all text-xs select-none"
               >
                 Précédent
               </button>
               <button
                 onClick={nextQuestion}
                 disabled={currentIndex === questions.length - 1 || (isSimulation && !answers[currentQuestion.id])}
-                className="flex-1 py-2.5 px-4 border border-gray-300 rounded-xl font-semibold text-gray-700 disabled:opacity-40 hover:bg-gray-50 transition-all text-sm select-none"
+                className="flex-1 py-2.5 px-4 border border-slate-850 bg-slate-950/40 rounded-xl font-bold text-slate-400 disabled:opacity-30 hover:bg-slate-900/40 hover:text-white transition-all text-xs select-none"
               >
                 Suivant
               </button>
@@ -749,11 +754,11 @@ export default function SessionPage() {
             <button
               onClick={() => handleFinish(false)}
               disabled={submitting}
-              className="w-full py-3 bg-success hover:bg-success-dark text-white rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-2 mt-4"
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-95 shadow-lg shadow-emerald-500/10 transition-all flex items-center justify-center gap-2 mt-2"
             >
               {submitting ? (
                 <>
-                  <svg className="animate-spin w-4 h-4 text-white" viewBox="0 0 24 24" fill="none">
+                  <svg className="animate-spin w-4 h-4 text-slate-950" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>

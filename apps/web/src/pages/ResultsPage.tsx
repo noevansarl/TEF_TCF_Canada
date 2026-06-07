@@ -114,13 +114,14 @@ export default function ResultsPage() {
 
   if (error || !session) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white p-8 rounded-2xl border shadow-md text-center space-y-6">
-          <h1 className="text-2xl font-extrabold text-red-600">Erreur</h1>
-          <p className="text-gray-600">{error || "Une erreur est survenue."}</p>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 font-sans relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+        <div className="max-w-md w-full bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-8 rounded-3xl shadow-xl text-center space-y-6 relative z-10">
+          <h1 className="text-2xl font-black text-rose-400 font-display">Erreur</h1>
+          <p className="text-slate-400 text-sm font-semibold">{error || "Une erreur est survenue."}</p>
           <Link
             to="/dashboard"
-            className="block w-full py-2 bg-[#1B3A6B] text-white rounded-lg font-bold hover:bg-[#12274A]"
+            className="block w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-650 text-white rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-95 shadow-lg shadow-blue-500/10 transition-all"
           >
             Retour au Tableau de Bord
           </Link>
@@ -157,9 +158,9 @@ export default function ResultsPage() {
 
   const getCriteriaColorClass = (score: number) => {
     const pct = getPercent(score)
-    if (pct >= 85) return 'bg-success'
-    if (pct >= 60) return 'bg-yellow-500'
-    return 'bg-error'
+    if (pct >= 85) return 'bg-emerald-500'
+    if (pct >= 60) return 'bg-amber-500'
+    return 'bg-rose-500'
   }
 
   // Calculate scores for radar chart if simulation
@@ -236,17 +237,19 @@ export default function ResultsPage() {
   const weakestInfo = getWeakestModuleInfo()
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 font-sans">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-[#1B3A6B] hover:opacity-85 font-bold transition-colors select-none">
+    <div className="min-h-screen bg-slate-950 p-6 font-sans text-slate-100 relative overflow-hidden">
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+      <div className="absolute bottom-40 right-1/4 w-[500px] h-[500px] bg-indigo-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
+        <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-bold transition-colors select-none">
           ← Retour au tableau de bord
         </Link>
         {/* Header Title */}
-        <div className="text-center md:text-left select-none space-y-1">
-          <h1 className="text-3xl font-extrabold text-[#1B3A6B]">
+        <div className="text-center md:text-left select-none space-y-2">
+          <h1 className="text-3xl font-black text-white font-display">
             {isSimulation ? "Rapport de Simulation Officielle" : "Rapport d'Entraînement"}
           </h1>
-          <p className="text-gray-500">
+          <p className="text-sm text-slate-400 font-semibold">
             {isSimulation 
               ? `Session globale ${session.test_type === 'TEF_CANADA' ? 'TEF Canada' : 'TCF Canada'} complétée`
               : "Analyse détaillée de vos performances sur cette épreuve."
@@ -257,11 +260,11 @@ export default function ResultsPage() {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: Score / Global Grade */}
-          <div className="bg-white p-6 rounded-2xl border shadow-sm flex flex-col items-center justify-center text-center">
-            <span className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">
+          <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-6 rounded-3xl shadow-xl flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-3">
               {isSimulation ? "Précision Globale" : (isExpression ? "Note Globale IA" : "Score de Précision")}
             </span>
-            <span className="text-4xl font-extrabold text-[#1B3A6B]">
+            <span className="text-4xl font-black text-white">
               {isSimulation
                 ? `${Math.round((answers.filter(a => a.is_correct || (a.auto_feedback?.score_global && a.auto_feedback.score_global >= 15)).length / Math.max(answers.length, 1)) * 100)}%`
                 : (isExpression 
@@ -270,13 +273,13 @@ export default function ResultsPage() {
                 )
               }
             </span>
-            <span className="text-xs text-gray-500 mt-1">
+            <span className="text-[10px] text-slate-500 font-semibold mt-1.5">
               {isSimulation ? "taux de réussite estimé" : (isExpression ? "basé sur la grille CECRL" : "questions correctes")}
             </span>
 
             {/* Comparaison historique */}
             {prevSession && (
-              <div className="mt-2 text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+              <div className="mt-3 text-[10px] font-bold px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
                 {(() => {
                   const currentScore = isSimulation
                     ? Math.round((answers.filter(a => a.is_correct || (a.auto_feedback?.score_global && a.auto_feedback.score_global >= 15)).length / Math.max(answers.length, 1)) * 100)
@@ -302,30 +305,30 @@ export default function ResultsPage() {
           </div>
 
           {/* Card 2: NCLC Estimate */}
-          <div className="bg-white p-6 rounded-2xl border shadow-sm flex flex-col items-center justify-center text-center">
-            <span className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Niveau NCLC Estimé</span>
-            <span className="text-4xl font-extrabold text-success">
+          <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-6 rounded-3xl shadow-xl flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-3">Niveau NCLC Estimé</span>
+            <span className="text-4xl font-black text-emerald-400">
               {session.nclc_estimate || (isExpression && feedback?.nclc_estime) || 'C1'}
             </span>
-            <span className="text-xs text-gray-500 mt-1">équivalence CECRL officielle</span>
+            <span className="text-[10px] text-slate-500 font-semibold mt-1.5">équivalence CECRL officielle</span>
           </div>
 
           {/* Card 3: XP Gained */}
-          <div className="bg-white p-6 rounded-2xl border shadow-sm flex flex-col items-center justify-center text-center">
-            <span className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Points d'XP Gagnés</span>
-            <span className="text-4xl font-extrabold text-[#C55A11]">+{xpEarned} XP</span>
-            <span className="text-xs text-gray-500 mt-1">ajoutés à votre progression</span>
+          <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-6 rounded-3xl shadow-xl flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-3">Points d'XP Gagnés</span>
+            <span className="text-4xl font-black text-orange-400">+{xpEarned} XP</span>
+            <span className="text-[10px] text-slate-500 font-semibold mt-1.5">ajoutés à votre progression</span>
           </div>
         </div>
 
         {/* Banner de partage WhatsApp */}
-        <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-5 flex flex-col sm:flex-row items-center gap-4">
+        <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-3xl p-5 flex flex-col sm:flex-row items-center gap-4">
           <div className="flex-1">
-            <h3 className="font-bold text-emerald-950 flex items-center gap-1.5">
+            <h3 className="font-bold text-white text-sm flex items-center gap-1.5">
               <span>💬</span> Partagez vos progrès avec votre communauté
             </h3>
-            <p className="text-xs text-emerald-700 mt-0.5">
-              Aidez d'autres candidats et célébrez vos progrès en partageant votre score estimé de <strong>{session.nclc_estimate || (isExpression && feedback?.nclc_estime) || 'C1'}</strong> sur WhatsApp.
+            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+              Aidez d'autres candidats et célébrez vos progrès en partageant votre score estimé de <strong className="text-emerald-400">{session.nclc_estimate || (isExpression && feedback?.nclc_estime) || 'C1'}</strong> sur WhatsApp.
             </p>
           </div>
           <button
@@ -341,7 +344,7 @@ export default function ResultsPage() {
               const shareText = `J'ai obtenu une estimation de ${estimateNclc} (${scorePercent}%) lors de ma préparation TCF/TEF Canada sur ayePREP ! Préparez-vous avec moi : https://ayeprep.com`
               window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
             }}
-            className="bg-[#25D366] hover:bg-[#1ebd59] text-white px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all flex items-center gap-2 shadow-sm"
+            className="bg-[#25D366] hover:bg-[#1ebd59] text-white px-5 py-2.5 rounded-xl font-extrabold text-xs whitespace-nowrap transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/10"
           >
             Partager sur WhatsApp
           </button>
@@ -349,119 +352,119 @@ export default function ResultsPage() {
 
         {/* Section Recommandations / Next Steps */}
         {weakestInfo && (
-          <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="bg-amber-500/5 border border-amber-500/15 rounded-3xl p-6 shadow-xl space-y-4">
             <div className="flex items-start gap-4">
               <span className="text-3xl">⚠️</span>
               <div className="flex-1">
-                <h3 className="font-extrabold text-amber-900 text-lg">
+                <h3 className="font-black text-amber-400 text-lg font-display">
                   Axe d'amélioration prioritaire : {weakestInfo.module}
                 </h3>
-                <p className="text-sm text-amber-800 mt-1 leading-relaxed">
-                  Vos résultats montrent que le module <strong>{weakestInfo.module === 'CO' ? 'Compréhension de l\'Oral' : weakestInfo.module === 'CE' ? 'Compréhension des Écrits' : weakestInfo.module === 'EE' ? 'Expression Écrite' : 'Expression Orale'}</strong> est votre point faible sur cette session (précision de {Math.round(weakestInfo.score)}%).
+                <p className="text-xs text-slate-400 font-semibold mt-1 leading-relaxed">
+                  Vos résultats montrent que le module <strong className="text-white">{weakestInfo.module === 'CO' ? 'Compréhension de l\'Oral' : weakestInfo.module === 'CE' ? 'Compréhension des Écrits' : weakestInfo.module === 'EE' ? 'Expression Écrite' : 'Expression Orale'}</strong> est votre point faible sur cette session (précision de {Math.round(weakestInfo.score)}%).
                 </p>
               </div>
             </div>
             
-            <div className="border-t border-amber-200/60 pt-4">
-              <h4 className="font-bold text-amber-950 text-sm mb-3">📋 Plan d'action recommandé ("Next Steps") :</h4>
+            <div className="border-t border-amber-500/10 pt-4">
+              <h4 className="font-bold text-white text-xs mb-3">📋 Plan d'action recommandé ("Next Steps") :</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {weakestInfo.module === 'CO' && (
                   <>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 1</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">S'entraîner sur 5 épreuves de Compréhension Orale.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 1</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">S'entraîner sur 5 épreuves de Compréhension Orale.</p>
                       </div>
-                      <Link to="/modules" className="text-xs font-bold text-[#1B3A6B] hover:underline">Pratiquer le CO →</Link>
+                      <Link to="/modules" className="text-xs font-bold text-blue-400 hover:text-blue-300">Pratiquer le CO →</Link>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 2</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Visionner le guide vidéo méthodologique CO.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 2</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Visionner le guide vidéo méthodologique CO.</p>
                       </div>
-                      <Link to="/dashboard" className="text-xs font-bold text-[#1B3A6B] hover:underline">Voir les vidéos →</Link>
+                      <Link to="/dashboard" className="text-xs font-bold text-blue-400 hover:text-blue-300">Voir les vidéos →</Link>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 3</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Consulter la fiche d'aide à la Compréhension.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 3</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Consulter la fiche d'aide à la Compréhension.</p>
                       </div>
-                      <Link to="/aide" className="text-xs font-bold text-[#1B3A6B] hover:underline">Ouvrir le Centre d'aide →</Link>
+                      <Link to="/aide" className="text-xs font-bold text-blue-400 hover:text-blue-300">Ouvrir le Centre d'aide →</Link>
                     </div>
                   </>
                 )}
                 {weakestInfo.module === 'CE' && (
                   <>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 1</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Pratiquer 5 exercices avec textes longs de Compréhension Écrite.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 1</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Pratiquer 5 exercices avec textes longs de Compréhension Écrite.</p>
                       </div>
-                      <Link to="/modules" className="text-xs font-bold text-[#1B3A6B] hover:underline">Pratiquer le CE →</Link>
+                      <Link to="/modules" className="text-xs font-bold text-blue-400 hover:text-blue-300">Pratiquer le CE →</Link>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 2</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Visionner la vidéo 'Lire plus vite' pour le CE.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 2</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Visionner la vidéo 'Lire plus vite' pour le CE.</p>
                       </div>
-                      <Link to="/dashboard" className="text-xs font-bold text-[#1B3A6B] hover:underline">Voir les vidéos →</Link>
+                      <Link to="/dashboard" className="text-xs font-bold text-blue-400 hover:text-blue-300">Voir les vidéos →</Link>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 3</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Consulter l'article 'Compréhension des Écrits'.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 3</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Consulter l'article 'Compréhension des Écrits'.</p>
                       </div>
-                      <Link to="/aide" className="text-xs font-bold text-[#1B3A6B] hover:underline">Ouvrir le Centre d'aide →</Link>
+                      <Link to="/aide" className="text-xs font-bold text-blue-400 hover:text-blue-300">Ouvrir le Centre d'aide →</Link>
                     </div>
                   </>
                 )}
                 {weakestInfo.module === 'EE' && (
                   <>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 1</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Rédiger une nouvelle épreuve EE avec correction IA.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 1</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Rédiger une nouvelle épreuve EE avec correction IA.</p>
                       </div>
-                      <Link to="/dashboard" className="text-xs font-bold text-[#1B3A6B] hover:underline">Lancer une session EE →</Link>
+                      <Link to="/dashboard" className="text-xs font-bold text-blue-400 hover:text-blue-300">Lancer une session EE →</Link>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 2</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Étudier le corrigé type (Proposition C2) ci-dessous.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 2</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Étudier le corrigé type (Proposition C2) ci-dessous.</p>
                       </div>
-                      <button onClick={() => window.scrollTo({top: document.body.scrollHeight * 0.7, behavior: 'smooth'})} className="text-xs font-bold text-left text-[#1B3A6B] hover:underline">Voir le corrigé type →</button>
+                      <button onClick={() => window.scrollTo({top: document.body.scrollHeight * 0.7, behavior: 'smooth'})} className="text-xs font-bold text-left text-blue-400 hover:text-blue-300">Voir le corrigé type →</button>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 3</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Révisez la structure d'essai argumenté.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 3</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Révisez la structure d'essai argumenté.</p>
                       </div>
-                      <Link to="/aide" className="text-xs font-bold text-[#1B3A6B] hover:underline">Ouvrir le Centre d'aide →</Link>
+                      <Link to="/aide" className="text-xs font-bold text-blue-400 hover:text-blue-300">Ouvrir le Centre d'aide →</Link>
                     </div>
                   </>
                 )}
                 {weakestInfo.module === 'EO' && (
                   <>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 1</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Lancer une nouvelle épreuve EO pour s'entraîner à parler.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 1</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Lancer une nouvelle épreuve EO pour s'entraîner à parler.</p>
                       </div>
-                      <Link to="/dashboard" className="text-xs font-bold text-[#1B3A6B] hover:underline">Lancer une session EO →</Link>
+                      <Link to="/dashboard" className="text-xs font-bold text-blue-400 hover:text-blue-300">Lancer une session EO →</Link>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 2</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Analyser votre transcription Whisper ci-dessous.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 2</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Analyser votre transcription Whisper ci-dessous.</p>
                       </div>
-                      <button onClick={() => window.scrollTo({top: document.body.scrollHeight * 0.6, behavior: 'smooth'})} className="text-xs font-bold text-left text-[#1B3A6B] hover:underline">Analyser mon enregistrement →</button>
+                      <button onClick={() => window.scrollTo({top: document.body.scrollHeight * 0.6, behavior: 'smooth'})} className="text-xs font-bold text-left text-blue-400 hover:text-blue-300">Analyser mon enregistrement →</button>
                     </div>
-                    <div className="bg-white/80 p-4 rounded-2xl border border-amber-100/60 flex flex-col justify-between">
+                    <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-850 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-bold text-amber-600 block mb-1">ÉTAPE 3</span>
-                        <p className="text-xs text-amber-900 font-semibold mb-3">Lire les conseils d'Expression Orale.</p>
+                        <span className="text-[10px] font-extrabold text-amber-400 block mb-1">ÉTAPE 3</span>
+                        <p className="text-xs text-slate-300 font-semibold mb-3">Lire les conseils d'Expression Orale.</p>
                       </div>
-                      <Link to="/aide" className="text-xs font-bold text-[#1B3A6B] hover:underline">Ouvrir le Centre d'aide →</Link>
+                      <Link to="/aide" className="text-xs font-bold text-blue-400 hover:text-blue-300">Ouvrir le Centre d'aide →</Link>
                     </div>
                   </>
                 )}
@@ -472,14 +475,14 @@ export default function ResultsPage() {
 
         {/* Competencies Radar Chart for Simulation */}
         {isSimulation && (
-          <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-            <h2 className="text-xl font-bold text-[#1B3A6B] border-b pb-3 select-none">
+          <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 p-8 rounded-3xl shadow-xl space-y-6">
+            <h2 className="text-lg font-black text-white border-b border-slate-800/60 pb-3 select-none font-display">
               Profil de Compétences sur cette Simulation
             </h2>
-            <div className="flex justify-center bg-gray-50 p-6 rounded-2xl">
+            <div className="flex justify-center bg-slate-950/60 p-6 rounded-2xl border border-slate-850">
               <ProgressRadarChart data={getSimulationRadarData()} />
             </div>
-            <p className="text-center text-xs text-gray-500 leading-relaxed max-w-lg mx-auto">
+            <p className="text-center text-[10px] text-slate-500 font-semibold leading-relaxed max-w-lg mx-auto">
               Ce radar de performance croise vos réponses aux épreuves de compréhension (CO/CE) et les évaluations automatiques par critère de notre modèle IA sur vos productions d'expression (EE/EO).
             </p>
           </div>
@@ -488,38 +491,38 @@ export default function ResultsPage() {
         {/* Detailed AI Critiques for EE/EO */}
         {isExpression && feedback ? (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-800 border-b pb-2">Évaluation Détaillée de l'IA</h2>
+            <h2 className="text-lg font-black text-white border-b border-slate-800/60 pb-3 font-display">Évaluation Détaillée de l'IA</h2>
 
             {/* General Feedback Resume */}
             {feedback.resume && (
-              <div className="bg-[#1B3A6B]/5 border border-[#1B3A6B]/20 p-5 rounded-2xl">
-                <h3 className="font-bold text-[#1B3A6B] mb-2 text-base">Synthèse du Correcteur :</h3>
-                <p className="text-gray-700 leading-relaxed text-sm italic">"{feedback.resume}"</p>
+              <div className="bg-blue-500/5 border border-blue-500/15 p-5 rounded-2xl">
+                <h3 className="font-bold text-blue-400 mb-2 text-sm">Synthèse du Correcteur :</h3>
+                <p className="text-slate-300 leading-relaxed text-xs italic font-semibold">"{feedback.resume}"</p>
               </div>
             )}
 
             {/* Criteria Breakdown */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-6">
-              <h3 className="font-bold text-gray-800 text-lg border-b pb-3">Analyse par Critère</h3>
+            <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-6">
+              <h3 className="font-bold text-white text-sm border-b border-slate-800/60 pb-3 font-display">Analyse par Critère</h3>
               <div className="space-y-6">
                 {Object.entries(feedback.criteres || {}).map(([key, item]: [string, any]) => {
                   const label = CRITERIA_LABELS[key] || key
                   const percent = getPercent(item.score)
                   return (
                     <div key={key} className="space-y-2">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-bold text-gray-700">{label}</span>
-                        <span className="font-extrabold text-[#1B3A6B] bg-[#1B3A6B]/5 px-2 py-0.5 rounded text-xs">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-slate-300">{label}</span>
+                        <span className="font-extrabold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 rounded-lg text-[10px]">
                           {item.score} / {item.score <= 4 ? '4' : '100'}
                         </span>
                       </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                      <div className="w-full bg-slate-800/60 rounded-full h-2 overflow-hidden">
                         <div 
-                          className={cn('h-2.5 rounded-full transition-all duration-500', getCriteriaColorClass(item.score))}
+                          className={cn('h-2 rounded-full transition-all duration-500', getCriteriaColorClass(item.score))}
                           style={{ width: `${percent}%` }}
                         />
                       </div>
-                      <p className="text-gray-600 text-sm pl-2 border-l-2 border-gray-200 leading-relaxed">
+                      <p className="text-slate-400 text-xs pl-2.5 border-l-2 border-slate-800 leading-relaxed font-semibold">
                         {item.commentaire}
                       </p>
                     </div>
@@ -530,12 +533,12 @@ export default function ResultsPage() {
 
             {/* Actionable Suggestions */}
             {feedback.suggestions && feedback.suggestions.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
-                <h3 className="font-bold text-gray-800 text-lg border-b pb-2">💡 Recommandations et Axes d'Amélioration</h3>
+              <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-4">
+                <h3 className="font-bold text-white text-sm border-b border-slate-800/60 pb-3 font-display">💡 Recommandations et Axes d'Amélioration</h3>
                 <ul className="space-y-3">
                   {feedback.suggestions.map((suggestion: string, idx: number) => (
-                    <li key={idx} className="flex gap-3 text-sm text-gray-700 leading-relaxed">
-                      <span className="text-[#C55A11] shrink-0 font-bold">➜</span>
+                    <li key={idx} className="flex gap-3 text-xs text-slate-300 leading-relaxed font-semibold">
+                      <span className="text-orange-400 shrink-0 font-bold">➜</span>
                       <span>{suggestion}</span>
                     </li>
                   ))}
@@ -547,12 +550,12 @@ export default function ResultsPage() {
 
         {/* Detailed answers display */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-gray-800 border-b pb-2">
+          <h2 className="text-lg font-black text-white border-b border-slate-800/60 pb-3 font-display">
             {isExpression ? "Votre Production et Corrigé" : "Analyse Question par Question"}
           </h2>
 
           {answers.length === 0 ? (
-            <p className="text-gray-500 text-center py-6 bg-white rounded-2xl border border-dashed">
+            <p className="text-slate-500 text-center py-6 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800 text-sm font-semibold">
               Aucun détail disponible pour cette session.
             </p>
           ) : (
@@ -560,38 +563,38 @@ export default function ResultsPage() {
               const { questions: q } = answer
               if (!q) return null
               return (
-                <div key={answer.id} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col gap-5">
+                <div key={answer.id} className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl flex flex-col gap-5">
                   {/* Task Header */}
-                  <div className="flex justify-between items-center border-b pb-3 mb-1 select-none">
-                    <span className="text-sm font-bold text-gray-500">
+                  <div className="flex justify-between items-center border-b border-slate-800/60 pb-3 mb-1 select-none">
+                    <span className="text-xs font-bold text-slate-450">
                       Tâche {index + 1} · {q.module} · Niveau {q.level}
                     </span>
                     {q.module === 'EE' || q.module === 'EO' ? (
-                      <span className="text-[#1B3A6B] text-xs font-bold bg-[#1B3A6B]/10 px-2.5 py-1 rounded-full uppercase">
+                      <span className="text-blue-400 text-[10px] font-extrabold bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-lg uppercase tracking-wider">
                         Évalué par l'IA
                       </span>
                     ) : answer.is_correct ? (
-                      <span className="text-success flex items-center gap-1 text-xs font-extrabold bg-success/10 px-2.5 py-1 rounded-full uppercase">
+                      <span className="text-emerald-400 flex items-center gap-1 text-[10px] font-extrabold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg uppercase tracking-wider">
                         ✓ Correct
                       </span>
                     ) : (
-                      <span className="text-error flex items-center gap-1 text-xs font-extrabold bg-error/10 px-2.5 py-1 rounded-full uppercase">
+                      <span className="text-rose-400 flex items-center gap-1 text-[10px] font-extrabold bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 rounded-lg uppercase tracking-wider">
                         × Incorrect
                       </span>
                     )}
                   </div>
 
                   {/* Question Text */}
-                  <h3 className="text-base font-bold text-gray-800 leading-snug">
+                  <h3 className="text-sm font-bold text-white leading-snug">
                     {q.question_text}
                   </h3>
 
                   {/* EE Specific Render */}
                   {q.module === 'EE' && (
                     <div className="space-y-4">
-                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
-                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">Votre Rédaction :</h4>
-                        <p className="font-serif text-gray-700 leading-relaxed whitespace-pre-line text-sm md:text-base">
+                      <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl">
+                        <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2 select-none">Votre Rédaction :</h4>
+                        <p className="font-serif text-slate-300 leading-relaxed whitespace-pre-line text-xs md:text-sm">
                           {answer.user_answer}
                         </p>
                       </div>
@@ -601,15 +604,15 @@ export default function ResultsPage() {
                   {/* EO Specific Render */}
                   {q.module === 'EO' && (
                     <div className="space-y-4">
-                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl flex flex-col gap-3">
-                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider select-none">Votre Enregistrement :</h4>
+                      <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex flex-col gap-3">
+                        <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider select-none">Votre Enregistrement :</h4>
                         {answer.user_answer && (
                           <audio src={answer.user_answer} controls className="max-w-md w-full h-10" />
                         )}
                         {answer.audio_transcript && (
-                          <div className="mt-2 border-t pt-3">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1 select-none">Transcription Whisper :</span>
-                            <p className="text-gray-700 italic leading-relaxed text-sm">
+                          <div className="mt-2 border-t border-slate-800/60 pt-3">
+                            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1 select-none">Transcription Whisper :</span>
+                            <p className="text-slate-300 italic leading-relaxed text-xs font-semibold">
                               "{answer.audio_transcript}"
                             </p>
                           </div>
@@ -629,23 +632,23 @@ export default function ResultsPage() {
                           <div
                             key={key}
                             className={cn(
-                              'flex items-center gap-3 p-3.5 rounded-xl border text-sm transition-all',
-                              isCorrectAnswer && 'border-success bg-success/5 text-success font-semibold',
-                              isUserAnswer && !isCorrectAnswer && 'border-error bg-error/5 text-error font-semibold',
-                              !isCorrectAnswer && !isUserAnswer && 'border-gray-100 bg-white text-gray-600'
+                              'flex items-center gap-3 p-3 rounded-2xl border-2 text-xs transition-all font-semibold',
+                              isCorrectAnswer && 'border-emerald-500/60 bg-emerald-500/5 text-emerald-400',
+                              isUserAnswer && !isCorrectAnswer && 'border-rose-500/60 bg-rose-500/5 text-rose-400',
+                              !isCorrectAnswer && !isUserAnswer && 'border-slate-850 bg-slate-950/40 text-slate-400'
                             )}
                           >
                             <span className={cn(
-                              'w-7 h-7 rounded-full border flex items-center justify-center font-bold text-xs shrink-0',
-                              isCorrectAnswer && 'bg-success text-white border-success',
-                              isUserAnswer && !isCorrectAnswer && 'bg-error text-white border-error',
-                              !isCorrectAnswer && !isUserAnswer && 'border-gray-200 text-gray-400'
+                              'w-7 h-7 rounded-lg border flex items-center justify-center font-bold text-xs shrink-0',
+                              isCorrectAnswer && 'bg-emerald-500 text-white border-emerald-500',
+                              isUserAnswer && !isCorrectAnswer && 'bg-rose-500 text-white border-rose-500',
+                              !isCorrectAnswer && !isUserAnswer && 'border-slate-700 text-slate-500'
                             )}>
                               {key}
                             </span>
-                            <span className="text-sm shrink-1">{val}</span>
-                            {isCorrectAnswer && <span className="ml-auto text-xs font-extrabold text-success uppercase">Bonne Réponse</span>}
-                            {isUserAnswer && !isCorrectAnswer && <span className="ml-auto text-xs font-extrabold text-error uppercase">Votre Choix</span>}
+                            <span className="text-xs shrink-1">{val}</span>
+                            {isCorrectAnswer && <span className="ml-auto text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider">Bonne Réponse</span>}
+                            {isUserAnswer && !isCorrectAnswer && <span className="ml-auto text-[10px] font-extrabold text-rose-400 uppercase tracking-wider">Votre Choix</span>}
                           </div>
                         )
                       })}
@@ -654,9 +657,9 @@ export default function ResultsPage() {
 
                   {/* Model Answer (Corrigé type) for EE/EO */}
                   {(q.module === 'EE' || q.module === 'EO') && q.model_answer && (
-                    <div className="bg-[#1B3A6B]/5 border border-[#1B3A6B]/10 rounded-xl p-4 text-sm text-gray-700 leading-relaxed">
-                      <strong className="text-[#1B3A6B] font-bold block mb-1">💡 Proposition de corrigé type (Niveau C2) :</strong>
-                      <p className="whitespace-pre-line font-serif text-sm md:text-base leading-relaxed mt-2 text-gray-800">
+                    <div className="bg-blue-500/5 border border-blue-500/15 rounded-2xl p-4 text-xs text-slate-300 leading-relaxed">
+                      <strong className="text-blue-400 font-bold block mb-1">💡 Proposition de corrigé type (Niveau C2) :</strong>
+                      <p className="whitespace-pre-line font-serif text-xs md:text-sm leading-relaxed mt-2 text-slate-300">
                         {q.model_answer}
                       </p>
                     </div>
@@ -664,9 +667,9 @@ export default function ResultsPage() {
 
                   {/* Standard QCM Pedagogical Explanation */}
                   {q.module !== 'EE' && q.module !== 'EO' && q.explanation && (
-                    <div className="bg-orange-50/50 border border-orange-100 rounded-xl p-4 text-sm text-gray-700 leading-relaxed mt-2">
-                      <strong className="text-orange-800 font-bold block mb-1">Explication Pédagogique :</strong>
-                      <p>{q.explanation}</p>
+                    <div className="bg-orange-500/5 border border-orange-500/15 rounded-2xl p-4 text-xs text-slate-300 leading-relaxed mt-2">
+                      <strong className="text-orange-400 font-bold block mb-1">Explication Pédagogique :</strong>
+                      <p className="font-semibold">{q.explanation}</p>
                     </div>
                   )}
                 </div>
@@ -679,7 +682,7 @@ export default function ResultsPage() {
         <div className="text-center pt-4 select-none">
           <Link
             to="/dashboard"
-            className="inline-flex justify-center items-center px-6 py-3 bg-[#1B3A6B] hover:bg-[#12274A] text-white rounded-xl font-bold shadow-sm transition-all"
+            className="inline-flex justify-center items-center px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-650 text-white rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/10 hover:opacity-95 transition-all"
           >
             Retourner au Tableau de Bord
           </Link>

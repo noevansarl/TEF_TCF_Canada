@@ -65,70 +65,72 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-8 font-sans">
-      
+    <div className="space-y-8 select-text">
       {/* Title */}
       <div className="select-none">
-        <h1 className="text-3xl font-extrabold text-gray-800">Admin Dashboard</h1>
-        <p className="text-gray-500 mt-1">Supervisez l'activité globale et gérez les corrections IA / Humaines.</p>
+        <h1 className="text-4xl font-black text-slate-900 tracking-tight font-display">
+          Admin <span className="bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">Dashboard</span>
+        </h1>
+        <p className="text-slate-550 font-medium mt-1.5">
+          Supervisez l'activité globale et gérez les corrections IA / Humaines.
+        </p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 select-none">
         {/* Card 1 */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <span className="text-3xl bg-blue-50 p-3.5 rounded-xl">👥</span>
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/60 shadow-sm flex items-center gap-4 hover:border-blue-500/20 hover:shadow-md transition-all">
+          <span className="text-3.5xl bg-blue-50 p-3.5 rounded-2xl">👥</span>
           <div>
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Actifs (24h)</span>
-            <span className="text-2xl font-extrabold text-gray-800">{stats.active_24h}</span>
-            <span className="text-xs text-green-500 font-semibold block mt-0.5">+12% vs hier</span>
+            <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">Actifs (24h)</span>
+            <span className="text-2xl font-black text-slate-800 font-display mt-0.5 block">{stats.active_24h}</span>
+            <span className="text-[11px] text-emerald-600 font-bold block mt-0.5">+12% vs hier</span>
           </div>
         </div>
 
         {/* Card 2 */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <span className="text-3xl bg-green-50 p-3.5 rounded-xl">💵</span>
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/60 shadow-sm flex items-center gap-4 hover:border-emerald-500/20 hover:shadow-md transition-all">
+          <span className="text-3.5xl bg-emerald-50 p-3.5 rounded-2xl">💵</span>
           <div>
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">MRR Récurrent</span>
-            <span className="text-2xl font-extrabold text-gray-800">{stats.mrr.toLocaleString('fr-FR')} $</span>
-            <span className="text-xs text-green-500 font-semibold block mt-0.5">+8% ce mois</span>
+            <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">MRR Récurrent</span>
+            <span className="text-2xl font-black text-slate-800 font-display mt-0.5 block">{stats.mrr.toLocaleString('fr-FR')} $</span>
+            <span className="text-[11px] text-emerald-600 font-bold block mt-0.5">+8% ce mois</span>
           </div>
         </div>
 
         {/* Card 3 */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <span className="text-3xl bg-purple-50 p-3.5 rounded-xl">📊</span>
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/60 shadow-sm flex items-center gap-4 hover:border-purple-500/20 hover:shadow-md transition-all">
+          <span className="text-3.5xl bg-purple-50 p-3.5 rounded-2xl">📊</span>
           <div>
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Sessions (Aujourd'hui)</span>
-            <span className="text-2xl font-extrabold text-gray-800">{stats.sessions_today}</span>
-            <span className="text-xs text-green-500 font-semibold block mt-0.5">+25% d'activité</span>
+            <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">Sessions (Auj)</span>
+            <span className="text-2xl font-black text-slate-800 font-display mt-0.5 block">{stats.sessions_today}</span>
+            <span className="text-[11px] text-emerald-600 font-bold block mt-0.5">+25% d'activité</span>
           </div>
         </div>
 
         {/* Card 4 */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-          <span className="text-3xl bg-orange-50 p-3.5 rounded-xl">✍️</span>
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/60 shadow-sm flex items-center gap-4 hover:border-orange-500/20 hover:shadow-md transition-all">
+          <span className="text-3.5xl bg-orange-50 p-3.5 rounded-2xl">✍️</span>
           <div>
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">En attente Expert</span>
-            <span className="text-2xl font-extrabold text-gray-800">{stats.pending_corrections}</span>
-            <span className="text-xs text-orange-500 font-semibold block mt-0.5">SLA critique: 48h</span>
+            <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">En attente Expert</span>
+            <span className="text-2xl font-black text-slate-800 font-display mt-0.5 block">{stats.pending_corrections}</span>
+            <span className="text-[11px] text-amber-600 font-bold block mt-0.5">SLA: 48h</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
         {/* Expert Correction Queue */}
-        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm lg:col-span-2 space-y-4">
-          <div className="border-b pb-3 flex justify-between items-center">
-            <h3 className="font-extrabold text-lg text-gray-800">✍️ File d'Expression Écrite / Orale</h3>
-            <span className="text-xs bg-orange-100 text-orange-800 font-bold px-2 py-0.5 rounded">Corrections requises</span>
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border border-slate-200/60 shadow-sm lg:col-span-2 space-y-4">
+          <div className="border-b border-slate-100 pb-3.5 flex justify-between items-center select-none">
+            <h3 className="font-extrabold text-base text-slate-800 font-display">✍️ File d'Expression Écrite / Orale</h3>
+            <span className="text-[10px] bg-orange-50 text-orange-700 font-bold px-2.5 py-0.5 rounded-full border border-orange-200/40 uppercase">Corrections requises</span>
           </div>
           
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="border-b border-gray-100 text-gray-400 text-xs uppercase font-extrabold">
+                <tr className="border-b border-slate-100 text-slate-450 text-[11px] uppercase font-black tracking-wider">
                   <th className="py-3">Candidat</th>
                   <th className="py-3">Épreuve</th>
                   <th className="py-3">Soumis le</th>
@@ -136,28 +138,28 @@ export default function AdminDashboard() {
                   <th className="py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50 text-gray-700">
+              <tbody className="divide-y divide-slate-100/60 text-slate-700">
                 {pendingCorrections.map((pc) => (
-                  <tr key={pc.id} className="hover:bg-gray-50/50">
-                    <td className="py-3 font-semibold">{pc.user_name}</td>
-                    <td className="py-3">
-                      <span className="font-bold text-xs bg-primary/10 text-primary px-2 py-0.5 rounded mr-1.5">{pc.module}</span>
-                      <span className="text-xs text-gray-500">{pc.test_type === 'TEF_CANADA' ? 'TEF' : 'TCF'}</span>
+                  <tr key={pc.id} className="hover:bg-slate-50/40 transition-colors">
+                    <td className="py-3.5 font-bold text-slate-800">{pc.user_name}</td>
+                    <td className="py-3.5">
+                      <span className="font-extrabold text-[10px] bg-purple-50 text-purple-700 border border-purple-250/50 px-2 py-0.5 rounded mr-1.5 uppercase">{pc.module}</span>
+                      <span className="text-xs text-slate-500">{pc.test_type === 'TEF_CANADA' ? 'TEF' : 'TCF'}</span>
                     </td>
-                    <td className="py-3 text-xs text-gray-500">
+                    <td className="py-3.5 text-xs text-slate-500 font-medium">
                       {new Date(pc.submitted_at).toLocaleDateString('fr-FR')} {new Date(pc.submitted_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                     </td>
-                    <td className="py-3">
-                      <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase ${
-                        pc.status === 'waiting' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                    <td className="py-3.5">
+                      <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase border ${
+                        pc.status === 'waiting' ? 'bg-amber-50 text-amber-700 border-amber-200/50' : 'bg-blue-50 text-blue-700 border-blue-200/50'
                       }`}>
                         {pc.status === 'waiting' ? 'En attente' : 'Assigné'}
                       </span>
                     </td>
-                    <td className="py-3 text-right">
+                    <td className="py-3.5 text-right">
                       <button
                         onClick={() => alert(`Correction de l'exercice pour ${pc.user_name} (Simulation Expert)`)}
-                        className="text-xs bg-[#1B3A6B] hover:bg-[#12274A] text-white px-3 py-1.5 rounded-lg font-bold transition-all shadow-sm"
+                        className="text-xs bg-[#1B3A6B] hover:bg-[#12274A] text-white px-3.5 py-1.5 rounded-xl font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                       >
                         Évaluer
                       </button>
@@ -170,22 +172,22 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Session Actions */}
-        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
-          <div className="border-b pb-3">
-            <h3 className="font-extrabold text-lg text-gray-800">📊 Activité Récente</h3>
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-4">
+          <div className="border-b border-slate-100 pb-3.5 select-none">
+            <h3 className="font-extrabold text-base text-slate-800 font-display">📊 Activité Récente</h3>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {recentSessions.map((rs) => (
-              <div key={rs.id} className="flex justify-between items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+              <div key={rs.id} className="flex justify-between items-center gap-3 p-3 rounded-2xl border border-slate-100/60 hover:bg-slate-50/60 hover:border-slate-200/40 transition-all select-none">
                 <div className="space-y-0.5">
-                  <span className="font-bold text-sm text-gray-800 block">{rs.user_name}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="font-bold text-sm text-slate-800 block">{rs.user_name}</span>
+                  <span className="text-xs text-slate-400 font-semibold">
                     Session · {rs.module.startsWith('FULL_') ? 'Simulation' : rs.module} · {rs.test_type === 'TEF_CANADA' ? 'TEF' : 'TCF'}
                   </span>
                 </div>
-                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase ${
-                  rs.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md uppercase border ${
+                  rs.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-250/50' : 'bg-blue-50 text-blue-700 border-blue-200/50'
                 }`}>
                   {rs.status === 'completed' ? 'Fini' : 'En cours'}
                 </span>
@@ -193,9 +195,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         </div>
-
       </div>
-
     </div>
   )
 }

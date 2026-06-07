@@ -85,6 +85,7 @@ CREATE INDEX IF NOT EXISTS idx_user_packs_active
 
 -- RLS sur user_pack_subscriptions
 ALTER TABLE public.user_pack_subscriptions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users see own packs" ON public.user_pack_subscriptions;
 CREATE POLICY "Users see own packs" ON public.user_pack_subscriptions
   FOR SELECT USING (auth.uid() = user_id);
 
@@ -130,6 +131,7 @@ CREATE TABLE IF NOT EXISTS public.learning_plans (
 );
 
 ALTER TABLE public.learning_plans ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users manage own plans" ON public.learning_plans;
 CREATE POLICY "Users manage own plans" ON public.learning_plans
   FOR ALL USING (auth.uid() = user_id);
 

@@ -104,13 +104,13 @@ function getLevel(table: typeof TCF_NCLC_TABLE, module: string, score: number) {
 }
 
 const levelColor: Record<string, string> = {
-  'B1': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  'B1+': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  'B2': 'bg-blue-100 text-blue-800 border-blue-300',
-  'B2+': 'bg-blue-100 text-blue-800 border-blue-300',
-  'C1': 'bg-green-100 text-green-800 border-green-300',
-  'C1+': 'bg-green-100 text-green-800 border-green-300',
-  'C2': 'bg-purple-100 text-purple-800 border-purple-300',
+  'B1': 'bg-amber-50 text-amber-700 border-amber-200/50',
+  'B1+': 'bg-amber-50 text-amber-700 border-amber-200/50',
+  'B2': 'bg-blue-50 text-blue-700 border-blue-200/50',
+  'B2+': 'bg-blue-50 text-blue-700 border-blue-200/50',
+  'C1': 'bg-emerald-50 text-emerald-700 border-emerald-250/50',
+  'C1+': 'bg-emerald-50 text-emerald-700 border-emerald-250/50',
+  'C2': 'bg-purple-50 text-purple-700 border-purple-250/50',
 }
 
 const MODULE_LABELS: Record<string, string> = {
@@ -164,30 +164,35 @@ export default function NclcCalculatorPage() {
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" }
       })}} />
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#F8F9FA] relative overflow-hidden font-sans text-slate-800">
+        {/* Decorative Orbs */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#1B3A6B]/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+        <div className="absolute bottom-20 right-1/4 w-[600px] h-[600px] bg-[#C55A11]/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 py-4">
+        <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 px-6 py-4 sticky top-0 z-40 relative z-10">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
-                      <Logo />
-            <Link to="/register" className="text-sm font-semibold text-[#1B3A6B] hover:underline">
-              Commencer la préparation →
+            <Logo />
+            <Link to="/register" className="text-sm font-bold text-[#1B3A6B] hover:text-indigo-650 transition-colors flex items-center gap-1 select-none">
+              Commencer la préparation <span>→</span>
             </Link>
           </div>
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <Link to={user ? "/dashboard" : "/"} className="inline-flex items-center gap-1.5 text-xs text-[#1B3A6B] hover:opacity-85 font-bold transition-colors select-none mb-6">
+        <div className="max-w-4xl mx-auto px-4 py-12 relative z-10">
+          <Link to={user ? "/dashboard" : "/"} className="inline-flex items-center gap-1.5 text-xs text-[#1B3A6B] hover:text-indigo-650 font-bold transition-colors select-none mb-6">
             ← {user ? "Retour au tableau de bord" : "Retour à l'accueil"}
           </Link>
+          
           {/* Titre SEO */}
-          <div className="text-center mb-10">
-            <span className="inline-block bg-[#1B3A6B]/10 text-[#1B3A6B] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
-              Outil gratuit — Sans inscription
+          <div className="text-center mb-10 select-none">
+            <span className="inline-block bg-[#1B3A6B]/5 text-[#1B3A6B] border border-[#1B3A6B]/15 text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full mb-4">
+              Outil gratuit · Sans inscription
             </span>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
-              Calculateur NCLC / CLB
+            <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight font-display mb-3">
+              Calculateur <span className="bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">NCLC / CLB</span>
             </h1>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-2xl mx-auto font-medium leading-relaxed">
               Convertissez vos scores <strong>TCF Canada</strong> ou <strong>TEF Canada</strong> en niveaux
               NCLC/CLB officiels reconnus par <strong>IRCC</strong> (Immigration Canada).
               Tables officielles 2026.
@@ -195,23 +200,23 @@ export default function NclcCalculatorPage() {
           </div>
 
           {/* Sélection type d'examen */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">1. Choisissez votre examen</h2>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 shadow-sm p-6 mb-6">
+            <h2 className="text-lg font-bold text-slate-900 mb-4 font-display">1. Choisissez votre examen</h2>
+            <div className="grid grid-cols-2 gap-3 select-none">
               {(['TCF_CANADA', 'TEF_CANADA'] as const).map(type => (
                 <button
                   key={type}
                   onClick={() => { setTestType(type); setCalculated(false) }}
-                  className={`p-4 rounded-xl border-2 text-left transition-all ${
+                  className={`p-4 rounded-2xl border-2 text-left transition-all ${
                     testType === type
-                      ? 'border-[#1B3A6B] bg-[#1B3A6B]/5'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 bg-blue-50/30 shadow-md shadow-blue-500/5'
+                      : 'border-slate-200 hover:border-slate-350 bg-white/60 hover:bg-white'
                   }`}
                 >
-                  <p className={`font-bold ${testType === type ? 'text-[#1B3A6B]' : 'text-gray-700'}`}>
+                  <p className={`font-black text-sm uppercase tracking-wider ${testType === type ? 'text-[#1B3A6B]' : 'text-slate-700'}`}>
                     {type === 'TCF_CANADA' ? 'TCF Canada' : 'TEF Canada'}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-slate-400 font-semibold mt-1">
                     {type === 'TCF_CANADA'
                       ? 'France Éducation International · Score /699'
                       : 'CCI Paris Île-de-France · Score /360 (CO)'}
@@ -222,14 +227,14 @@ export default function NclcCalculatorPage() {
           </div>
 
           {/* Saisie des scores */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">2. Entrez vos scores</h2>
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 shadow-sm p-6 mb-6 space-y-6">
+            <h2 className="text-lg font-bold text-slate-900 font-display">2. Entrez vos scores</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Object.entries(MODULE_LABELS).map(([mod, label]) => (
-                <div key={mod}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                <div key={mod} className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide">
                     {label}
-                    <span className="ml-2 text-xs font-normal text-gray-400">
+                    <span className="ml-1.5 text-[10px] font-bold text-slate-400">
                       (max {maxScores[mod]})
                     </span>
                   </label>
@@ -240,14 +245,14 @@ export default function NclcCalculatorPage() {
                     value={scores[mod as keyof typeof scores]}
                     onChange={e => setScores(prev => ({ ...prev, [mod]: e.target.value }))}
                     placeholder={`Score 0–${maxScores[mod]}`}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 focus:border-[#1B3A6B] text-gray-900"
+                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm text-slate-750 font-semibold transition-all bg-slate-50/30 focus:bg-white"
                   />
                 </div>
               ))}
             </div>
             <button
               onClick={() => setCalculated(true)}
-              className="mt-6 w-full py-3 bg-[#1B3A6B] text-white rounded-xl font-bold hover:bg-[#152e56] transition-colors"
+              className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-750 text-white rounded-xl font-bold transition-all shadow-md shadow-indigo-500/10 active:scale-95 text-sm uppercase tracking-wider"
             >
               Calculer mes niveaux NCLC
             </button>
@@ -255,16 +260,16 @@ export default function NclcCalculatorPage() {
 
           {/* Résultats */}
           {calculated && (
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-6">3. Vos résultats</h2>
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 shadow-sm p-6 mb-6 space-y-6">
+              <h2 className="text-lg font-bold text-slate-900 font-display">3. Vos résultats</h2>
 
               {/* Score global */}
               {allFilled && overallNclc !== null && (
-                <div className="text-center bg-[#1B3A6B] text-white rounded-2xl p-6 mb-6">
-                  <p className="text-sm font-semibold opacity-75 mb-1">Votre niveau global estimé</p>
-                  <p className="text-4xl font-extrabold">NCLC {overallNclc}</p>
-                  <p className="text-sm opacity-75 mt-1">
-                    (basé sur votre module le plus faible — règle IRCC)
+                <div className="text-center bg-gradient-to-br from-[#1B3A6B] to-indigo-600 text-white rounded-2xl p-6 shadow-md shadow-indigo-500/10">
+                  <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Votre niveau global estimé</p>
+                  <p className="text-5xl font-black font-display tracking-tight">NCLC {overallNclc}</p>
+                  <p className="text-xs opacity-80 font-medium mt-1.5">
+                    (basé sur votre module le plus faible — règle officielle IRCC)
                   </p>
                 </div>
               )}
@@ -272,24 +277,24 @@ export default function NclcCalculatorPage() {
               {/* Résultats par module */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {results.map(({ module, score, level }) => (
-                  <div key={module} className="border border-gray-200 rounded-xl p-4">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <div key={module} className="border border-slate-200/60 rounded-2xl p-4 bg-white hover:border-blue-500/15 transition-all">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">
                       {MODULE_LABELS[module]}
                     </p>
                     {score === null ? (
-                      <p className="text-gray-400 text-sm italic">Score non saisi</p>
+                      <p className="text-slate-400 text-xs italic font-medium">Score non saisi</p>
                     ) : level ? (
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <p className="text-2xl font-extrabold text-[#1B3A6B]">{level.nclc}</p>
-                          <p className="text-sm text-gray-500">{level.clb}</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-2xl font-black text-[#1B3A6B] font-display">{level.nclc}</p>
+                          <p className="text-xs text-slate-400 font-semibold">{level.clb}</p>
                         </div>
-                        <span className={`px-2 py-1 rounded-lg text-xs font-bold border ${levelColor[level.cecrl] || 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                        <span className={`px-2.5 py-1 rounded-xl text-xs font-extrabold border ${levelColor[level.cecrl] || 'bg-gray-105 text-slate-600 border-slate-200'}`}>
                           {level.cecrl}
                         </span>
                       </div>
                     ) : (
-                      <p className="text-red-500 text-sm">Score hors plage valide</p>
+                      <p className="text-red-500 text-xs font-bold">Score hors plage valide</p>
                     )}
                   </div>
                 ))}
@@ -298,37 +303,37 @@ export default function NclcCalculatorPage() {
           )}
 
           {/* Tableau de correspondance complet */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 shadow-sm p-6 mb-8">
+            <h2 className="text-lg font-bold text-slate-900 mb-4 font-display">
               Tableau de correspondance complet — {testType === 'TCF_CANADA' ? 'TCF Canada' : 'TEF Canada'}
             </h2>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-2 pr-4 text-gray-500 font-semibold">NCLC / CLB</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-semibold">CECRL</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-semibold">CO</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-semibold">CE</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-semibold">EE</th>
-                    <th className="text-left py-2 text-gray-500 font-semibold">EO</th>
+                  <tr className="border-b border-slate-100 text-slate-450 text-[11px] uppercase font-black tracking-wider select-none">
+                    <th className="text-left py-3 pr-4">NCLC / CLB</th>
+                    <th className="text-left py-3 pr-4">CECRL</th>
+                    <th className="text-left py-3 pr-4">CO</th>
+                    <th className="text-left py-3 pr-4">CE</th>
+                    <th className="text-left py-3 pr-4">EE</th>
+                    <th className="text-left py-3">EO</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-100/60 text-slate-700">
                   {['NCLC 4','NCLC 5','NCLC 6','NCLC 7','NCLC 8','NCLC 9','NCLC 10','NCLC 11','NCLC 12'].map((nclc, i) => {
                     const co = table.CO[i], ce = table.CE[i], ee = table.EE[i], eo = table.EO[i]
                     return (
-                      <tr key={nclc} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-2 pr-4 font-bold text-[#1B3A6B]">{nclc}</td>
-                        <td className="py-2 pr-4">
-                          <span className={`px-2 py-0.5 rounded text-xs font-bold border ${levelColor[co?.cecrl] || ''}`}>
+                      <tr key={nclc} className="hover:bg-slate-50/40 transition-colors">
+                        <td className="py-3 pr-4 font-bold text-[#1B3A6B]">{nclc}</td>
+                        <td className="py-3 pr-4">
+                          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold border ${levelColor[co?.cecrl] || ''}`}>
                             {co?.cecrl}
                           </span>
                         </td>
-                        <td className="py-2 pr-4 text-gray-700">{co ? `${co.min}–${co.max}` : '—'}</td>
-                        <td className="py-2 pr-4 text-gray-700">{ce ? `${ce.min}–${ce.max}` : '—'}</td>
-                        <td className="py-2 pr-4 text-gray-700">{ee ? `${ee.min}–${ee.max}` : '—'}</td>
-                        <td className="py-2 text-gray-700">{eo ? `${eo.min}–${eo.max}` : '—'}</td>
+                        <td className="py-3 pr-4 text-slate-600 font-semibold text-xs">{co ? `${co.min}–${co.max}` : '—'}</td>
+                        <td className="py-3 pr-4 text-slate-600 font-semibold text-xs">{ce ? `${ce.min}–${ce.max}` : '—'}</td>
+                        <td className="py-3 pr-4 text-slate-600 font-semibold text-xs">{ee ? `${ee.min}–${ee.max}` : '—'}</td>
+                        <td className="py-3 text-slate-600 font-semibold text-xs">{eo ? `${eo.min}–${eo.max}` : '—'}</td>
                       </tr>
                     )
                   })}
@@ -338,40 +343,41 @@ export default function NclcCalculatorPage() {
           </div>
 
           {/* CTA inscription */}
-          <div className="bg-gradient-to-r from-[#1B3A6B] to-[#2E75B6] rounded-2xl p-8 text-white text-center">
-            <p className="text-sm font-semibold opacity-75 mb-2">Prêt à atteindre le niveau que vous visez ?</p>
-            <h3 className="text-2xl font-extrabold mb-3">
+          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-3xl p-8 text-white text-center relative z-10 shadow-lg border border-slate-850">
+            <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-2">Prêt à atteindre le niveau que vous visez ?</p>
+            <h3 className="text-2xl md:text-3xl font-black font-display tracking-tight mb-3">
               {calculated && overallNclc
                 ? `Vous êtes à NCLC ${overallNclc} — passez au niveau supérieur`
                 : 'Commencez votre préparation'}
             </h3>
-            <p className="opacity-80 mb-6 text-sm">
-              Simulations officielles, correction IA, sujets d'actualité. Accès gratuit immédiat.
+            <p className="opacity-80 mb-6 text-sm max-w-lg mx-auto leading-relaxed">
+              Profitez de simulations officielles chronométrées, de corrections détaillées par IA, et de sujets d'actualité exclusifs.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <div className="flex flex-col sm:flex-row justify-center gap-3.5 select-none">
               <Link
                 to="/register"
-                className="inline-block bg-white text-[#1B3A6B] font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors text-sm"
+                className="inline-block bg-white hover:bg-slate-50 text-slate-900 font-extrabold py-3.5 px-8 rounded-xl transition-all shadow-md active:scale-95 text-sm"
               >
                 Créer mon compte gratuit →
               </Link>
               <Link
                 to="/simulateur-crs"
-                className="inline-block border border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white/10 transition-colors text-sm"
+                className="inline-block border border-white/20 hover:border-white text-white font-extrabold py-3.5 px-8 rounded-xl transition-all hover:bg-white/5 active:scale-95 text-sm"
               >
-                Simuler mes points CRS (Entrée Express) 🍁
+                Simuler mes points CRS 🍁
               </Link>
             </div>
           </div>
 
           {/* Informations légales */}
-          <p className="text-center text-xs text-gray-400 mt-6">
+          <p className="text-center text-xs text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto mt-8">
             Les tables de conversion sont basées sur les barèmes officiels IRCC 2026.
             Ce calculateur est fourni à titre indicatif.
-            Consultez le site officiel d'<a href="https://www.canada.ca/fr/immigration-refugies-citoyennete.html" target="_blank" rel="noopener noreferrer" className="underline">IRCC</a> pour les informations officielles.
+            Consultez le site officiel d'<a href="https://www.canada.ca/fr/immigration-refugies-citoyennete.html" target="_blank" rel="noopener noreferrer" className="underline font-bold text-slate-500 hover:text-slate-700 transition-colors">IRCC</a> pour les informations officielles.
           </p>
         </div>
       </div>
     </>
   )
 }
+

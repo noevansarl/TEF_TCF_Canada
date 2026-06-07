@@ -42,6 +42,7 @@ ALTER TABLE public.class_sessions ENABLE ROW LEVEL SECURITY;
 -- 5. Politiques RLS
 
 -- Institutions : Tout le monde peut voir s'il y est rattaché (ou les experts/admins)
+DROP POLICY IF EXISTS "Select institution membership" ON public.institutions;
 CREATE POLICY "Select institution membership" ON public.institutions
   FOR SELECT USING (
     EXISTS (
@@ -55,6 +56,7 @@ CREATE POLICY "Select institution membership" ON public.institutions
   );
 
 -- Institution Students : Les étudiants voient leur propre appartenance, les profs/admins voient tout
+DROP POLICY IF EXISTS "Select students" ON public.institution_students;
 CREATE POLICY "Select students" ON public.institution_students
   FOR SELECT USING (
     user_id = auth.uid() OR EXISTS (
@@ -63,6 +65,7 @@ CREATE POLICY "Select students" ON public.institution_students
     )
   );
 
+DROP POLICY IF EXISTS "Manage student roster" ON public.institution_students;
 CREATE POLICY "Manage student roster" ON public.institution_students
   FOR ALL USING (
     EXISTS (
@@ -72,6 +75,7 @@ CREATE POLICY "Manage student roster" ON public.institution_students
   );
 
 -- Class Sessions : Les profs et élèves de la même école voient les sessions
+DROP POLICY IF EXISTS "Select class sessions" ON public.class_sessions;
 CREATE POLICY "Select class sessions" ON public.class_sessions
   FOR SELECT USING (
     EXISTS (
@@ -84,6 +88,7 @@ CREATE POLICY "Select class sessions" ON public.class_sessions
     )
   );
 
+DROP POLICY IF EXISTS "Manage class sessions" ON public.class_sessions;
 CREATE POLICY "Manage class sessions" ON public.class_sessions
   FOR ALL USING (
     teacher_id = auth.uid() OR EXISTS (

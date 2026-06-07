@@ -8,16 +8,19 @@ ALTER TABLE public.affiliate_clicks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.affiliate_conversions ENABLE ROW LEVEL SECURITY;
 
 -- ── 1. POLITIQUES POUR LA TABLE public.affiliates ─────────────────
+DROP POLICY IF EXISTS "Users see own affiliate account" ON public.affiliates;
 CREATE POLICY "Users see own affiliate account"
   ON public.affiliates
   FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can create their own affiliate account" ON public.affiliates;
 CREATE POLICY "Users can create their own affiliate account"
   ON public.affiliates
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own affiliate account details" ON public.affiliates;
 CREATE POLICY "Users can update their own affiliate account details"
   ON public.affiliates
   FOR UPDATE
@@ -25,8 +28,7 @@ CREATE POLICY "Users can update their own affiliate account details"
   WITH CHECK (auth.uid() = user_id);
 
 -- ── 2. POLITIQUES POUR LA TABLE public.affiliate_clicks ────────────
--- Les clics sont enregistrés via RPC securisée (qui contourne RLS via service role),
--- mais l'affilié doit pouvoir consulter ses statistiques de clics.
+DROP POLICY IF EXISTS "Affiliates see clicks of their campaigns" ON public.affiliate_clicks;
 CREATE POLICY "Affiliates see clicks of their campaigns"
   ON public.affiliate_clicks
   FOR SELECT
@@ -37,6 +39,7 @@ CREATE POLICY "Affiliates see clicks of their campaigns"
   );
 
 -- ── 3. POLITIQUES POUR LA TABLE public.affiliate_conversions ───────
+DROP POLICY IF EXISTS "Affiliates see conversions of their campaigns" ON public.affiliate_conversions;
 CREATE POLICY "Affiliates see conversions of their campaigns"
   ON public.affiliate_conversions
   FOR SELECT

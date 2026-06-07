@@ -115,5 +115,7 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Supabase CLI temp files
 supabase/.temp/
+scratch/
+lint-output.txt
+

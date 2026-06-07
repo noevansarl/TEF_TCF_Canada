@@ -349,21 +349,21 @@ export let mockUsers = [
 
 export let mockSessions: any[] = []
 export let mockAnswers: any[] = []
-export let mockPaymentAttempts: any[] = []
+export const mockPaymentAttempts: any[] = []
 
-export let mockAffiliates = [
+export const mockAffiliates = [
   { id: 'aff-mock-1', user_id: 'mock-user-id', name: 'Candidat ayePREP', email: 'candidat@example.com', code: 'CANDIDAT20', commission_rate: 0.20, payment_method: 'mobile_money', total_clicks: 142, total_conversions: 18, total_earned_eur: 107.92, is_active: true, created_at: '2026-05-10T08:00:00Z' }
 ]
 
-export let mockAffiliateClicks: any[] = [
+export const mockAffiliateClicks: any[] = [
   { id: 'clk-1', affiliate_id: 'aff-mock-1', affiliate_code: 'CANDIDAT20', page_url: '/', referrer_url: 'https://youtube.com', ip_address: '192.168.1.1', user_agent: 'Mozilla/5.0', converted: true, converted_user_id: 'user-2', created_at: '2026-05-25T14:30:00Z' }
 ]
 
-export let mockAffiliateConversions: any[] = [
+export const mockAffiliateConversions: any[] = [
   { id: 'conv-1', affiliate_id: 'aff-mock-1', converted_user_id: 'user-2', amount_eur: 29.99, commission_eur: 6.00, paid_at: null, created_at: '2026-05-25T14:40:00Z' }
 ]
 
-export let mockInstitutions = [
+export const mockInstitutions = [
   { id: 'inst-1', name: 'Institut Français de Dakar', country: 'Sénégal', max_students: 150, features: { bulk_import: true, live_classroom: true }, created_at: '2026-01-01T12:00:00Z' }
 ]
 
@@ -730,7 +730,7 @@ const mockClient: any = {
             }
           })
           resolve({ data: result, error: null });
-        } else if (table === 'user_badges') {
+        } else if (table === 'progress_stats') {
           resolve({
             data: [
               { id: 'ps-1', module: 'CO', test_type: 'TCF_CANADA', mastery_score: 85, sessions_completed: 12, questions_answered: 150, accuracy_rate: 85, last_session_at: new Date().toISOString() },

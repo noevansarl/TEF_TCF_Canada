@@ -30,6 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_payment_attempts_fedapay
 
 -- RLS : utilisateur voit ses propres tentatives
 ALTER TABLE public.payment_attempts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users see own payment attempts" ON public.payment_attempts;
 CREATE POLICY "Users see own payment attempts" ON public.payment_attempts
   FOR SELECT USING (auth.uid() = user_id);
 
@@ -138,6 +139,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_payment_attempts_updated_at ON public.payment_attempts;
 CREATE TRIGGER trg_payment_attempts_updated_at
   BEFORE UPDATE ON public.payment_attempts
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();

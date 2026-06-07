@@ -15,7 +15,9 @@ export const useAuthStore = create<AuthStore>()(
       setUser: (user, role = 'user') => set({ user, role })
     }),
     {
-      name: 'fa-auth'
+      name: 'fa-auth',
+      // Ne jamais persister le rôle : il est re-fetché depuis le serveur à chaque session
+      partialize: (state) => ({ user: state.user }),
     }
   )
 )

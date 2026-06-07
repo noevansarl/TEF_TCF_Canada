@@ -135,7 +135,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             );
             return;
           }
-          await _audioPlayer.setUrl(url);
+          if (url.startsWith('http://') || url.startsWith('https://')) {
+            await _audioPlayer.setUrl(url);
+          } else {
+            await _audioPlayer.setFilePath(url);
+          }
           setState(() {
             _listenCount++;
           });
@@ -262,6 +266,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               jsonDecode(q.optionsJson!)
             ) : null,
             correctAnswer: q.correctAnswer,
+            audioUrl: q.audioLocalPath,
             explanation: q.explanation,
             theme: 'Général',
             difficultyScore: 5,

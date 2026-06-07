@@ -25,6 +25,13 @@ class SyncService {
   }
 
   Future<void> syncPendingSessions() async {
+    // 1. Vérifier la connectivité avant de tenter la synchronisation
+    final connectionList = await _connectivity.checkConnectivity();
+    if (connectionList.isEmpty || connectionList.contains(ConnectivityResult.none)) {
+      debugPrint('SyncService: No internet connection. Skipping sync.');
+      return;
+    }
+
     final pendingSessions = await (_db.select(_db.localSessions)
       ..where((s) => s.isSynced.equals(false))).get();
     
@@ -34,11 +41,21 @@ class SyncService {
         
         // Appeler la fonction de scoring et sauvegarde Supabase
         if (_supabase != null) {
-          await _supabase!.functions.invoke('score-qcm', body: {
+          final response = await _supabase!.functions.invoke('score-qcm', body: {
             'session_id': session.id,
             'answers': answers,
             'status': session.status,
           });
+          
+          if (response.status != 200) {
+            debugPrint('SyncService: Server returned status ${response.status} for session ${session.id}');
+            // Si c'est une erreur de validation client (ex: 400), on ne boucle pas indéfiniment
+            if (response.status != null && response.status! >= 400 && response.status! < 500) {
+              debugPrint('SyncService: Discarding corrupted session ${session.id}');
+            } else {
+              continue; // Réessayer plus tard pour les erreurs serveurs (500) ou réseau
+            }
+          }
         } else {
           debugPrint('Mock mode: skipping real score-qcm invoke');
         }

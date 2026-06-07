@@ -146,112 +146,166 @@ export default function HelpCenterPage() {
   })).filter(cat => !search || cat.articles.length > 0)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F8F9FA] relative overflow-hidden font-sans text-slate-800">
+      {/* Decorative Radial Glows */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#1B3A6B]/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+      <div className="absolute bottom-20 right-1/4 w-[600px] h-[600px] bg-[#C55A11]/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+
       {/* Header */}
-      <header className="bg-white border-b px-4 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-                    <Logo />
-          <Link to="/dashboard" className="text-sm text-[#1B3A6B] font-semibold hover:underline">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/50 px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <Logo />
+          <Link to="/dashboard" className="text-xs bg-[#1B3A6B]/5 text-[#1B3A6B] hover:bg-[#1B3A6B]/10 px-4 py-2 rounded-xl font-bold transition-all">
             Mon espace
           </Link>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 pt-4 pb-0">
-        <Link to={user ? "/dashboard" : "/"} className="inline-flex items-center gap-1.5 text-xs text-[#1B3A6B] hover:opacity-85 font-bold transition-colors select-none">
-          ← {user ? "Retour au tableau de bord" : "Retour à l'accueil"}
+      {/* Back Breadcrumb */}
+      <div className="max-w-5xl mx-auto px-6 pt-6 relative z-10">
+        <Link to={user ? "/dashboard" : "/"} className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors select-none bg-white/50 backdrop-blur-sm border border-slate-200/40 px-3.5 py-1.5 rounded-full shadow-sm hover:shadow">
+          <span>←</span>
+          <span>{user ? "Retour au tableau de bord" : "Retour à l'accueil"}</span>
         </Link>
       </div>
 
-      {/* Hero */}
-      <div className="bg-[#1B3A6B] text-white py-12 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-3xl font-extrabold mb-3">Centre d'aide</h1>
-          <p className="opacity-80 mb-6">Comment pouvons-nous vous aider ?</p>
-          <div className="relative">
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Rechercher une question..."
-              className="w-full px-5 py-4 pl-12 rounded-xl text-gray-900 text-base focus:outline-none focus:ring-2 focus:ring-white/50"
-            />
-            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
+      {/* Hero / Search Section */}
+      <div className="relative overflow-hidden py-16 px-6 z-10">
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
+            Centre d'aide <span className="bg-gradient-to-r from-[#1B3A6B] to-indigo-600 bg-clip-text text-transparent">intelligent</span>
+          </h1>
+          <p className="text-base md:text-lg text-slate-500 font-medium max-w-xl mx-auto mb-8 leading-relaxed">
+            Une question ? Saisissez des mots-clés ou explorez nos rubriques d'aide personnalisées.
+          </p>
+          
+          <div className="relative max-w-2xl mx-auto group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#1B3A6B] to-indigo-500 rounded-2xl blur opacity-15 group-focus-within:opacity-30 transition duration-300"></div>
+            <div className="relative">
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Ex: TCF Canada, Correction IA, FedaPay, Remboursement..."
+                className="w-full px-6 py-4 pl-12 rounded-2xl bg-white border border-slate-200 text-slate-800 text-base placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1B3A6B] focus:border-transparent transition-all shadow-md"
+              />
+              <svg className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#1B3A6B] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="grid md:grid-cols-4 gap-6">
+      <div className="max-w-5xl mx-auto px-6 pb-24 relative z-10">
+        <div className="grid md:grid-cols-4 gap-8">
           {/* Sidebar catégories */}
-          <aside className="md:col-span-1">
-            <nav className="space-y-1">
-              {filtered.map(cat => (
-                <button
-                  key={cat.id}
-                  onClick={() => setOpenCategory(cat.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 ${
-                    openCategory === cat.id
-                      ? 'bg-[#1B3A6B] text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <span>{cat.icon}</span>
-                  <span>{cat.title}</span>
-                  <span className="ml-auto text-xs opacity-60">{cat.articles.length}</span>
-                </button>
-              ))}
-            </nav>
+          <aside className="md:col-span-1 space-y-6">
+            <div className="bg-white/70 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-4 shadow-sm">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-3">Catégories</h3>
+              <nav className="space-y-1">
+                {filtered.map(cat => {
+                  const isActive = openCategory === cat.id
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setOpenCategory(cat.id)}
+                      className={`w-full text-left px-3 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-2.5 group relative ${
+                        isActive
+                          ? 'bg-[#1B3A6B] text-white shadow-md shadow-[#1B3A6B]/10'
+                          : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                      }`}
+                    >
+                      <span className="text-base transition-transform group-hover:scale-110 duration-200">{cat.icon}</span>
+                      <span className="truncate">{cat.title}</span>
+                      <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200/70'
+                      }`}>
+                        {cat.articles.length}
+                      </span>
+                    </button>
+                  )
+                })}
+              </nav>
+            </div>
 
             {/* Contact rapide */}
-            <div className="mt-6 p-4 bg-white rounded-xl border border-gray-200 text-sm">
-              <p className="font-semibold text-gray-900 mb-3">Besoin d'aide directe ?</p>
-              <a
-                href="https://wa.me/22890116744"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-green-600 font-semibold hover:underline mb-2"
-              >
-                <span>💬</span> WhatsApp
-              </a>
-              <a
-                href="mailto:support@ayeprep.com"
-                className="flex items-center gap-2 text-[#1B3A6B] font-semibold hover:underline"
-              >
-                <span>✉️</span> Email support
-              </a>
+            <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-5 shadow-sm text-sm">
+              <p className="font-bold text-slate-800 mb-1">Besoin d'aide directe ?</p>
+              <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                Notre équipe est disponible pour répondre à vos questions spécifiques.
+              </p>
+              <div className="space-y-2.5">
+                <a
+                  href="https://wa.me/22890116744"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-xl transition-all border border-emerald-200/50 shadow-sm"
+                >
+                  <span className="text-lg">💬</span> WhatsApp Support
+                </a>
+                <a
+                  href="mailto:support@ayeprep.com"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-xl transition-all border border-slate-200/50 shadow-sm"
+                >
+                  <span>✉️</span> Email Support
+                </a>
+              </div>
             </div>
           </aside>
 
           {/* Contenu */}
-          <main className="md:col-span-3">
+          <main className="md:col-span-3 space-y-8">
             {filtered.map(cat => {
               if (openCategory && cat.id !== openCategory) return null
               return (
-                <div key={cat.id} className="mb-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <span>{cat.icon}</span> {cat.title}
+                <div key={cat.id} className="space-y-4">
+                  <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3 pb-2 border-b border-slate-200/50">
+                    <span className="text-3xl">{cat.icon}</span> {cat.title}
                   </h2>
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     {cat.articles.map(article => {
                       const key = `${cat.id}-${article.q}`
                       const isOpen = openArticle === key
                       return (
-                        <div key={article.q} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <div
+                          key={article.q}
+                          className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow ${
+                            isOpen
+                              ? 'border-[#1B3A6B]/30 ring-1 ring-[#1B3A6B]/5 bg-gradient-to-b from-white to-[#1B3A6B]/[0.01]'
+                              : 'border-slate-200/80 hover:border-slate-300'
+                          }`}
+                        >
                           <button
                             onClick={() => setOpenArticle(isOpen ? null : key)}
-                            className="w-full text-left px-5 py-4 font-semibold text-gray-900 hover:bg-gray-50 flex justify-between items-center gap-4"
+                            className="w-full text-left px-6 py-4.5 font-bold text-slate-800 hover:text-[#1B3A6B] flex justify-between items-center gap-4 transition-colors group"
                           >
-                            <span className="text-sm leading-snug">{article.q}</span>
-                            <span className={`text-[#1B3A6B] text-xl font-bold flex-shrink-0 transition-transform ${isOpen ? 'rotate-45' : ''}`}>+</span>
+                            <span className="text-sm md:text-base leading-snug">{article.q}</span>
+                            <span className={`w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 text-slate-400 text-xl font-bold flex-shrink-0 transition-all ${
+                              isOpen ? 'bg-[#1B3A6B]/10 text-[#1B3A6B] rotate-45' : 'group-hover:bg-slate-100 group-hover:text-slate-600'
+                            }`}>
+                              +
+                            </span>
                           </button>
-                          {isOpen && (
-                            <div className="px-5 pb-5 text-sm text-gray-700 leading-relaxed border-t border-gray-100 pt-4">
+                          
+                          {/* Animated expansion */}
+                          <div className={`transition-all duration-300 ease-in-out ${
+                            isOpen ? 'max-h-[500px] opacity-100 border-t border-slate-100' : 'max-h-0 opacity-0 pointer-events-none'
+                          }`}>
+                            <div className="px-6 py-5 text-sm text-slate-600 leading-relaxed bg-[#FDFEFE]">
                               {article.a}
                             </div>
-                          )}
+                          </div>
                         </div>
                       )
                     })}
@@ -261,10 +315,12 @@ export default function HelpCenterPage() {
             })}
 
             {filtered.length === 0 && (
-              <div className="text-center py-12 text-gray-400">
-                <p className="text-4xl mb-3">🔍</p>
-                <p className="font-semibold">Aucun résultat pour "{search}"</p>
-                <p className="text-sm mt-2">Essayez d'autres termes ou contactez-nous directement.</p>
+              <div className="text-center py-16 bg-white/60 backdrop-blur-sm border border-slate-200/60 rounded-2xl shadow-sm">
+                <p className="text-5xl mb-4 animate-bounce">🔍</p>
+                <p className="text-lg font-bold text-slate-800">Aucun résultat pour "{search}"</p>
+                <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
+                  Nous n'avons pas trouvé de réponse correspondant à votre recherche. Essayez d'autres mots-clés ou contactez-nous par WhatsApp.
+                </p>
               </div>
             )}
           </main>

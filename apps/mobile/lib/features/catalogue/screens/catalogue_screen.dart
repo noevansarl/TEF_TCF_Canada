@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/models/question.dart';
+import '../../../shared/services/file_downloader.dart';
 
 class CatalogueScreen extends ConsumerStatefulWidget {
   const CatalogueScreen({super.key});
@@ -80,9 +81,19 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
 
         await localDb.downloadModule(module, 'TCF_CANADA', level, [mockQuestion]);
       } else {
-        // Mapper et insérer en SQLite local
-        final questions = rawQuestions.map((q) => Question.fromJson(q)).toList();
-        await localDb.downloadModule(module, 'TCF_CANADA', level, questions);
+        // Mapper, télécharger les fichiers audio locaux, et insérer en SQLite local
+        final List<Question> downloadedQuestions = [];
+        for (final qJson in rawQuestions) {
+          var q = Question.fromJson(qJson);
+          if (q.audioUrl != null && q.audioUrl!.isNotEmpty) {
+            final localPath = await FileDownloader.downloadFile(q.audioUrl!);
+            if (localPath != null) {
+              q = q.copyWith(audioUrl: localPath, isDownloaded: true);
+            }
+          }
+          downloadedQuestions.add(q);
+        }
+        await localDb.downloadModule(module, 'TCF_CANADA', level, downloadedQuestions);
       }
 
       if (mounted) {
