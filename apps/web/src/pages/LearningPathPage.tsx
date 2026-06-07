@@ -182,7 +182,8 @@ export default function LearningPathPage() {
   // ── Marquer un jour comme fait ───────────────────────────────────────
   const handleToggleDay = async (dayNum: number) => {
     if (!plan) return
-    const updated = plan.daily_plan.map(d =>
+    const dailyPlanArray = Array.isArray(plan.daily_plan) ? plan.daily_plan : []
+    const updated = dailyPlanArray.map(d =>
       d.day === dayNum ? { ...d, done: !d.done } : d
     )
     const completed = updated.filter(d => d.done).length
@@ -278,13 +279,14 @@ export default function LearningPathPage() {
   }
 
   // ── Affichage du plan ────────────────────────────────────────────────
+  const dailyPlanArray = Array.isArray(plan.daily_plan) ? plan.daily_plan : []
   const progress = Math.round((plan.completed_days / plan.plan_duration_days) * 100)
-  const today    = plan.daily_plan.find(d => !d.done) 
-  const weekDays = plan.daily_plan.slice(
+  const today    = dailyPlanArray.find(d => !d.done) 
+  const weekDays = dailyPlanArray.slice(
     Math.max(0, (plan.completed_days) - 2),
-    Math.min(plan.daily_plan.length, (plan.completed_days) + 5)
+    Math.min(dailyPlanArray.length, (plan.completed_days) + 5)
   )
-  const monthDays = plan.daily_plan
+  const monthDays = dailyPlanArray
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] relative overflow-hidden font-sans py-8 px-4">
@@ -330,8 +332,8 @@ export default function LearningPathPage() {
             {[
               { label: 'Jours complétés', value: plan.completed_days, icon: '✅' },
               { label: 'Restants', value: plan.plan_duration_days - plan.completed_days, icon: '📅' },
-              { label: 'Sessions CO+CE', value: plan.daily_plan.filter(d => (d.module === 'CO' || d.module === 'CE') && d.done).length, icon: '📚' },
-              { label: 'Simulations', value: plan.daily_plan.filter(d => d.module === 'SIMULATION' && d.done).length, icon: '🏆' },
+              { label: 'Sessions CO+CE', value: dailyPlanArray.filter(d => (d.module === 'CO' || d.module === 'CE') && d.done).length, icon: '📚' },
+              { label: 'Simulations', value: dailyPlanArray.filter(d => d.module === 'SIMULATION' && d.done).length, icon: '🏆' },
             ].map(s => (
               <div key={s.label} className="bg-slate-50/50 border border-slate-100 hover:bg-white rounded-2xl p-4 text-center transition-all duration-300">
                 <div className="text-2xl mb-1 filter drop-shadow-sm select-none">{s.icon}</div>
