@@ -175,9 +175,10 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFFC55A11))),
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFFC55A11))),
           error: (err, stack) => Center(
             child: Text('Erreur lors du chargement du profil: $err', style: const TextStyle(color: Colors.white70)),
           ),

@@ -121,11 +121,11 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Entraînez-vous chaque jour pour perfectionner vos compétences linguistiques canadiennes.',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white80,
+                          color: Colors.white.withOpacity(0.8),
                           height: 1.4,
                         ),
                       ),

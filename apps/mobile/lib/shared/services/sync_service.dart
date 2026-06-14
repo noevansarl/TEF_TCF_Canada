@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -63,7 +64,7 @@ class SyncService {
         // Marquer comme synchronisé en base locale
         await (_db.update(_db.localSessions)
           ..where((s) => s.id.equals(session.id)))
-          .write(const LocalSessionsCompanion(isSynced: Value(true)));
+          .write(LocalSessionsCompanion(isSynced: Value(true)));
           
         debugPrint('Session ${session.id} synced successfully.');
       } catch (e) {

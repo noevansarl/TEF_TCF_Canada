@@ -613,7 +613,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               IconButton(
                 onPressed: () => _togglePlayPause(audioUrl, maxListens),
                 icon: Icon(
-                  _isPlaying ? Icons.pause_circle_fill : Icons.play_circle_fill,
+                  _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
                   color: const Color(0xFFC55A11),
                   size: 40,
                 ),
@@ -764,7 +764,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                               IconButton(
                                 onPressed: () => _togglePlayPreview(recordedPath),
                                 icon: Icon(
-                                  _isPlaying ? Icons.pause_circle_fill : Icons.play_circle_fill,
+                                  _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
                                   color: const Color(0xFFC55A11),
                                   size: 32,
                                 ),

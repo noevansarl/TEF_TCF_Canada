@@ -36,7 +36,7 @@ final authStateProvider = StreamProvider<User?>((ref) {
   if (supabaseService.useMock) {
     return supabaseService.mockUserStream;
   }
-  return supabaseService.authStateChanges.map((event) => event.user);
+  return supabaseService.authStateChanges.map((event) => event.session?.user);
 });
 
 // Provider du Service de Synchronisation

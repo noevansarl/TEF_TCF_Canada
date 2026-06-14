@@ -6,8 +6,8 @@ class SupabaseService {
   // Détecter automatiquement si la clé est de type mock ou tronquée
   bool get useMock {
     try {
-      final key = Supabase.instance.client.supabaseKey;
-      return key.contains('...') || key == 'placeholder';
+      Supabase.instance.client.auth; // throws StateError if not initialized
+      return false;
     } catch (_) {
       return true;
     }
@@ -110,7 +110,7 @@ class SupabaseService {
           'test_type': testType,
           'level': level,
           'question_text': 'Selon l\'annonce radiophonique, quelle est la cause principale de la perturbation du trafic ferroviaire ce matin ?',
-          'audio_url': 'https://ifbbwbyxdjxsbuilzzig.supabase.co/storage/v1/object/public/questions-audio/nubie-farida_khaled.mp3',
+          'audio_url': 'https://ifbbwbyxdjxsbuilzzig.supabase.co/storage/v1/object/public/questions-audio/co-q2-train.mp3',
           'passage_text': null,
           'options': {
             'A': 'Des conditions météo extrêmes',

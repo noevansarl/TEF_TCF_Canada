@@ -70,10 +70,10 @@ class ProgressionScreen extends ConsumerWidget {
                           interval: 1,
                           getTitlesWidget: (value, meta) {
                             switch (value.toInt()) {
-                              ..case 5: return const Text('B1', style: TextStyle(color: Colors.white38, fontSize: 10));
-                              ..case 7: return const Text('B2', style: TextStyle(color: Colors.white38, fontSize: 10));
-                              ..case 9: return const Text('C1', style: TextStyle(color: Colors.white38, fontSize: 10));
-                              ..case 11: return const Text('C2', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 5: return const Text('B1', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 7: return const Text('B2', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 9: return const Text('C1', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 11: return const Text('C2', style: TextStyle(color: Colors.white38, fontSize: 10));
                             }
                             return const Text('');
                           },
@@ -85,10 +85,10 @@ class ProgressionScreen extends ConsumerWidget {
                           interval: 1,
                           getTitlesWidget: (value, meta) {
                             switch (value.toInt()) {
-                              ..case 1: return const Text('Lun', style: TextStyle(color: Colors.white38, fontSize: 10));
-                              ..case 3: return const Text('Mer', style: TextStyle(color: Colors.white38, fontSize: 10));
-                              ..case 5: return const Text('Ven', style: TextStyle(color: Colors.white38, fontSize: 10));
-                              ..case 7: return const Text('Dim', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 1: return const Text('Lun', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 3: return const Text('Mer', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 5: return const Text('Ven', style: TextStyle(color: Colors.white38, fontSize: 10));
+                              case 7: return const Text('Dim', style: TextStyle(color: Colors.white38, fontSize: 10));
                             }
                             return const Text('');
                           },

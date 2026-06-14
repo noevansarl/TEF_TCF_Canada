@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "750423477959",
+    "project_id": "ayeprep",
+    "storage_bucket": "ayeprep.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750423477959:android:ed28b29ae7f244fc5d38e2",
+        "android_client_info": {
+          "package_name": "com.ayeprep.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA25bceKId-xTotsclLvpFnpjhMo_cvTAM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

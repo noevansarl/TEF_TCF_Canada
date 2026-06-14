@@ -6,10 +6,12 @@ import { motion } from 'framer-motion'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const user = useAuthStore(state => state.user)
@@ -25,9 +27,26 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Controles de validation
+    if (!firstName.trim() || !lastName.trim()) {
+      setError("Le prénom et le nom de famille sont obligatoires.")
+      return
+    }
+    if (password.length < 6) {
+      setError("Le mot de passe doit contenir au moins 6 caractères.")
+      return
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError("Veuillez saisir une adresse email valide.")
+      return
+    }
+
     setLoading(true)
     setError(null)
     try {
+      const fullName = `${firstName.trim()} ${lastName.trim()}`
       const { data, error: authErr } = await supabase.auth.signUp({
         email,
         password,
@@ -41,8 +60,6 @@ export default function RegisterPage() {
       if (authErr) {
         setError(authErr.message)
       } else if (data?.user) {
-        setUser({ id: data.user.id, email: data.user.email! }, 'user')
-
         // Enregistrer la conversion de parrainage/affilié si présent
         try {
           const clickId = localStorage.getItem('fa_affiliate_click_id')
@@ -60,7 +77,12 @@ export default function RegisterPage() {
           console.error("Échec de la conversion de l'affilié:", affErr)
         }
 
-        navigate(from, { replace: true })
+        if (!data.session) {
+          setIsSubmitted(true)
+        } else {
+          setUser({ id: data.user.id, email: data.user.email! }, 'user')
+          navigate(from, { replace: true })
+        }
       }
     } catch (err: any) {
       setError("Une erreur est survenue lors de l'inscription.")
@@ -95,7 +117,7 @@ export default function RegisterPage() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 rounded-[32px] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] border border-white/10 bg-slate-900/30 backdrop-blur-2xl"
       >
-        {/* Left Column - Form */}
+        {/* Left Column - Form or Email Confirmation */}
         <div className="p-6 sm:p-10 md:p-14 flex flex-col justify-center">
           <div className="mb-10 flex items-center space-x-3">
             <div className="p-2.5 bg-gradient-to-tr from-[#1B3A6B] to-[#2E75B6] rounded-xl shadow-lg shadow-[#1B3A6B]/20">
@@ -109,75 +131,123 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div>
-            <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">Essai gratuit</h2>
-            <p className="text-slate-400 text-sm mb-8">Créez votre compte en quelques secondes et commencez à vous entraîner.</p>
-          </div>
-
-          {error && (
-            <motion.div 
+          {isSubmitted ? (
+            <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-2xl text-sm font-semibold text-center mb-6 select-none"
+              transition={{ duration: 0.5 }}
+              className="text-center space-y-6 select-none"
             >
-              {error}
+              <div className="w-20 h-20 mx-auto rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-4xl animate-bounce">
+                ✉️
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-2xl font-extrabold text-white tracking-tight">Confirmez votre e-mail</h2>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Un e-mail de confirmation a été envoyé à l'adresse <span className="font-bold text-[#C55A11]">{email}</span>.
+                </p>
+                <p className="text-slate-400 text-xs leading-relaxed max-w-sm mx-auto">
+                  Veuillez cliquer sur le lien contenu dans cet e-mail pour valider votre compte. Après confirmation, vous pourrez vous connecter pour commencer vos tests et votre préparation.
+                </p>
+              </div>
+
+              <div className="bg-[#1B3A6B]/20 border border-[#1B3A6B]/30 rounded-2xl p-4 text-xs text-slate-300 leading-normal max-w-sm mx-auto">
+                💡 <span className="font-semibold text-white">Astuce :</span> Si vous ne recevez rien d'ici quelques minutes, pensez à vérifier votre dossier de <strong>Spams</strong> ou <strong>Courriers indésirables</strong>.
+              </div>
+
+              <div className="pt-4">
+                <Link
+                  to="/login"
+                  className="inline-block w-full py-4 px-6 border border-transparent text-sm font-extrabold rounded-2xl text-white bg-gradient-to-r from-[#1B3A6B] via-[#2E75B6] to-[#C55A11] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg shadow-[#1B3A6B]/30 font-sans tracking-wide text-center"
+                >
+                  Aller à la page de connexion
+                </Link>
+              </div>
             </motion.div>
+          ) : (
+            <>
+              <div>
+                <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">Essai gratuit</h2>
+                <p className="text-slate-400 text-sm mb-8">Créez votre compte en quelques secondes et commencez à vous entraîner.</p>
+              </div>
+
+              {error && (
+                <motion.div 
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-2xl text-sm font-semibold text-center mb-6 select-none"
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              <form className="space-y-4" onSubmit={handleRegister}>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Prénom</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
+                      placeholder="Jean"
+                      value={firstName}
+                      onChange={e => setFirstName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Nom</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
+                      placeholder="Dupont"
+                      value={lastName}
+                      onChange={e => setLastName(e.target.value)}
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Adresse email</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
+                    placeholder="nom@exemple.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Mot de passe</label>
+                  <input
+                    type="password"
+                    required
+                    className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
+                    placeholder="•••••••• (6 caractères min)"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-4 px-6 border border-transparent text-sm font-extrabold rounded-2xl text-white bg-gradient-to-r from-[#1B3A6B] via-[#2E75B6] to-[#C55A11] hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C55A11] transition-all duration-300 disabled:opacity-50 shadow-lg shadow-[#1B3A6B]/30 font-sans tracking-wide"
+                >
+                  {loading ? 'Création du compte...' : 'Créer mon compte'}
+                </button>
+              </form>
+
+              <p className="mt-10 text-center text-sm text-slate-400">
+                Déjà inscrit ?{' '}
+                <Link to="/login" className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
+                  Se connecter
+                </Link>
+              </p>
+            </>
           )}
-
-          <form className="space-y-5" onSubmit={handleRegister}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Nom complet</label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
-                  placeholder="Jean Dupont"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Adresse email</label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
-                  placeholder="nom@exemple.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Mot de passe</label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
-                  placeholder="•••••••• (6 caractères min)"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 px-6 border border-transparent text-sm font-extrabold rounded-2xl text-white bg-gradient-to-r from-[#1B3A6B] via-[#2E75B6] to-[#C55A11] hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C55A11] transition-all duration-300 disabled:opacity-50 shadow-lg shadow-[#1B3A6B]/30 font-sans tracking-wide"
-            >
-              {loading ? 'Création du compte...' : 'Créer mon compte'}
-            </button>
-          </form>
-
-          <p className="mt-10 text-center text-sm text-slate-400">
-            Déjà inscrit ?{' '}
-            <Link to="/login" className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
-              Se connecter
-            </Link>
-          </p>
         </div>
 
         {/* Right Column - Brand & Gamified Badge Notification Widget */}
