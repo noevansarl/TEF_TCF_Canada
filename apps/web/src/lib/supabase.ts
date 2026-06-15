@@ -397,6 +397,33 @@ const mockClient: any = {
       error: null
     }),
     signOut: async () => ({ error: null }),
+    getSession: async () => ({
+      data: { session: null },
+      error: null
+    }),
+    resend: async () => ({ error: null }),
+    resetPasswordForEmail: async () => ({ error: null }),
+    exchangeCodeForSession: async () => ({
+      data: { session: null },
+      error: { message: 'Mock: no code exchange in dev' }
+    }),
+    setSession: async () => ({
+      data: { session: null },
+      error: null
+    }),
+    onAuthStateChange: (callback: (event: string, session: any) => void) => {
+      // En dev, simuler un utilisateur déjà connecté pour débloquer initialized
+      setTimeout(() => {
+        callback('SIGNED_IN', {
+          user: {
+            id: 'mock-user-id',
+            email: 'candidat@example.com',
+            email_confirmed_at: new Date().toISOString(),
+          }
+        })
+      }, 0)
+      return { data: { subscription: { unsubscribe: () => {} } } }
+    },
   },
   from: (table: string) => {
     let currentSessionId = 'mock-session-id'
