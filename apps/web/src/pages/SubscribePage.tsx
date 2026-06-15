@@ -138,7 +138,7 @@ export default function SubscribePage() {
 
   useEffect(() => {
     if (user) {
-      supabase.from('users').select('country').eq('id', user.id).maybeSingle().then((res: any) => {
+      supabase.from('users').select('country').eq('id', user.id).maybeSingle().then((res: { data: { country: string | null } | null }) => {
         const data = res?.data
         if (data?.country) {
           setCountry(data.country)
@@ -179,8 +179,8 @@ export default function SubscribePage() {
       } else if (data.error) {
         setErrorMessage(data.error)
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || "Une erreur est survenue lors de l'appel API.")
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || "Une erreur est survenue lors de l'appel API.")
     } finally {
       setLoadingPlanId(null)
     }
@@ -234,8 +234,8 @@ export default function SubscribePage() {
 
       // Commencer la scrutation (polling)
       startPolling(data.transaction_id)
-    } catch (err: any) {
-      setErrorMessage(err.message || "Une erreur est survenue lors de l'appel API.")
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || "Une erreur est survenue lors de l'appel API.")
       setPaymentStep('error')
     } finally {
       setLoading(false)

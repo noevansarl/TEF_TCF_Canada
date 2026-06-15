@@ -71,9 +71,9 @@ export default function ExpertDashboard() {
 
       setPendingItems((pendingData || []) as any)
       setMyTasks((myData || []) as any)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      setError(err.message || 'Une erreur est survenue lors du chargement.')
+      setError((err as Error).message || 'Une erreur est survenue lors du chargement.')
     } finally {
       setLoading(false)
     }
@@ -104,9 +104,9 @@ export default function ExpertDashboard() {
       await fetchItems()
       // Rediriger vers l'éditeur de correction
       navigate(`/expert/correct/${itemId}`)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      alert(err.message || "Erreur lors de l'assignation du test.")
+      alert((err as Error).message || "Erreur lors de l'assignation du test.")
     } finally {
       setActionLoading(null)
     }

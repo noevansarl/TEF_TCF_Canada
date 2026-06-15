@@ -88,7 +88,7 @@ export default function QuestionManager() {
     }
   }
 
-  const handleEditOpen = (question: any) => {
+  const handleEditOpen = (question: any /* TODO: FIX */) => {
     setEditingQuestion(question)
     setFormState({
       id: question.id,
@@ -408,7 +408,7 @@ export default function QuestionManager() {
                   <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Module</label>
                   <select
                     value={formState.module}
-                    onChange={(e: any) => setFormState({ ...formState, module: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState({ ...formState, module: e.target.value as 'CO' | 'CE' | 'EE' | 'EO' })}
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm text-slate-700 font-semibold transition-all bg-slate-50/30 focus:bg-white"
                   >
                     <option value="CO">Oral (CO)</option>
@@ -423,7 +423,7 @@ export default function QuestionManager() {
                   <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Niveau</label>
                   <select
                     value={formState.level}
-                    onChange={(e: any) => setFormState({ ...formState, level: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState({ ...formState, level: e.target.value as 'A2' | 'B1' | 'B2' | 'C1' | 'C2' })}
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm text-slate-700 font-semibold transition-all bg-slate-50/30 focus:bg-white"
                   >
                     <option value="A2">A2</option>
@@ -439,7 +439,7 @@ export default function QuestionManager() {
                   <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Test</label>
                   <select
                     value={formState.test_type}
-                    onChange={(e: any) => setFormState({ ...formState, test_type: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormState({ ...formState, test_type: e.target.value as 'TCF_CANADA' | 'TEF_CANADA' | 'BOTH' })}
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm text-slate-700 font-semibold transition-all bg-slate-50/30 focus:bg-white"
                   >
                     <option value="TCF_CANADA">TCF Canada</option>

@@ -38,7 +38,7 @@ export default function AdminDashboard() {
           // Adjust stats based on mock counts
           setStats({
             active_24h: usersData.length * 28 + 14,
-            mrr: usersData.filter((u: any) => u.subscription_tier !== 'gratuit').length * 29 + 1240,
+            mrr: usersData.filter((u: { subscription_tier: string }) => u.subscription_tier !== 'gratuit').length * 29 + 1240,
             sessions_today: sessionsData.length + 32,
             pending_corrections: 3
           })

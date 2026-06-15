@@ -43,9 +43,9 @@ export default function ExpertHistory() {
 
         if (fetchErr) throw fetchErr
         setHistoryItems((data || []) as any)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err)
-        setError(err.message || "Erreur lors du chargement de l'historique.")
+        setError((err as Error).message || "Erreur lors du chargement de l'historique.")
       } finally {
         setLoading(false)
       }

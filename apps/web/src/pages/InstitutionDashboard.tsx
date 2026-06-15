@@ -3,6 +3,15 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 
+interface StudentSessionHistory {
+  session_id: string
+  test_type: string
+  module: string
+  correctAnswers: number
+  totalQuestions: number
+  completed_at: string
+}
+
 interface StudentRecord {
   id: string
   institution_id: string
@@ -42,6 +51,10 @@ export default function InstitutionDashboard() {
   const [classSessions, setClassSessions] = useState<ClassSessionRecord[]>([])
   
   // UI states
+  const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null)
+  const [isDossierModalOpen, setIsDossierModalOpen] = useState(false)
+  const [studentHistory, setStudentHistory] = useState<StudentSessionHistory[]>([])
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [importText, setImportText] = useState('')
@@ -391,6 +404,44 @@ export default function InstitutionDashboard() {
     }
   }
 
+  // Fetch Student Dossier
+  const fetchStudentDossier = async (student: StudentRecord) => {
+    setSelectedStudent(student)
+    setIsDossierModalOpen(true)
+    setIsHistoryLoading(true)
+    setStudentHistory([])
+    try {
+      const { data: answers } = await supabase
+        .from('answers')
+        .select('session_id, is_correct, question:questions(module, test_type), created_at')
+        .eq('user_id', student.user_id)
+
+      if (answers) {
+        const historyMap: Record<string, StudentSessionHistory> = {}
+        answers.forEach((ans: any) => {
+          if (!historyMap[ans.session_id]) {
+            historyMap[ans.session_id] = {
+              session_id: ans.session_id,
+              test_type: ans.question?.test_type || 'Inconnu',
+              module: ans.question?.module || 'Mixte',
+              correctAnswers: 0,
+              totalQuestions: 0,
+              completed_at: ans.created_at
+            }
+          }
+          historyMap[ans.session_id].totalQuestions += 1
+          if (ans.is_correct) historyMap[ans.session_id].correctAnswers += 1
+        })
+        const historyArray = Object.values(historyMap).sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
+        setStudentHistory(historyArray)
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsHistoryLoading(false)
+    }
+  }
+
   // Delete student
   const handleDeleteStudent = async (studentId: string) => {
     if (!confirm('Voulez-vous vraiment retirer cet étudiant de l\'établissement ?')) return
@@ -722,6 +773,22 @@ export default function InstitutionDashboard() {
                 <p className="text-xs text-slate-455 font-medium mt-0.5">Gérez vos étudiants et analysez leur niveau estimé avant examen.</p>
               </div>
               
+              {/* Cohort Analytics mini-chart */}
+              <div className="flex gap-2">
+                {['C2', 'C1', 'B2', 'B1', 'A2', 'A1'].map(level => {
+                  const count = students.filter(s => s.user?.level_assessed === level).length
+                  if (count === 0) return null
+                  return (
+                    <div key={level} className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full border-2 border-slate-200 flex items-center justify-center font-bold text-[10px] text-slate-700 bg-white shadow-sm">
+                        {level}
+                      </div>
+                      <span className="text-[10px] font-black text-slate-500 mt-1">{count} élève{count > 1 ? 's' : ''}</span>
+                    </div>
+                  )
+                })}
+              </div>
+
               {/* Search Input */}
               <div className="w-full sm:w-64">
                 <input
@@ -774,10 +841,17 @@ export default function InstitutionDashboard() {
                         <td className="p-4 text-slate-400 text-xs font-medium">
                           {new Date(student.joined_at).toLocaleDateString('fr-FR')}
                         </td>
-                        <td className="p-4 text-center select-none">
+                        <td className="p-4 text-center select-none flex justify-center gap-2">
+                          <button
+                            onClick={() => fetchStudentDossier(student)}
+                            className="text-slate-400 hover:text-blue-500 font-bold transition-colors text-[10px] uppercase tracking-wider bg-slate-100 hover:bg-blue-50 py-1.5 px-3 rounded-lg border border-slate-200"
+                            title="Voir le dossier complet"
+                          >
+                            Dossier
+                          </button>
                           <button
                             onClick={() => handleDeleteStudent(student.id)}
-                            className="text-red-500 hover:text-red-700 font-black text-xs hover:underline p-1"
+                            className="text-red-500 hover:text-red-700 font-black text-[10px] uppercase tracking-wider bg-slate-100 hover:bg-red-50 py-1.5 px-3 rounded-lg border border-slate-200"
                             title="Retirer de l'institution"
                           >
                             Désassocier
@@ -898,6 +972,58 @@ export default function InstitutionDashboard() {
                 <p className="text-xs text-slate-400 mt-1">Activez-la pour connecter votre plateforme pédagogique et automatiser le suivi des examens.</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Modal: Dossier Étudiant */}
+        {isDossierModalOpen && selectedStudent && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 transition-all">
+            <div className="bg-white rounded-3xl p-6 max-w-2xl w-full border border-slate-200/60 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+              <div className="flex justify-between items-start border-b border-slate-100 pb-4">
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 font-display">Dossier Complet : {selectedStudent.user?.full_name}</h3>
+                  <p className="text-xs text-slate-500 font-medium mt-1">{selectedStudent.user?.email} · Inscrit le {new Date(selectedStudent.joined_at).toLocaleDateString('fr-FR')}</p>
+                </div>
+                <div className="text-right">
+                  <span className="px-3 py-1 text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200/40 rounded-lg">
+                    NCLC Estimé : {selectedStudent.user?.level_assessed === 'C2' ? '10-12' : selectedStudent.user?.level_assessed === 'C1' ? '8-9' : selectedStudent.user?.level_assessed === 'B2' ? '6-7' : '4-5'}
+                  </span>
+                </div>
+              </div>
+
+              {isHistoryLoading ? (
+                <div className="py-12 flex justify-center"><svg className="animate-spin w-8 h-8 text-blue-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></div>
+              ) : studentHistory.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 text-sm font-medium italic">
+                  Aucun examen complété par cet étudiant pour le moment.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold text-slate-800">Historique des examens</h4>
+                  {studentHistory.map(hist => (
+                    <div key={hist.session_id} className="flex justify-between items-center bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                      <div>
+                        <span className="text-xs font-black text-slate-500 uppercase">{hist.test_type} · Module {hist.module}</span>
+                        <p className="text-sm font-bold text-slate-800 mt-1">{new Date(hist.completed_at).toLocaleString('fr-FR')}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-black text-blue-600 font-display">{Math.round((hist.correctAnswers / Math.max(hist.totalQuestions, 1)) * 100)}%</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">{hist.correctAnswers} / {hist.totalQuestions} corrects</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex justify-end pt-2 select-none">
+                <button
+                  onClick={() => setIsDossierModalOpen(false)}
+                  className="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition-colors shadow-md"
+                >
+                  Fermer le dossier
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

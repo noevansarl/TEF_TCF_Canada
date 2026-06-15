@@ -92,8 +92,22 @@ serve(async (req: Request) => {
       })
     }
 
-    const scorePercent = questions.length > 0 ? (correct / questions.length) * 100 : 0
-    const xpEarned = Math.round(scorePercent * 2)  // 0–200 XP
+    const scorePercent = questions.length > 0 ? (correct / questions.length) : 0
+    const xpEarned = Math.round(scorePercent * 200)  // 0–200 XP
+
+    let officialScore = Math.round(scorePercent * 100);
+    let finalNclc = 'A1';
+
+    if (session.test_type === 'TEF_CANADA') {
+      const result = calculateTEFScoreAndNCLC(correct, questions.length, session.module);
+      officialScore = result.score_699;
+      finalNclc = result.nclc;
+    } else {
+      // Default to TCF if unknown
+      const result = calculateTCFScoreAndNCLC(correct, questions.length, session.module);
+      officialScore = result.score_699;
+      finalNclc = result.nclc;
+    }
 
     // Insérer les réponses en batch
     await supabase.from('answers').upsert(answersToInsert)
@@ -105,8 +119,8 @@ serve(async (req: Request) => {
         status: 'completed',
         completed_at: new Date().toISOString(),
         duration_seconds: elapsedSeconds,
-        score_auto: scorePercent,
-        nclc_estimate: calculateNclc(scorePercent),
+        score_auto: officialScore,
+        nclc_estimate: finalNclc,
       })
       .eq('id', session_id)
       .select()
@@ -135,7 +149,7 @@ serve(async (req: Request) => {
     await updateProgressStats(supabase, user.id, session, correct, questions.length)
 
     return new Response(JSON.stringify({
-      score: scorePercent,
+      score: officialScore,
       correct,
       total: questions.length,
       xp_earned: xpEarned,
@@ -153,13 +167,54 @@ serve(async (req: Request) => {
   }
 })
 
-function calculateNclc(scorePercent: number): string {
-  if (scorePercent >= 90) return 'C2'
-  if (scorePercent >= 75) return 'C1'
-  if (scorePercent >= 60) return 'B2'
-  if (scorePercent >= 45) return 'B1'
-  if (scorePercent >= 30) return 'A2'
-  return 'A1'
+function calculateTEFScoreAndNCLC(correctAnswers: number, totalQuestions: number, module: string): { score_699: number, nclc: string } {
+  const scorePercent = totalQuestions > 0 ? (correctAnswers / totalQuestions) : 0;
+  const score_699 = Math.round(scorePercent * 699);
+
+  let nclc = 'A1';
+  if (module === 'CO') {
+    if (score_699 >= 546) nclc = 'C2';
+    else if (score_699 >= 503) nclc = 'C1';
+    else if (score_699 >= 462) nclc = 'B2+';
+    else if (score_699 >= 434) nclc = 'B2';
+    else if (score_699 >= 393) nclc = 'B1+';
+    else if (score_699 >= 352) nclc = 'B1';
+    else if (score_699 >= 306) nclc = 'A2';
+  } else if (module === 'CE') {
+    if (score_699 >= 546) nclc = 'C2';
+    else if (score_699 >= 512) nclc = 'C1';
+    else if (score_699 >= 472) nclc = 'B2+';
+    else if (score_699 >= 428) nclc = 'B2';
+    else if (score_699 >= 379) nclc = 'B1+';
+    else if (score_699 >= 330) nclc = 'B1';
+    else if (score_699 >= 268) nclc = 'A2';
+  }
+
+  return { score_699, nclc };
+}
+
+function calculateTCFScoreAndNCLC(correctAnswers: number, totalQuestions: number, module: string): { score_699: number, nclc: string } {
+  const scorePercent = totalQuestions > 0 ? (correctAnswers / totalQuestions) : 0;
+  const score_699 = Math.round(scorePercent * 699);
+
+  let nclc = 'A1';
+  if (module === 'CO') {
+    if (score_699 >= 549) nclc = 'C2';
+    else if (score_699 >= 523) nclc = 'C1';
+    else if (score_699 >= 503) nclc = 'B2+';
+    else if (score_699 >= 458) nclc = 'B2';
+    else if (score_699 >= 398) nclc = 'B1';
+    else if (score_699 >= 331) nclc = 'A2';
+  } else if (module === 'CE') {
+    if (score_699 >= 549) nclc = 'C2';
+    else if (score_699 >= 524) nclc = 'C1';
+    else if (score_699 >= 499) nclc = 'B2+';
+    else if (score_699 >= 453) nclc = 'B2';
+    else if (score_699 >= 406) nclc = 'B1';
+    else if (score_699 >= 342) nclc = 'A2';
+  }
+
+  return { score_699, nclc };
 }
 
 async function updateProgressStats(supabase: any, userId: string, 

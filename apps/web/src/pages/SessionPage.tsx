@@ -11,6 +11,7 @@ import { AudioRecorder } from '../features/eo/AudioRecorder'
 import { BadgeUnlockToast } from '../components/BadgeUnlockToast'
 import { useNotificationStore } from '../store/notificationStore'
 import { BADGES_DEFINITION } from '../lib/badges'
+import { calculateTEFScoreAndNCLC, calculateTCFScoreAndNCLC, getGlobalNCLC } from '../lib/scoreUtils'
 import type { Question } from '../types/models'
 
 function getModuleDuration(module: string, testType: string): number {
@@ -53,6 +54,8 @@ export default function SessionPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [isStarted, setIsStarted] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [showAbandonModal, setShowAbandonModal] = useState(false)
   
   const isNormalExit = useRef(false)
 
@@ -139,7 +142,9 @@ export default function SessionPage() {
         }
 
         // Initialize state inside session store
-        const duration = sessionData.max_duration_s || getModuleDuration(targetModule, sessionData.test_type || 'TCF_CANADA')
+        const duration = sessionData.module.startsWith('FULL_')
+          ? getModuleDuration(targetModule, sessionData.test_type || 'TCF_CANADA')
+          : (sessionData.max_duration_s || getModuleDuration(targetModule, sessionData.test_type || 'TCF_CANADA'))
         startSession(sessionData, selectedQuestions, duration)
         
         // Classic training sessions start immediately; simulations require entering the welcome gate
@@ -196,19 +201,10 @@ export default function SessionPage() {
     }
   }, [currentSession, isSimulation, isStarted])
 
-  const handleFinish = async (isTimeUp = false) => {
+  const handleFinish = async (_isTimeUp = false) => {
     if (submitting) return
 
     const activeMod = activeModule || 'CO'
-
-    if (!isTimeUp) {
-      const confirmMsg = isSimulation
-        ? `Voulez-vous vraiment terminer l'épreuve de ${activeMod} et passer à la suite ?`
-        : "Voulez-vous vraiment terminer et soumettre vos réponses ?"
-      if (!confirm(confirmMsg)) {
-        return
-      }
-    }
 
     setSubmitting(true)
     endSession() // Stop timer in store
@@ -351,13 +347,45 @@ export default function SessionPage() {
 
       // 3. Complete the entire session
       if (isSimulation) {
+        // Count total correct from the state `answers` dictionary which accumulates all answers
+        const coCorrect = Object.entries(answers).filter(([qId, val]) => {
+          const q = questions.find(question => question.id === qId)
+          return q?.module === 'CO' && q.correct_answer === val
+        }).length;
+        
+        const ceCorrect = Object.entries(answers).filter(([qId, val]) => {
+          const q = questions.find(question => question.id === qId)
+          return q?.module === 'CE' && q.correct_answer === val
+        }).length;
+
+        // Number of questions can be inferred from getModuleQuestionCount
+        const coTotal = getModuleQuestionCount('CO', currentSession.test_type || 'TCF_CANADA');
+        const ceTotal = getModuleQuestionCount('CE', currentSession.test_type || 'TCF_CANADA');
+
+        let coNclc = 'A1';
+        let ceNclc = 'A1';
+        
+        if (currentSession.test_type === 'TEF_CANADA') {
+           coNclc = calculateTEFScoreAndNCLC(coCorrect, coTotal, 'CO').nclc;
+           ceNclc = calculateTEFScoreAndNCLC(ceCorrect, ceTotal, 'CE').nclc;
+        } else {
+           coNclc = calculateTCFScoreAndNCLC(coCorrect, coTotal, 'CO').nclc;
+           ceNclc = calculateTCFScoreAndNCLC(ceCorrect, ceTotal, 'CE').nclc;
+        }
+
+        // For EE/EO we might not have the AI score yet, as it's async. We fallback to global QCM score if needed.
+        const globalNclc = getGlobalNCLC([
+          { module: 'CO', nclc: coNclc },
+          { module: 'CE', nclc: ceNclc }
+        ]);
+
         // Complete simulation session
         await supabase
           .from('sessions')
           .update({
             status: 'completed',
             completed_at: new Date().toISOString(),
-            nclc_estimate: 'C1'
+            nclc_estimate: globalNclc
           })
           .eq('id', sessionId)
 
@@ -381,6 +409,15 @@ export default function SessionPage() {
           if (scoreErr) {
             console.error("Erreur de calcul du score:", scoreErr)
           }
+
+          // Update session status in database to guarantee it's marked as completed
+          await supabase
+            .from('sessions')
+            .update({
+              status: 'completed',
+              completed_at: new Date().toISOString()
+            })
+            .eq('id', sessionId)
 
           // Trigger "Premier Pas" badge for first completed exercise
           const { triggerBadgeUnlock } = useNotificationStore.getState()
@@ -421,14 +458,7 @@ export default function SessionPage() {
   }
 
   const handleAbandon = () => {
-    if (confirm("Voulez-vous vraiment abandonner la session ? Vos progrès seront perdus.")) {
-      isNormalExit.current = true
-      abandonSession()
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {})
-      }
-      navigate('/dashboard')
-    }
+    setShowAbandonModal(true)
   }
 
   if (loading) return <FullPageSpinner />
@@ -752,7 +782,7 @@ export default function SessionPage() {
 
             {/* Finish button */}
             <button
-              onClick={() => handleFinish(false)}
+              onClick={() => setShowConfirmModal(true)}
               disabled={submitting}
               className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-95 shadow-lg shadow-emerald-500/10 transition-all flex items-center justify-center gap-2 mt-2"
             >
@@ -772,6 +802,75 @@ export default function SessionPage() {
         </section>
       </main>
       <BadgeUnlockToast />
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-md w-full space-y-6 shadow-2xl scale-in duration-200 text-left">
+            <h3 className="text-xl font-black text-white font-display">
+              {isSimulation ? "Terminer l'épreuve" : "Soumettre vos réponses"}
+            </h3>
+            <p className="text-slate-455 text-sm font-semibold">
+              {isSimulation 
+                ? `Voulez-vous vraiment terminer l'épreuve de ${activeModule || 'CO'} et passer à la suite ?` 
+                : "Voulez-vous vraiment terminer et soumettre vos réponses ?"}
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 py-3 bg-slate-950/60 border border-slate-850 hover:bg-slate-900/60 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition-all uppercase tracking-wider"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false)
+                  handleFinish(false)
+                }}
+                className="flex-1 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-slate-950 hover:opacity-95 font-extrabold text-xs rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-emerald-500/10"
+              >
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Abandon Modal */}
+      {showAbandonModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-md w-full space-y-6 shadow-2xl scale-in duration-200 text-left">
+            <h3 className="text-xl font-black text-rose-400 font-display">
+              Abandonner la session
+            </h3>
+            <p className="text-slate-455 text-sm font-semibold">
+              Voulez-vous vraiment abandonner la session ? Vos progrès seront perdus.
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowAbandonModal(false)}
+                className="flex-1 py-3 bg-slate-950/60 border border-slate-850 hover:bg-slate-900/60 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition-all uppercase tracking-wider"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => {
+                  setShowAbandonModal(false)
+                  isNormalExit.current = true
+                  abandonSession()
+                  if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {})
+                  }
+                  navigate('/dashboard')
+                }}
+                className="flex-1 py-3 bg-gradient-to-r from-rose-600 to-red-650 text-white hover:opacity-95 font-extrabold text-xs rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-rose-500/10"
+              >
+                Abandonner
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

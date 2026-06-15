@@ -23,7 +23,8 @@ export default function SimulationPage() {
           session_type: 'SIMULATION',
           test_type: testType,
           status: 'in_progress',
-          started_at: new Date().toISOString()
+          started_at: new Date().toISOString(),
+          max_duration_s: isTef ? 11700 : 8520
         })
         .select()
         .single()

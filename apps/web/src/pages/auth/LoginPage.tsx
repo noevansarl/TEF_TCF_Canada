@@ -42,7 +42,7 @@ export default function LoginPage() {
         setUser({ id: data.user.id, email: data.user.email! }, profile?.role || 'user')
         navigate(from, { replace: true })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Une erreur est survenue lors de la connexion.")
     } finally {
       setLoading(false)

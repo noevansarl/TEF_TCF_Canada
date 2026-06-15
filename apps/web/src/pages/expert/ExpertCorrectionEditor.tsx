@@ -110,9 +110,9 @@ export default function ExpertCorrectionEditor() {
         if (detail.expert_notes) {
           setExpertNotes(detail.expert_notes)
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err)
-        setError(err.message || 'Erreur lors du chargement de la correction.')
+        setError((err as Error).message || 'Erreur lors du chargement de la correction.')
       } finally {
         setLoading(false)
       }
@@ -161,9 +161,9 @@ export default function ExpertCorrectionEditor() {
 
       if (updateErr) throw updateErr
       alert('Brouillon sauvegardé avec succès !')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      alert(err.message || 'Erreur lors de la sauvegarde du brouillon.')
+      alert((err as Error).message || 'Erreur lors de la sauvegarde du brouillon.')
     } finally {
       setSubmitting(false)
     }
@@ -267,9 +267,9 @@ export default function ExpertCorrectionEditor() {
 
       alert('Correction finalisée et transmise au candidat avec succès !')
       navigate('/expert')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      alert(err.message || 'Erreur lors de la validation finale de la correction.')
+      alert((err as Error).message || 'Erreur lors de la validation finale de la correction.')
     } finally {
       setSubmitting(false)
     }

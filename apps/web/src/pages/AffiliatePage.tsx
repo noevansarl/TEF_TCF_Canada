@@ -125,8 +125,8 @@ export default function AffiliatePage() {
         // Reload details
         await loadAffiliateData()
       }
-    } catch (err: any) {
-      setRegError(err.message || 'Erreur interne.')
+    } catch (err: unknown) {
+      setRegError((err as Error).message || 'Erreur interne.')
     } finally {
       setRegistering(false)
     }

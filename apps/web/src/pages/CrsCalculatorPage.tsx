@@ -287,7 +287,7 @@ export default function CrsCalculatorPage() {
   const simulatedScore = computeScore(simulatedInputs)
   const scoreDiff = simulatedScore.grandTotal - currentScore.grandTotal
 
-  const handleInputChange = (field: keyof CrsInputs, value: any) => {
+  const handleInputChange = (field: keyof CrsInputs, value: string | number | boolean) => {
     setInputs(prev => ({ ...prev, [field]: value }))
   }
 

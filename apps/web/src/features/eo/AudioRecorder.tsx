@@ -58,7 +58,7 @@ export function AudioRecorder({ taskIndex, sessionId, taskDurationSeconds, onRec
             .from('audio-responses').getPublicUrl(data.path)
           onRecordingComplete(publicUrl)
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Erreur de sauvegarde audio:", err)
         alert("Une erreur est survenue lors de l'enregistrement de votre réponse audio. Veuillez réessayer.")
       } finally {
@@ -100,7 +100,7 @@ export function AudioRecorder({ taskIndex, sessionId, taskDurationSeconds, onRec
       
       // Begin recording
       await recordRef.current.startRecording()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Microphone access error:", err)
       alert(
         "Impossible d'accéder au microphone. Veuillez vous assurer :\n" +

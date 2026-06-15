@@ -33,6 +33,40 @@ serve(async (req: Request) => {
     const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
     if (!user) return new Response('Unauthorized', { status: 401, headers: corsHeaders })
 
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('subscription_tier, subscription_expires_at')
+      .eq('id', user.id)
+      .single()
+
+    const hasStripeAccess = ['avance', 'premium', 'institutionnel'].includes(userProfile?.subscription_tier ?? '')
+      && (!userProfile?.subscription_expires_at || new Date(userProfile.subscription_expires_at) > new Date())
+
+    let hasFedaPayAccess = false;
+    let activePackInfo = null;
+
+    if (!hasStripeAccess) {
+      const { data: activePack } = await supabase
+        .from('user_pack_subscriptions')
+        .select('id, ai_trials_remaining')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .gt('expires_at', new Date().toISOString())
+        .gt('ai_trials_remaining', 0)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (activePack) {
+        hasFedaPayAccess = true;
+        activePackInfo = activePack;
+      }
+    }
+
+    if (!hasStripeAccess && !hasFedaPayAccess) {
+      return new Response('Subscription required or AI quota exhausted', { status: 402, headers: corsHeaders })
+    }
+
     const body = await req.json()
     const { answer_id, audio_storage_path, task_description, test_type } = body
 
@@ -64,17 +98,46 @@ serve(async (req: Request) => {
       model: 'whisper-1',
       language: 'fr',
       response_format: 'verbose_json',
-      temperature: 0,
+      prompt: "Voici la transcription d'un candidat passant un examen oral de français. Euh, ben, euh, alors, hmm. Ah bon ? Oui, tout à fait.",
+      temperature: 0.2,
     })
 
     const transcript = transcription.text
 
     const analysis = await openai.chat.completions.create({
       model: 'gpt-4o',
-      messages: [{
-        role: 'user',
-        content: `Tu es un correcteur expert TCF/TEF Canada. Tâche : ${task_description}. Test : ${test_type}.\n\nTranscription :\n---\n${transcript}\n---\n\nRetourne un JSON : { "criteres": { "respect_tache": {"score":X,"commentaire":"..."}, "coherence": {"score":X,"commentaire":"..."}, "lexique": {"score":X,"commentaire":"..."}, "morphosyntaxe": {"score":X,"commentaire":"..."}, "conventions": {"score":X,"commentaire":"..."} }, "score_global": X, "suggestions": [...], "points_forts": [...], "resume": "...", "nclc_estime": "B1|B2|C1|C2" }`,
-      }],
+      messages: [
+        {
+          role: 'system',
+          content: `Tu es un examinateur expert et exigeant pour les épreuves d'Expression Orale du TCF Canada et TEF Canada. Tu évalues la transcription de l'audio d'un candidat.
+
+Critères d'évaluation :
+1. respect_tache : Le sujet est-il respecté ? Les actes de parole (informer, convaincre) sont-ils réalisés ?
+2. coherence : Le discours est-il fluide et logique ? Y a-t-il beaucoup d'hésitations (euh, bah) qui gênent la compréhension ?
+3. lexique : Richesse et variété du vocabulaire oral.
+4. morphosyntaxe : Maîtrise de la grammaire à l'oral (accords, syntaxe verbale).
+5. phonetique (utilisé ici sous 'conventions') : La prononciation implicite et l'aisance globale.
+
+${test_type === 'TCF_CANADA'
+  ? 'BARÈME TCF : Note CHAQUE critère de 0 à 4 points. Le score_global doit être la somme (total sur 20).'
+  : 'BARÈME TEF : Note CHAQUE critère de 0 à 90 points. Le score_global doit être la somme (total sur 450).'}
+
+RÈGLE NCLC : Le "nclc_estime" doit être au format "NCLC X" (ex: NCLC 5, NCLC 7). Pas de lettres (A1, B2).`
+        },
+        {
+          role: 'user',
+          content: `Tâche : ${task_description}
+Test : ${test_type}
+
+Transcription littérale du candidat :
+---
+${transcript}
+---
+
+Retourne UNIQUEMENT un JSON valide avec :
+{ "criteres": { "respect_tache": {"score":X,"commentaire":"..."}, "coherence": {"score":X,"commentaire":"..."}, "lexique": {"score":X,"commentaire":"..."}, "morphosyntaxe": {"score":X,"commentaire":"..."}, "conventions": {"score":X,"commentaire":"..."} }, "score_global": X, "suggestions": [...], "points_forts": [...], "resume": "...", "nclc_estime": "NCLC X" }`
+        }
+      ],
       temperature: 0.2,
       response_format: { type: 'json_object' },
       max_tokens: 1500,
@@ -86,6 +149,14 @@ serve(async (req: Request) => {
       audio_transcript: transcript,
       auto_feedback: feedback,
     }).eq('id', answer_id).eq('user_id', user.id)
+    
+    if (activePackInfo) {
+      await supabase.from('user_pack_subscriptions')
+        .update({ ai_trials_remaining: activePackInfo.ai_trials_remaining - 1 })
+        .eq('id', activePackInfo.id);
+    }
+
+
 
     return new Response(JSON.stringify({ transcript, feedback }), {
       status: 200,

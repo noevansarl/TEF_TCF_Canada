@@ -22,7 +22,7 @@ export interface Question {
   task_type?: string
   target_words?: { min: number; max: number }
   audio_duration_s?: number
-  correction_grid?: any
+  correction_grid?: { criteria?: any; [key: string]: any }
 }
 
 export interface Session {

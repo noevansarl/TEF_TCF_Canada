@@ -14,7 +14,7 @@ export default function DashboardPage() {
   const [joiningLive, setJoiningLive] = useState(false)
 
   useEffect(() => {
-    let activeChannel: any = null
+    let activeChannel: unknown = null
 
     async function setupRealtimeLive() {
       if (!user) return
@@ -51,8 +51,8 @@ export default function DashboardPage() {
                 table: 'class_sessions',
                 filter: `institution_id=eq.${studentRecord.institution_id}`
               },
-              (payload: any) => {
-                const newSession = payload.new as any
+              (payload: Record<string, unknown>) => {
+                const newSession = payload.new as Record<string, unknown>
                 if (newSession && newSession.status === 'active') {
                   setActiveLiveSession(newSession)
                 } else {

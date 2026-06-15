@@ -50,10 +50,33 @@ serve(async (req: Request) => {
       .eq('id', user.id)
       .single()
 
-    const hasAccess = ['avance', 'premium', 'institutionnel'].includes(userProfile?.subscription_tier ?? '')
+    const hasStripeAccess = ['avance', 'premium', 'institutionnel'].includes(userProfile?.subscription_tier ?? '')
       && (!userProfile?.subscription_expires_at || new Date(userProfile.subscription_expires_at) > new Date())
 
-    if (!hasAccess) return new Response('Subscription required', { status: 402, headers: corsHeaders })
+    let hasFedaPayAccess = false;
+    let activePackInfo = null;
+
+    if (!hasStripeAccess) {
+      const { data: activePack } = await supabase
+        .from('user_pack_subscriptions')
+        .select('id, ai_trials_remaining')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .gt('expires_at', new Date().toISOString())
+        .gt('ai_trials_remaining', 0)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (activePack) {
+        hasFedaPayAccess = true;
+        activePackInfo = activePack;
+      }
+    }
+
+    if (!hasStripeAccess && !hasFedaPayAccess) {
+      return new Response('Subscription required or AI quota exhausted', { status: 402, headers: corsHeaders })
+    }
 
     const body: CorrectEERequest = await req.json()
 
@@ -75,20 +98,23 @@ serve(async (req: Request) => {
 
     const openai = new OpenAI({ apiKey: Deno.env.get('OPENAI_API_KEY') })
 
-    const systemPrompt = `Tu es un correcteur expert certifié pour les examens TCF Canada et TEF Canada (CECRL niveau B1 à C2). Tu corriges des productions écrites selon les critères officiels du CECRL.
+    const systemPrompt = `Tu es un correcteur expert intraitable et officiel pour les examens linguistiques TCF Canada et TEF Canada. Ton rôle est d'évaluer sévèrement des productions écrites.
 
-Pour chaque rédaction, tu évalues sur ces 5 critères :
-1. respect_tache : Respect de la tâche, du registre et des consignes
-2. coherence : Cohérence et cohésion textuelle
-3. lexique : Richesse et précision lexicale
-4. morphosyntaxe : Correction morphosyntaxique
-5. conventions : Conventions d'écriture
+Critères d'évaluation officiels :
+1. respect_tache : Le sujet est-il respecté ? Le nombre de mots est-il atteint ? Le registre (formel/informel) est-il adapté ?
+2. coherence : Les idées sont-elles bien enchaînées ? Utilisation pertinente de connecteurs logiques.
+3. lexique : Richesse, précision et orthographe lexicale. Sanctionne les répétitions et le vocabulaire pauvre.
+4. morphosyntaxe : Conjugaison, accords, grammaire, syntaxe des phrases. Sois TRÈS SÉVÈRE sur les erreurs grammaticales basiques.
+5. conventions : Ponctuation, mise en page.
 
 ${body.test_type === 'TCF_CANADA'
-  ? 'Barème TCF : 0 à 4 points par critère (total : /20)'
-  : 'Barème TEF : 0 à 100 points par critère'}
+  ? 'BARÈME TCF : Note CHAQUE critère de 0 à 4 points (score maximum de chaque critère = 4). Le score_global doit être la somme exacte des 5 critères sur 20.'
+  : 'BARÈME TEF : Note CHAQUE critère de 0 à 90 points (score maximum de chaque critère = 90). Le score_global doit être la somme exacte des 5 critères sur 450.'}
 
-Retourne UNIQUEMENT un JSON valide avec cette structure :
+RÈGLE D'ÉVALUATION NCLC :
+Le "nclc_estime" doit OBLIGATOIREMENT être au format numérique exact (ex: "NCLC 4", "NCLC 5", "NCLC 6", "NCLC 7", "NCLC 8", "NCLC 9", "NCLC 10", "NCLC 11", "NCLC 12"). N'utilise JAMAIS de lettres (B1, B2, etc.) pour ce champ.
+
+Retourne UNIQUEMENT un JSON valide respectant STRICTEMENT cette structure :
 {
   "criteres": {
     "respect_tache":  { "score": X, "commentaire": "..." },
@@ -101,7 +127,7 @@ Retourne UNIQUEMENT un JSON valide avec cette structure :
   "suggestions": ["...", "...", "..."],
   "points_forts": ["..."],
   "resume": "...",
-  "nclc_estime": "B1|B2|C1|C2"
+  "nclc_estime": "NCLC X"
 }`
 
     const userPrompt = `Tâche : ${body.task_description}\nType : ${body.task_type}\nMots demandés : ${body.target_words.min}–${body.target_words.max}\nMots produits : ${wordCount}\n\nTexte :\n---\n${body.text}\n---`
@@ -123,6 +149,14 @@ Retourne UNIQUEMENT un JSON valide avec cette structure :
       user_answer: body.text,
       auto_feedback: feedback,
     }).eq('id', body.answer_id).eq('user_id', user.id)
+    
+    if (activePackInfo) {
+      await supabase.from('user_pack_subscriptions')
+        .update({ ai_trials_remaining: activePackInfo.ai_trials_remaining - 1 })
+        .eq('id', activePackInfo.id);
+    }
+
+
 
     return new Response(JSON.stringify(feedback), {
       status: 200,

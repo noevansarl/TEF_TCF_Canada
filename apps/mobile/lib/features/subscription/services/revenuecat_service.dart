@@ -30,7 +30,7 @@ class RevenueCatService {
 
   static Future<CustomerInfo> purchase(Package package) async {
     final purchaseResult = await Purchases.purchasePackage(package);
-    return purchaseResult;
+    return purchaseResult.customerInfo;
   }
 
   static Future<CustomerInfo> restorePurchases() async {

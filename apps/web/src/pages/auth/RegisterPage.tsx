@@ -84,7 +84,7 @@ export default function RegisterPage() {
           navigate(from, { replace: true })
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Une erreur est survenue lors de l'inscription.")
     } finally {
       setLoading(false)

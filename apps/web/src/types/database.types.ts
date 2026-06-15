@@ -68,7 +68,7 @@ export interface Database {
           user_id: string
           user_answer: string | null
           is_correct: boolean | null
-          auto_feedback: any | null
+          auto_feedback: { resume?: string; criteres?: Record<string, any>; suggestions?: string[]; nclc_estime?: string; [key: string]: any } | null
         }
       }
     }

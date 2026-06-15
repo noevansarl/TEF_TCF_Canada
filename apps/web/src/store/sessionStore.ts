@@ -37,7 +37,7 @@ export const useSessionStore = create<SessionStore>()(
 
       startSession: (session, questions, duration) => set({
         currentSession: session,
-        activeModule: session.module,
+        activeModule: session.module.startsWith('FULL_') ? 'CO' : session.module,
         questions,
         currentIndex: 0,
         answers: {},
