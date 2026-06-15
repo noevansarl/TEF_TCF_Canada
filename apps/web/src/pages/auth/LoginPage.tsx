@@ -9,6 +9,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showResend, setShowResend] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  
   const navigate = useNavigate()
   const location = useLocation()
   const user = useAuthStore(state => state.user)
@@ -26,13 +30,22 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setSuccessMessage(null)
+    setShowResend(false)
     try {
       const { data, error: authErr } = await supabase.auth.signInWithPassword({
         email,
         password
       })
       if (authErr) {
-        setError(authErr.message === 'Invalid login credentials' ? 'Identifiants invalides.' : authErr.message)
+        if (authErr.message === 'Email not confirmed') {
+          setError("Votre adresse e-mail n'a pas encore été validée. Veuillez vérifier votre boîte de réception.")
+          setShowResend(true)
+        } else if (authErr.message === 'Invalid login credentials') {
+          setError('Identifiants de connexion incorrects.')
+        } else {
+          setError(authErr.message)
+        }
       } else if (data?.user) {
         const { data: profile } = await supabase
           .from('users')
@@ -46,6 +59,35 @@ export default function LoginPage() {
       setError("Une erreur est survenue lors de la connexion.")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleResend = async () => {
+    if (!email) {
+      setError("Veuillez saisir votre adresse email pour renvoyer le lien.")
+      return
+    }
+    setResendLoading(true)
+    setError(null)
+    setSuccessMessage(null)
+    try {
+      const { error: resendErr } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      if (resendErr) {
+        setError(resendErr.message)
+      } else {
+        setSuccessMessage("Un nouvel e-mail de confirmation a été envoyé. Veuillez vérifier votre boîte de réception.")
+        setShowResend(false)
+      }
+    } catch (err) {
+      setError("Une erreur est survenue lors de l'envoi de l'e-mail de confirmation.")
+    } finally {
+      setResendLoading(false)
     }
   }
 
@@ -98,9 +140,29 @@ export default function LoginPage() {
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-2xl text-sm font-semibold text-center mb-6 select-none"
+              className="bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-2xl text-sm font-semibold text-center mb-6 select-none flex flex-col items-center gap-3"
             >
-              {error}
+              <span>{error}</span>
+              {showResend && (
+                <button
+                  type="button"
+                  disabled={resendLoading}
+                  onClick={handleResend}
+                  className="px-4 py-2 bg-gradient-to-r from-[#1B3A6B] to-[#C55A11] hover:scale-[1.02] active:scale-[0.98] text-white rounded-xl font-extrabold text-[10px] uppercase tracking-wider transition-all duration-300 disabled:opacity-50 shadow-md"
+                >
+                  {resendLoading ? 'Envoi en cours...' : "Renvoyer le lien de validation"}
+                </button>
+              )}
+            </motion.div>
+          )}
+
+          {successMessage && (
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-green-500/10 border border-green-500/20 text-green-200 p-4 rounded-2xl text-sm font-semibold text-center mb-6 select-none"
+            >
+              {successMessage}
             </motion.div>
           )}
 

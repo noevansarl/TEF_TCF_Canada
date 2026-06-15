@@ -12,27 +12,68 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     async function handleCallback() {
-      const accessToken = searchParams.get('access_token')
-      const refreshToken = searchParams.get('refresh_token')
       const next = searchParams.get('next') || '/dashboard'
 
-      if (!accessToken || !refreshToken) {
-        setError("Jetons de connexion manquants.")
-        return
-      }
-
       try {
-        const { data: { session }, error: sessionErr } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        })
+        let session = null
 
-        if (sessionErr || !session?.user) {
-          setError(sessionErr?.message || "Échec de l'authentification.")
+        // 1. Check if Supabase Client already has session (parsed hash or loaded from local)
+        const { data: { session: existingSession } } = await supabase.auth.getSession()
+        if (existingSession) {
+          session = existingSession
+        }
+
+        // 2. Check for code exchange (PKCE)
+        const code = searchParams.get('code')
+        if (!session && code) {
+          const { data: { session: exchangeSession }, error: exchangeErr } = 
+            await supabase.auth.exchangeCodeForSession(code)
+          if (exchangeErr) {
+            setError(exchangeErr.message)
+            return
+          }
+          session = exchangeSession
+        }
+
+        // 3. Check for query or hash tokens
+        let accessToken = searchParams.get('access_token')
+        let refreshToken = searchParams.get('refresh_token')
+
+        if (!session && !accessToken && window.location.hash) {
+          const hash = window.location.hash.substring(1)
+          const hashParams = new URLSearchParams(hash)
+          accessToken = hashParams.get('access_token')
+          refreshToken = hashParams.get('refresh_token')
+        }
+
+        if (!session && accessToken && refreshToken) {
+          const { data: { session: setSession }, error: setSessionErr } = 
+            await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            })
+          if (setSessionErr) {
+            setError(setSessionErr.message)
+            return
+          }
+          session = setSession
+        }
+
+        // 4. Validate session
+        if (!session || !session.user) {
+          setError("Session de connexion introuvable ou expirée.")
           return
         }
 
-        // Fetch user profile role
+        // 5. Enforce email confirmation check
+        if (!session.user.email_confirmed_at) {
+          await supabase.auth.signOut()
+          setUser(null)
+          setError("Votre adresse e-mail n'a pas encore été validée. Veuillez cliquer sur le lien envoyé dans votre boîte de réception.")
+          return
+        }
+
+        // 6. Fetch user profile role
         const { data: profile } = await supabase
           .from('users')
           .select('role')
@@ -45,7 +86,7 @@ export default function AuthCallbackPage() {
         navigate(next, { replace: true })
       } catch (err) {
         console.error("Auth callback error:", err)
-        setError("Une erreur est survenue lors de l'authentification automatique.")
+        setError("Une erreur est survenue lors de la finalisation de votre connexion.")
       }
     }
 
@@ -62,7 +103,7 @@ export default function AuthCallbackPage() {
             onClick={() => navigate('/login', { replace: true })}
             className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-650 text-white rounded-xl font-extrabold text-xs uppercase"
           >
-            Se connecter manuellement
+            Se connecter
           </button>
         </div>
       </div>

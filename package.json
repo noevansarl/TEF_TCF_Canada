@@ -10,5 +10,8 @@
     "build:web": "npm run build -w apps/web",
     "lint:web": "npm run lint -w apps/web",
     "type-check:web": "npm run type-check -w apps/web"
+  },
+  "dependencies": {
+    "pg": "^8.21.0"
   }
 }

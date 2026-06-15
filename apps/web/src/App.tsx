@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider, Navigate, useLocation, Outlet } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
+import { supabase } from './lib/supabase'
 import { FullPageSpinner } from './components/FullPageSpinner'
 import { CookieBanner } from './components/CookieBanner'
 import { WhatsAppButton } from './components/WhatsAppButton'
@@ -137,6 +138,38 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
+      if (session?.user) {
+        // Enforce email confirmation check
+        if (!session.user.email_confirmed_at) {
+          // If email is not confirmed, log out and clear store
+          await supabase.auth.signOut()
+          useAuthStore.getState().setUser(null)
+          return
+        }
+
+        // Fetch user profile role
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .maybeSingle()
+
+        useAuthStore.getState().setUser(
+          { id: session.user.id, email: session.user.email! },
+          profile?.role || 'user'
+        )
+      } else {
+        useAuthStore.getState().setUser(null)
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+
   return (
     <Suspense fallback={<FullPageSpinner />}>
       <RouterProvider router={router} />
