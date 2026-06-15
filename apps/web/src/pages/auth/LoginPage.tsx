@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [showResend, setShowResend] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [resetLoading, setResetLoading] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
   
   const navigate = useNavigate()
   const location = useLocation()
@@ -25,6 +27,12 @@ export default function LoginPage() {
       navigate(from, { replace: true })
     }
   }, [user, navigate, from])
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return
+    const timer = setTimeout(() => setResendCooldown(prev => prev - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [resendCooldown])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,6 +70,30 @@ export default function LoginPage() {
     }
   }
 
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setError("Veuillez saisir votre adresse email pour recevoir le lien de réinitialisation.")
+      return
+    }
+    setResetLoading(true)
+    setError(null)
+    setSuccessMessage(null)
+    try {
+      const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/profile`
+      })
+      if (resetErr) {
+        setError(resetErr.message)
+      } else {
+        setSuccessMessage("Un lien de réinitialisation a été envoyé à votre adresse email. Vérifiez votre boîte de réception.")
+      }
+    } catch {
+      setError("Une erreur est survenue lors de l'envoi du lien de réinitialisation.")
+    } finally {
+      setResetLoading(false)
+    }
+  }
+
   const handleResend = async () => {
     if (!email) {
       setError("Veuillez saisir votre adresse email pour renvoyer le lien.")
@@ -83,6 +115,7 @@ export default function LoginPage() {
       } else {
         setSuccessMessage("Un nouvel e-mail de confirmation a été envoyé. Veuillez vérifier votre boîte de réception.")
         setShowResend(false)
+        setResendCooldown(60)
       }
     } catch (err) {
       setError("Une erreur est survenue lors de l'envoi de l'e-mail de confirmation.")
@@ -146,11 +179,11 @@ export default function LoginPage() {
               {showResend && (
                 <button
                   type="button"
-                  disabled={resendLoading}
+                  disabled={resendLoading || resendCooldown > 0}
                   onClick={handleResend}
                   className="px-4 py-2 bg-gradient-to-r from-[#1B3A6B] to-[#C55A11] hover:scale-[1.02] active:scale-[0.98] text-white rounded-xl font-extrabold text-[10px] uppercase tracking-wider transition-all duration-300 disabled:opacity-50 shadow-md"
                 >
-                  {resendLoading ? 'Envoi en cours...' : "Renvoyer le lien de validation"}
+                  {resendLoading ? 'Envoi en cours...' : resendCooldown > 0 ? `Renvoyer dans ${resendCooldown}s` : "Renvoyer le lien de validation"}
                 </button>
               )}
             </motion.div>
@@ -182,7 +215,14 @@ export default function LoginPage() {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider">Mot de passe</label>
-                  <a href="#" className="text-xs text-[#C55A11] hover:text-[#e06515] font-semibold transition-colors">Mot de passe oublié ?</a>
+                  <button
+                    type="button"
+                    onClick={() => void handlePasswordReset()}
+                    disabled={resetLoading}
+                    className="text-xs text-[#C55A11] hover:text-[#e06515] font-semibold transition-colors disabled:opacity-50"
+                  >
+                    {resetLoading ? 'Envoi...' : 'Mot de passe oublié ?'}
+                  </button>
                 </div>
                 <input
                   type="password"

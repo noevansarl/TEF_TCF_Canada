@@ -12,7 +12,9 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     async function handleCallback() {
-      const next = searchParams.get('next') || '/dashboard'
+      const rawNext = searchParams.get('next') || '/dashboard'
+      // Bloquer les redirections externes (open redirect)
+      const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/dashboard'
 
       try {
         let session = null

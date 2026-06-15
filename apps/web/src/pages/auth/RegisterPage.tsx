@@ -33,8 +33,8 @@ export default function RegisterPage() {
       setError("Le prénom et le nom de famille sont obligatoires.")
       return
     }
-    if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.")
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.")
       return
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -78,7 +78,9 @@ export default function RegisterPage() {
           console.error("Échec de la conversion de l'affilié:", affErr)
         }
 
-        if (!data.session) {
+        if (!data.session || !data.user.email_confirmed_at) {
+          // Toujours exiger la validation email, même si Supabase retourne une session
+          if (data.session) await supabase.auth.signOut()
           setIsSubmitted(true)
         } else {
           setUser({ id: data.user.id, email: data.user.email! }, 'user')
@@ -226,7 +228,7 @@ export default function RegisterPage() {
                     type="password"
                     required
                     className="w-full px-4 py-3.5 bg-slate-950/60 border border-white/5 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#C55A11]/60 focus:border-transparent focus:shadow-[0_0_20px_rgba(197,90,17,0.25)] transition-all duration-300 text-sm"
-                    placeholder="•••••••• (6 caractères min)"
+                    placeholder="•••••••• (8 caractères min)"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                   />

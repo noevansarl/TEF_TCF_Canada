@@ -31,7 +31,8 @@ export default function PrivateLayout() {
     checkInstitution()
   }, [user])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     setUser(null)
     navigate('/')
   }
@@ -61,7 +62,7 @@ export default function PrivateLayout() {
           
           <div className="flex gap-4 items-center">
             <span className="hidden sm:inline text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/50">{user?.email}</span>
-            <button onClick={handleLogout} className="hidden sm:block text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 px-3.5 py-1.5 rounded-xl font-bold transition-all shadow-sm">Déconnexion</button>
+            <button onClick={() => void handleLogout()} className="hidden sm:block text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 px-3.5 py-1.5 rounded-xl font-bold transition-all shadow-sm">Déconnexion</button>
             
             {/* Hamburger button on mobile */}
             <button 
@@ -94,7 +95,7 @@ export default function PrivateLayout() {
           )}
           <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
             <span className="px-4 py-1.5 text-xs font-semibold text-slate-500 bg-slate-100 rounded-lg truncate">{user?.email}</span>
-            <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="w-full text-center px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl text-sm transition-colors">
+            <button onClick={() => { void handleLogout(); setMobileMenuOpen(false); }} className="w-full text-center px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl text-sm transition-colors">
               Déconnexion
             </button>
           </div>

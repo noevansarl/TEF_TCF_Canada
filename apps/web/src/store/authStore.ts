@@ -4,7 +4,9 @@ import { persist } from 'zustand/middleware'
 interface AuthStore {
   user: { id: string; email: string } | null
   role: 'user' | 'expert' | 'admin'
+  initialized: boolean
   setUser: (user: { id: string; email: string } | null, role?: 'user' | 'expert' | 'admin') => void
+  setInitialized: () => void
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -12,11 +14,13 @@ export const useAuthStore = create<AuthStore>()(
     (set) => ({
       user: null,
       role: 'user',
-      setUser: (user, role = 'user') => set({ user, role })
+      initialized: false,
+      setUser: (user, role = 'user') => set({ user, role }),
+      setInitialized: () => set({ initialized: true }),
     }),
     {
       name: 'fa-auth',
-      // Ne jamais persister le rôle : il est re-fetché depuis le serveur à chaque session
+      // Ne jamais persister le rôle ni initialized : re-fetchés depuis le serveur à chaque session
       partialize: (state) => ({ user: state.user }),
     }
   )

@@ -48,19 +48,26 @@ const InstitutionDashboard = lazy(() => import('./pages/InstitutionDashboard'))
 
 // ── Guards ────────────────────────────────────────────────
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuthStore()
+  const { user, initialized } = useAuthStore()
   const location = useLocation()
+  if (!initialized) return <FullPageSpinner />
   return user ? <>{children}</> : <Navigate to="/login" state={{ from: location }} replace />
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user, role } = useAuthStore()
-  return user && role === 'admin' ? <>{children}</> : <Navigate to="/dashboard" replace />
+  const { user, role, initialized } = useAuthStore()
+  const location = useLocation()
+  if (!initialized) return <FullPageSpinner />
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />
+  return role === 'admin' ? <>{children}</> : <Navigate to="/dashboard" replace />
 }
 
 function ExpertRoute({ children }: { children: React.ReactNode }) {
-  const { user, role } = useAuthStore()
-  return user && (role === 'expert' || role === 'admin') ? <>{children}</> : <Navigate to="/dashboard" replace />
+  const { user, role, initialized } = useAuthStore()
+  const location = useLocation()
+  if (!initialized) return <FullPageSpinner />
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />
+  return (role === 'expert' || role === 'admin') ? <>{children}</> : <Navigate to="/dashboard" replace />
 }
 
 // ── Root Layout (Fournit le contexte Router aux widgets) ───
@@ -141,15 +148,15 @@ export default function App() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
       if (session?.user) {
-        // Enforce email confirmation check
+        // Bloquer l'accès si email non confirmé
         if (!session.user.email_confirmed_at) {
-          // If email is not confirmed, log out and clear store
           await supabase.auth.signOut()
           useAuthStore.getState().setUser(null)
+          useAuthStore.getState().setInitialized()
           return
         }
 
-        // Fetch user profile role
+        // Récupérer le rôle depuis la BDD
         const { data: profile } = await supabase
           .from('users')
           .select('role')
@@ -163,6 +170,8 @@ export default function App() {
       } else {
         useAuthStore.getState().setUser(null)
       }
+      // Marquer l'auth comme initialisée après la première vérification
+      useAuthStore.getState().setInitialized()
     })
 
     return () => {
