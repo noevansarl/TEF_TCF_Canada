@@ -119,3 +119,6 @@ supabase/.temp/
 scratch/
 lint-output.txt
 
+
+.vercel
+.env*
