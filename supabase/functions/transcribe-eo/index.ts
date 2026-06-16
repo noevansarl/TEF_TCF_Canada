@@ -145,24 +145,31 @@ Retourne UNIQUEMENT un JSON valide avec :
 
     const feedback = JSON.parse(analysis.choices[0].message.content ?? '{}')
 
-    await supabase.from('answers').update({
-      audio_transcript: transcript,
-      auto_feedback: feedback,
-    }).eq('id', answer_id).eq('user_id', user.id)
-    
+    const { count, error: updateError } = await supabase
+      .from('answers')
+      .update({ audio_transcript: transcript, auto_feedback: feedback })
+      .eq('id', answer_id)
+      .eq('user_id', user.id)
+      .select('id', { count: 'exact', head: true })
+
+    if (updateError || count === 0) {
+      return new Response(JSON.stringify({ error: 'Answer not found or not yours' }), {
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     if (activePackInfo) {
       await supabase.from('user_pack_subscriptions')
         .update({ ai_trials_remaining: activePackInfo.ai_trials_remaining - 1 })
-        .eq('id', activePackInfo.id);
+        .eq('id', activePackInfo.id)
     }
-
-
 
     return new Response(JSON.stringify({ transcript, feedback }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
-  } catch (_error) {
+  } catch (error) {
+    console.error('transcribe-eo error:', error)
     return new Response(JSON.stringify({ error: 'Processing failed' }), {
       status: 500,
       headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },

@@ -64,14 +64,32 @@ serve(async (req: Request) => {
       return new Response('Session expired', { status: 410, headers: corsHeaders })
     }
 
-    // Récupérer les bonnes réponses
+    // Récupérer les bonnes réponses en vérifiant que les questions appartiennent à la session
     const questionIds = Object.keys(answers)
+    if (questionIds.length === 0) {
+      return new Response('No answers provided', { status: 400, headers: corsHeaders })
+    }
+
+    const { data: sessionAnswers } = await supabase
+      .from('answers')
+      .select('question_id')
+      .eq('session_id', session_id)
+      .eq('user_id', user.id)
+
+    const authorizedQuestionIds = new Set((sessionAnswers ?? []).map((a: { question_id: string }) => a.question_id))
+    const unauthorizedIds = questionIds.filter(id => !authorizedQuestionIds.has(id))
+    if (unauthorizedIds.length > 0) {
+      return new Response('Unauthorized question_ids in submission', { status: 403, headers: corsHeaders })
+    }
+
     const { data: questions } = await supabase
       .from('questions')
       .select('id, correct_answer, module')
       .in('id', questionIds)
 
-    if (!questions) return new Response('Questions not found', { status: 404, headers: corsHeaders })
+    if (!questions || questions.length === 0) {
+      return new Response('Questions not found', { status: 404, headers: corsHeaders })
+    }
 
     // Calculer le score
     let correct = 0
@@ -159,7 +177,8 @@ serve(async (req: Request) => {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
-  } catch (_error) {
+  } catch (error) {
+    console.error('score-qcm error:', error)
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' }
