@@ -13,6 +13,7 @@ const LandingPage         = lazy(() => import('./pages/LandingPage'))
 const LoginPage           = lazy(() => import('./pages/auth/LoginPage'))
 const RegisterPage        = lazy(() => import('./pages/auth/RegisterPage'))
 const AuthCallbackPage    = lazy(() => import('./pages/auth/AuthCallbackPage'))
+const ResetPasswordPage   = lazy(() => import('./pages/auth/ResetPasswordPage'))
 const DashboardPage       = lazy(() => import('./pages/DashboardPage'))
 const CataloguePage       = lazy(() => import('./pages/CataloguePage'))
 const SessionPage         = lazy(() => import('./pages/SessionPage'))
@@ -93,6 +94,7 @@ const router = createBrowserRouter([
       { path: '/login',               element: <LoginPage /> },
       { path: '/register',            element: <RegisterPage /> },
       { path: '/auth/callback',       element: <AuthCallbackPage /> },
+      { path: '/reset-password',      element: <ResetPasswordPage /> },
       { path: '/calculateur-nclc',    element: <NclcCalculatorPage /> },
       { path: '/simulateur-crs',      element: <CrsCalculatorPage /> },
       { path: '/tcf-vs-tef-canada',   element: <ComparisonPage /> },

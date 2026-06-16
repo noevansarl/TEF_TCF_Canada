@@ -67,7 +67,16 @@ export default function AuthCallbackPage() {
           return
         }
 
-        // 5. Enforce email confirmation check
+        // 5. Detect recovery flow → redirect to reset-password page
+        const typeParam = searchParams.get('type') ||
+          (window.location.hash ? new URLSearchParams(window.location.hash.substring(1)).get('type') : null)
+
+        if (typeParam === 'recovery') {
+          navigate('/reset-password', { replace: true })
+          return
+        }
+
+        // 6. Enforce email confirmation check
         if (!session.user.email_confirmed_at) {
           await supabase.auth.signOut()
           setUser(null)
@@ -75,7 +84,7 @@ export default function AuthCallbackPage() {
           return
         }
 
-        // 6. Fetch user profile role
+        // 7. Fetch user profile role
         const { data: profile } = await supabase
           .from('users')
           .select('role')
@@ -83,7 +92,7 @@ export default function AuthCallbackPage() {
           .maybeSingle()
 
         setUser({ id: session.user.id, email: session.user.email! }, profile?.role || 'user')
-        
+
         // Redirect
         navigate(next, { replace: true })
       } catch (err) {
