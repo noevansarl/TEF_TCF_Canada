@@ -21,3 +21,9 @@ enabled = true
 
 [realtime]
 enabled = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.fedapay-webhook]
+verify_jwt = false
