@@ -24,7 +24,7 @@ interface QuestionForm {
 }
 
 export default function QuestionManager() {
-  const [questions, setQuestions] = useState<any[]>([])
+  const [questions, setQuestions] = useState<QuestionForm[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
     module: 'ALL',
@@ -88,7 +88,7 @@ export default function QuestionManager() {
     }
   }
 
-  const handleEditOpen = (question: any /* TODO: FIX */) => {
+  const handleEditOpen = (question: QuestionForm) => {
     setEditingQuestion(question)
     setFormState({
       id: question.id,
@@ -335,7 +335,7 @@ export default function QuestionManager() {
                         Modifier
                       </button>
                       <button
-                        onClick={() => handleDelete(q.id)}
+                        onClick={() => handleDelete(q.id!)}
                         className="text-xs text-red-650 font-bold hover:text-red-800 transition-colors"
                       >
                         Supprimer
