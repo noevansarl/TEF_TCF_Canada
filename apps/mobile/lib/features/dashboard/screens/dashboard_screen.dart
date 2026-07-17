@@ -229,6 +229,33 @@ class DashboardScreen extends ConsumerWidget {
                   questions: '90 questions',
                   testType: 'TEF_CANADA',
                 ),
+                const SizedBox(height: 30),
+                const Text(
+                  'Outils pratiques',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildToolCard(
+                  context: context,
+                  title: 'Calculateur NCLC / CLB',
+                  description: 'Estimez votre niveau officiel IRCC',
+                  icon: Icons.calculate_outlined,
+                  color: const Color(0xFFC55A11),
+                  route: '/nclc-calculator',
+                ),
+                const SizedBox(height: 12),
+                _buildToolCard(
+                  context: context,
+                  title: 'Mon Parcours de Révision',
+                  description: 'Générez votre plan personnalisé 30-90 jours',
+                  icon: Icons.map_outlined,
+                  color: const Color(0xFF10B981),
+                  route: '/learning-path',
+                ),
               ],
             ),
           ),
@@ -385,6 +412,73 @@ class DashboardScreen extends ConsumerWidget {
                 'isOffline': false,
               });
             },
+            icon: const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToolCard({
+    required BuildContext context,
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+    required String route,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontSize: 12,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () => context.push(route),
             icon: const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 18),
           ),
         ],

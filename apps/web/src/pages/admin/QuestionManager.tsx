@@ -76,10 +76,14 @@ export default function QuestionManager() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Voulez-vous vraiment supprimer cette question ?")) return
+  const handleDelete = async (id: string, currentlyActive: boolean) => {
+    const actionText = currentlyActive ? "désactiver" : "réactiver"
+    if (!confirm(`Voulez-vous vraiment ${actionText} cette question ?`)) return
     try {
-      const { error } = await supabase.from('questions').delete().eq('id', id)
+      const { error } = await supabase
+        .from('questions')
+        .update({ is_active: !currentlyActive })
+        .eq('id', id)
       if (!error) {
         loadQuestions()
       }
@@ -308,12 +312,19 @@ export default function QuestionManager() {
                   <tr key={q.id} className="hover:bg-slate-50/40 transition-colors">
                     <td className="py-3.5 max-w-[240px] pr-4 font-bold text-slate-800" title={q.question_text}>
                       <div className="flex flex-col gap-1">
-                        <span className="truncate">{q.question_text}</span>
-                        {q.is_topical && (
-                          <span className="inline-flex w-fit items-center text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200/40">
-                            🔥 {q.topical_badge || `Nouveau · ${q.published_month || ''}`}
-                          </span>
-                        )}
+                        <span className={`truncate ${!q.is_active ? 'text-slate-400 line-through' : ''}`}>{q.question_text}</span>
+                        <div className="flex flex-wrap gap-1">
+                          {q.is_topical && (
+                            <span className="inline-flex w-fit items-center text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200/40">
+                              🔥 {q.topical_badge || `Nouveau · ${q.published_month || ''}`}
+                            </span>
+                          )}
+                          {!q.is_active && (
+                            <span className="inline-flex w-fit items-center text-[10px] font-bold bg-rose-50 text-rose-700 px-2 py-0.5 rounded border border-rose-200/40">
+                              🚫 Inactif
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="py-3.5">
@@ -334,12 +345,21 @@ export default function QuestionManager() {
                       >
                         Modifier
                       </button>
-                      <button
-                        onClick={() => handleDelete(q.id!)}
-                        className="text-xs text-red-650 font-bold hover:text-red-800 transition-colors"
-                      >
-                        Supprimer
-                      </button>
+                      {q.is_active ? (
+                        <button
+                          onClick={() => handleDelete(q.id!, true)}
+                          className="text-xs text-red-650 font-bold hover:text-red-800 transition-colors"
+                        >
+                          Désactiver
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleDelete(q.id!, false)}
+                          className="text-xs text-emerald-600 font-bold hover:text-emerald-800 transition-colors"
+                        >
+                          Réactiver
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

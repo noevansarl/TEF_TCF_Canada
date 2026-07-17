@@ -2,6 +2,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import AdminDashboard from './AdminDashboard'
 import QuestionManager from './QuestionManager'
 import UserManager from './UserManager'
+import AffiliateManager from './AffiliateManager'
 
 export default function AdminLayout() {
   const location = useLocation()
@@ -66,6 +67,18 @@ export default function AdminLayout() {
             <span className="text-base group-hover:scale-110 duration-200">👥</span>
             <span>Utilisateurs & Droits</span>
           </Link>
+
+          <Link
+            to="/admin/affiliates"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all group ${
+              isActive('/admin/affiliates')
+                ? 'bg-gradient-to-r from-[#1B3A6B] to-indigo-600 text-white shadow-md shadow-indigo-500/10'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span className="text-base group-hover:scale-110 duration-200">🤝</span>
+            <span>Programme Affiliés</span>
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-slate-800/80 text-center">
@@ -84,6 +97,7 @@ export default function AdminLayout() {
           <Route path="/" element={<AdminDashboard />} />
           <Route path="/questions" element={<QuestionManager />} />
           <Route path="/users" element={<UserManager />} />
+          <Route path="/affiliates" element={<AffiliateManager />} />
         </Routes>
       </main>
     </div>

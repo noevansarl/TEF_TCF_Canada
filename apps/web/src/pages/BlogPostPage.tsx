@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { BLOG_ARTICLES } from '../data/blogArticles'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 // Questions démo interactives pour l'inclusion dans les articles
 const DEMO_EXERCISES: Record<string, {
@@ -43,6 +44,11 @@ export default function BlogPostPage() {
   const [showExplanations, setShowExplanations] = useState<Record<string, boolean>>({})
 
   const article = BLOG_ARTICLES.find(a => a.slug === slug)
+
+  useDocumentMetadata({
+    title: article ? `${article.title} | Blog ayePREP` : "Blog | ayePREP",
+    description: article?.metaDescription || "",
+  })
 
   useEffect(() => {
     // Faire remonter la page en haut lors du changement d'article

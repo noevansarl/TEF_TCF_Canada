@@ -112,7 +112,6 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
   
   // Polling variables
   Timer? _pollingTimer;
-  String? _transactionId;
   String _paymentStep = 'form'; // form, waiting, success, error
 
   @override
@@ -180,7 +179,6 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
       setState(() {
         _isLoading = false;
         _paymentStep = 'waiting';
-        _transactionId = 'tx-mock-${DateTime.now().millisecondsSinceEpoch}';
       });
       return;
     }
@@ -211,7 +209,6 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
       setState(() {
         _isLoading = false;
         _paymentStep = 'waiting';
-        _transactionId = data['transaction_id'].toString();
       });
 
       _startPolling(data['transaction_id'].toString());

@@ -355,7 +355,7 @@ export let mockSessions: any[] = []
 export let mockAnswers: any[] = []
 export const mockPaymentAttempts: any[] = []
 
-export const mockAffiliates = [
+export let mockAffiliates = [
   { id: 'aff-mock-1', user_id: 'mock-user-id', name: 'Candidat ayePREP', email: 'candidat@example.com', code: 'CANDIDAT20', commission_rate: 0.20, payment_method: 'mobile_money', total_clicks: 142, total_conversions: 18, total_earned_eur: 107.92, is_active: true, created_at: '2026-05-10T08:00:00Z' }
 ]
 
@@ -363,7 +363,7 @@ export const mockAffiliateClicks: any[] = [
   { id: 'clk-1', affiliate_id: 'aff-mock-1', affiliate_code: 'CANDIDAT20', page_url: '/', referrer_url: 'https://youtube.com', ip_address: '192.168.1.1', user_agent: 'Mozilla/5.0', converted: true, converted_user_id: 'user-2', created_at: '2026-05-25T14:30:00Z' }
 ]
 
-export const mockAffiliateConversions: any[] = [
+export let mockAffiliateConversions: any[] = [
   { id: 'conv-1', affiliate_id: 'aff-mock-1', converted_user_id: 'user-2', amount_eur: 29.99, commission_eur: 6.00, paid_at: null, created_at: '2026-05-25T14:40:00Z' }
 ]
 
@@ -641,6 +641,20 @@ const mockClient: any = {
                   return { ...cs, ...updateData }
                 }
                 return cs
+              })
+            } else if (table === 'affiliates') {
+              mockAffiliates = mockAffiliates.map(a => {
+                if (a.id === eqValue) {
+                  return { ...a, ...updateData }
+                }
+                return a
+              })
+            } else if (table === 'affiliate_conversions') {
+              mockAffiliateConversions = mockAffiliateConversions.map(c => {
+                if (c.id === eqValue) {
+                  return { ...c, ...updateData }
+                }
+                return c
               })
             }
             resolve({ data: updateData, error: null })

@@ -55,7 +55,21 @@ serve(async (req: Request) => {
         }
 
         if (session.mode === 'subscription' && session.subscription) {
-          const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+          const subId = session.subscription as string
+
+          // Idempotency check: see if subscription has already been created/activated
+          const { data: existingSub } = await supabase
+            .from('subscriptions')
+            .select('id')
+            .eq('stripe_sub_id', subId)
+            .maybeSingle()
+
+          if (existingSub) {
+            console.log(`Stripe subscription ${subId} already processed (idempotent ignore)`)
+            break
+          }
+
+          const sub = await stripe.subscriptions.retrieve(subId)
           const expiresAt = new Date(sub.current_period_end * 1000).toISOString()
 
           await supabase.from('users').update({

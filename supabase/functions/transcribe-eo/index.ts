@@ -16,6 +16,27 @@ function getCorsHeaders(req: Request) {
   }
 }
 
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  retries = 3,
+  delay = 1000
+): Promise<T> {
+  try {
+    return await fn()
+  } catch (error) {
+    if (retries <= 0) throw error
+    
+    // Check if it's a rate limit or server error
+    const status = error.status || error.statusCode
+    const isRetryable = !status || status === 429 || status >= 500
+    if (!isRetryable) throw error
+
+    console.warn(`OpenAI call failed: ${error.message}. Retrying in ${delay}ms... (${retries} retries left)`)
+    await new Promise((resolve) => setTimeout(resolve, delay))
+    return retryWithBackoff(fn, retries - 1, delay * 2)
+  }
+}
+
 serve(async (req: Request) => {
   const corsHeaders = getCorsHeaders(req)
 
@@ -93,18 +114,18 @@ serve(async (req: Request) => {
     const audioFile = new File([audioData], 'recording.webm', { type: 'audio/webm' })
     const openai = new OpenAI({ apiKey: Deno.env.get('OPENAI_API_KEY') })
 
-    const transcription = await openai.audio.transcriptions.create({
+    const transcription = await retryWithBackoff(() => openai.audio.transcriptions.create({
       file: audioFile,
       model: 'whisper-1',
       language: 'fr',
       response_format: 'verbose_json',
       prompt: "Voici la transcription d'un candidat passant un examen oral de français. Euh, ben, euh, alors, hmm. Ah bon ? Oui, tout à fait.",
       temperature: 0.2,
-    })
+    }))
 
     const transcript = transcription.text
 
-    const analysis = await openai.chat.completions.create({
+    const analysis = await retryWithBackoff(() => openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [
         {
@@ -141,9 +162,18 @@ Retourne UNIQUEMENT un JSON valide avec :
       temperature: 0.2,
       response_format: { type: 'json_object' },
       max_tokens: 1500,
-    })
+    }))
 
-    const feedback = JSON.parse(analysis.choices[0].message.content ?? '{}')
+    let feedback: any
+    try {
+      feedback = JSON.parse(analysis.choices[0].message.content ?? '{}')
+    } catch (e) {
+      console.error('Failed to parse GPT-4o JSON response, falling back to raw content:', e)
+      feedback = {
+        error: "Impossible d'analyser le retour automatique au format structuré.",
+        raw_response: analysis.choices[0].message.content
+      }
+    }
 
     const { count, error: updateError } = await supabase
       .from('answers')

@@ -117,6 +117,7 @@ export default function SessionPage() {
           .from('questions')
           .select('*')
           .eq('module', targetModule)
+          .eq('is_active', true)
           .in('test_type', [sessionData.test_type || 'TCF_CANADA', 'BOTH'])
 
         let questionsDataFinal = questionsData
@@ -315,6 +316,7 @@ export default function SessionPage() {
           .from('questions')
           .select('*')
           .eq('module', nextMod)
+          .eq('is_active', true)
           .in('test_type', [currentSession.test_type || 'TCF_CANADA', 'BOTH'])
 
         let nextQuestionsDataFinal = nextQuestionsData

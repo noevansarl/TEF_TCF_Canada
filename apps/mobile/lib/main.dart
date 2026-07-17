@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'core/router/app_router.dart';
+import 'core/config/env_config.dart';
 import 'shared/services/notification_service.dart';
 
 // Gestionnaire des messages FCM en arrière plan
@@ -29,8 +30,8 @@ void main() async {
   // Initialisation de Supabase client (avec les configurations du projet)
   try {
     await Supabase.initialize(
-      url: 'https://ifbbwbyxdjxsbuilzzig.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      url: EnvConfig.supabaseUrl,
+      anonKey: EnvConfig.supabaseAnonKey,
     );
   } catch (e) {
     debugPrint('Supabase initialization warning: $e');

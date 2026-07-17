@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 export default function LandingPage() {
+  useDocumentMetadata({
+    title: "ayePREP — Préparez-vous comme si c'était le vrai jour J.",
+    description: "Préparez le TCF et TEF Canada avec ayePREP, la plateforme n°1 des candidats à l'immigration. Corrections IA, suivis et simulations.",
+  })
   // Données structurées Schema.org pour le SEO Google
   const schemaOrg = JSON.stringify({
     "@context": "https://schema.org",

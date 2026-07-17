@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 const TCF = {
   nom: 'TCF Canada',
@@ -75,6 +76,10 @@ const FAQ = [
 ]
 
 export default function ComparisonPage() {
+  useDocumentMetadata({
+    title: "TCF Canada vs TEF Canada : Comparaison complète 2026 | ayePREP",
+    description: "Différences entre TCF Canada et TEF Canada : durées, nombre de questions, organismes, reconnaissance IRCC. Quel examen choisir pour votre immigration ?",
+  })
   const { user } = useAuthStore()
   return (
     <>

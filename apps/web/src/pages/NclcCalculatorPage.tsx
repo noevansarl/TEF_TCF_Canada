@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 // Tables de conversion officielles IRCC (2026)
 const TCF_NCLC_TABLE: Record<string, { min: number; max: number; nclc: string; clb: string; cecrl: string }[]> = {
@@ -124,6 +125,10 @@ const TCF_MAX: Record<string, number> = { CO: 699, CE: 699, EE: 699, EO: 699 }
 const TEF_MAX: Record<string, number> = { CO: 360, CE: 300, EE: 300, EO: 300 }
 
 export default function NclcCalculatorPage() {
+  useDocumentMetadata({
+    title: "Calculateur NCLC / CLB — TCF & TEF Canada | ayePREP",
+    description: "Convertissez gratuitement vos scores TCF Canada ou TEF Canada en niveaux NCLC/CLB officiels reconnus par IRCC (Immigration Canada).",
+  })
   const { user } = useAuthStore()
   const [testType, setTestType] = useState<'TCF_CANADA' | 'TEF_CANADA'>('TCF_CANADA')
   const [scores, setScores] = useState({ CO: '', CE: '', EE: '', EO: '' })

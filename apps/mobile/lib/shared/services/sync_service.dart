@@ -12,15 +12,9 @@ class SyncService {
 
   SyncService(this._db, this._supabase) {
     // Écouter les changements de connectivité réseau
-    _connectivity.onConnectivityChanged.listen((event) {
-      if (event is List) {
-        if (event.isNotEmpty && !event.contains(ConnectivityResult.none)) {
-          onConnectivityRestored();
-        }
-      } else {
-        if (event != ConnectivityResult.none) {
-          onConnectivityRestored();
-        }
+    _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> event) {
+      if (event.isNotEmpty && !event.contains(ConnectivityResult.none)) {
+        onConnectivityRestored();
       }
     });
   }
@@ -51,7 +45,7 @@ class SyncService {
           if (response.status != 200) {
             debugPrint('SyncService: Server returned status ${response.status} for session ${session.id}');
             // Si c'est une erreur de validation client (ex: 400), on ne boucle pas indéfiniment
-            if (response.status != null && response.status! >= 400 && response.status! < 500) {
+            if (response.status >= 400 && response.status < 500) {
               debugPrint('SyncService: Discarding corrupted session ${session.id}');
             } else {
               continue; // Réessayer plus tard pour les erreurs serveurs (500) ou réseau

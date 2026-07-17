@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 // ── Types et Interfaces ────────────────────────────────────────────────
 interface CrsInputs {
@@ -135,6 +136,10 @@ function getCanadianWorkPoints(years: number, hasSpouse: boolean): number {
 }
 
 export default function CrsCalculatorPage() {
+  useDocumentMetadata({
+    title: "Simulateur de points CRS / SCG — Entrée Express Canada | ayePREP",
+    description: "Estimez vos points CRS pour l'immigration Entrée Express Canada. Découvrez l'impact d'un bon niveau NCLC en français (TCF/TEF).",
+  })
   const { user } = useAuthStore()
   const [inputs, setInputs] = useState<CrsInputs>(DEFAULT_INPUTS)
   const [calculated, setCalculated] = useState(false)
@@ -292,7 +297,19 @@ export default function CrsCalculatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden font-sans text-slate-100 pb-16">
+    <div className="min-h-screen bg-slate-955 relative overflow-hidden font-sans text-slate-101 pb-16">
+      {/* Schema.org */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Simulateur CRS Canada",
+        "description": "Calculez et simulez vos points CRS (Comprehensive Ranking System) pour Entrée Express Canada.",
+        "url": "https://ayeprep.com/simulateur-crs",
+        "applicationCategory": "EducationalApplication",
+        "inLanguage": "fr",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" }
+      })}} />
       {/* Decorative Orbs */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
       <div className="absolute bottom-20 right-1/4 w-[600px] h-[600px] bg-indigo-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>

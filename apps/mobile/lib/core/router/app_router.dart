@@ -12,6 +12,8 @@ import '../../features/profile/screens/profile_screen.dart';
 import '../../features/session/screens/session_screen.dart';
 import '../../features/session/screens/results_screen.dart';
 import '../../features/subscription/screens/fedapay_payment_screen.dart';
+import '../../features/dashboard/screens/nclc_calculator_screen.dart';
+import '../../features/dashboard/screens/learning_path_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -101,6 +103,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/pay-fedapay',
         builder: (ctx, state) => const FedaPayPaymentScreen(),
+      ),
+      GoRoute(
+        path: '/nclc-calculator',
+        builder: (ctx, state) => const NclcCalculatorScreen(),
+      ),
+      GoRoute(
+        path: '/learning-path',
+        builder: (ctx, state) => const LearningPathScreen(),
       ),
     ],
   );

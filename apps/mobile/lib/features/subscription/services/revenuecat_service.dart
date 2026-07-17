@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import '../../../../core/config/env_config.dart';
 
 class RevenueCatService {
-  static const String _apiKeyAndroid = 'goog_placeholder_api_key';
-  static const String _apiKeyiOS = 'appl_placeholder_api_key';
+  static const String _apiKeyAndroid = EnvConfig.revenueCatApiKeyAndroid;
+  static const String _apiKeyiOS = EnvConfig.revenueCatApiKeyiOS;
 
   static Future<void> initialize(String userId) async {
     await Purchases.setLogLevel(LogLevel.debug);
