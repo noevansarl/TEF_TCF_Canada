@@ -44,6 +44,7 @@ const LegalMentionsPage   = lazy(() => import('./pages/LegalMentionsPage'))
 const CgvPage             = lazy(() => import('./pages/CgvPage'))
 
 // ── Pages protégées ────────────────────────────────────────
+const DiagnosticPage      = lazy(() => import('./pages/DiagnosticPage'))
 const LearningPathPage    = lazy(() => import('./pages/LearningPathPage'))
 const InstitutionDashboard = lazy(() => import('./pages/InstitutionDashboard'))
 
@@ -125,6 +126,7 @@ const router = createBrowserRouter([
           { path: '/subscribe',         element: <SubscribePage /> },
           { path: '/subscribe/success', element: <SubscribePage /> },
           { path: '/parcours',          element: <LearningPathPage /> },
+          { path: '/diagnostic',        element: <DiagnosticPage /> },
           { path: '/institution',       element: <InstitutionDashboard /> },
         ]
       },

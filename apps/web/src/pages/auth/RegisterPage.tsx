@@ -17,7 +17,7 @@ export default function RegisterPage() {
   const user = useAuthStore(state => state.user)
   const setUser = useAuthStore(state => state.setUser)
 
-  const from = location.state?.from?.pathname || '/dashboard'
+  const from = location.state?.from?.pathname || '/diagnostic'
 
   useEffect(() => {
     if (user) {

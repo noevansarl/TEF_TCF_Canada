@@ -8,6 +8,26 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const [loadingModule, setLoadingModule] = useState<string | null>(null)
+  const [hasAssessedLevel, setHasAssessedLevel] = useState(true)
+
+  useEffect(() => {
+    async function checkAssessedLevel() {
+      if (!user) return
+      try {
+        const { data } = await supabase
+          .from('users')
+          .select('level_assessed')
+          .eq('id', user.id)
+          .maybeSingle()
+        if (data && !data.level_assessed) {
+          setHasAssessedLevel(false)
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    checkAssessedLevel()
+  }, [user])
   
   // Live Classroom state
   const [activeLiveSession, setActiveLiveSession] = useState<any | null>(null)
@@ -167,6 +187,27 @@ export default function DashboardPage() {
             Préparez-vous à votre propre rythme et suivez votre évolution vers le niveau C2.
           </p>
         </div>
+
+        {/* Diagnostic Banner */}
+        {!hasAssessedLevel && (
+          <div className="bg-gradient-to-r from-blue-600 via-indigo-650 to-purple-700 rounded-3xl p-7 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-lg shadow-indigo-500/10 border border-indigo-400/20 relative overflow-hidden group select-none">
+            <div className="space-y-1.5">
+              <h2 className="text-2xl font-black flex items-center gap-2">
+                <span>🧭 Évaluez votre niveau initial</span>
+              </h2>
+              <p className="text-sm opacity-90 leading-relaxed max-w-xl">
+                Vous n'avez pas encore passé le test diagnostique initial. Prenez 20 minutes pour évaluer votre niveau de départ (A2, B1, B2, C1) afin d'adapter votre programme de révisions.
+              </p>
+            </div>
+            
+            <Link
+              to="/diagnostic"
+              className="px-6 py-3.5 bg-white text-indigo-700 hover:scale-105 active:scale-95 transition-all rounded-2xl font-black text-sm shadow-md shrink-0 text-center"
+            >
+              Lancer le test →
+            </Link>
+          </div>
+        )}
 
         {/* Live Classroom Alert Banner */}
         {activeLiveSession && (
