@@ -1146,23 +1146,166 @@ typedef $$LocalQuestionsTableUpdateCompanionBuilder = LocalQuestionsCompanion
   Value<int> rowid,
 });
 
+class $$LocalQuestionsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalQuestionsTable> {
+  $$LocalQuestionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get module => $composableBuilder(
+      column: $table.module, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get testType => $composableBuilder(
+      column: $table.testType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get questionText => $composableBuilder(
+      column: $table.questionText, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audioLocalPath => $composableBuilder(
+      column: $table.audioLocalPath,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get passageText => $composableBuilder(
+      column: $table.passageText, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get optionsJson => $composableBuilder(
+      column: $table.optionsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get correctAnswer => $composableBuilder(
+      column: $table.correctAnswer, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get downloadedAt => $composableBuilder(
+      column: $table.downloadedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$LocalQuestionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalQuestionsTable> {
+  $$LocalQuestionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get module => $composableBuilder(
+      column: $table.module, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get testType => $composableBuilder(
+      column: $table.testType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get questionText => $composableBuilder(
+      column: $table.questionText,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get audioLocalPath => $composableBuilder(
+      column: $table.audioLocalPath,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get passageText => $composableBuilder(
+      column: $table.passageText, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get optionsJson => $composableBuilder(
+      column: $table.optionsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get correctAnswer => $composableBuilder(
+      column: $table.correctAnswer,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get downloadedAt => $composableBuilder(
+      column: $table.downloadedAt,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$LocalQuestionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalQuestionsTable> {
+  $$LocalQuestionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get module =>
+      $composableBuilder(column: $table.module, builder: (column) => column);
+
+  GeneratedColumn<String> get testType =>
+      $composableBuilder(column: $table.testType, builder: (column) => column);
+
+  GeneratedColumn<String> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<String> get questionText => $composableBuilder(
+      column: $table.questionText, builder: (column) => column);
+
+  GeneratedColumn<String> get audioLocalPath => $composableBuilder(
+      column: $table.audioLocalPath, builder: (column) => column);
+
+  GeneratedColumn<String> get passageText => $composableBuilder(
+      column: $table.passageText, builder: (column) => column);
+
+  GeneratedColumn<String> get optionsJson => $composableBuilder(
+      column: $table.optionsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get correctAnswer => $composableBuilder(
+      column: $table.correctAnswer, builder: (column) => column);
+
+  GeneratedColumn<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get downloadedAt => $composableBuilder(
+      column: $table.downloadedAt, builder: (column) => column);
+}
+
 class $$LocalQuestionsTableTableManager extends RootTableManager<
     _$AppDatabase,
     $LocalQuestionsTable,
     LocalQuestion,
     $$LocalQuestionsTableFilterComposer,
     $$LocalQuestionsTableOrderingComposer,
+    $$LocalQuestionsTableAnnotationComposer,
     $$LocalQuestionsTableCreateCompanionBuilder,
-    $$LocalQuestionsTableUpdateCompanionBuilder> {
+    $$LocalQuestionsTableUpdateCompanionBuilder,
+    (
+      LocalQuestion,
+      BaseReferences<_$AppDatabase, $LocalQuestionsTable, LocalQuestion>
+    ),
+    LocalQuestion,
+    PrefetchHooks Function()> {
   $$LocalQuestionsTableTableManager(
       _$AppDatabase db, $LocalQuestionsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$LocalQuestionsTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$LocalQuestionsTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$LocalQuestionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalQuestionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalQuestionsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> module = const Value.absent(),
@@ -1219,127 +1362,28 @@ class $$LocalQuestionsTableTableManager extends RootTableManager<
             downloadedAt: downloadedAt,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$LocalQuestionsTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $LocalQuestionsTable> {
-  $$LocalQuestionsTableFilterComposer(super.$state);
-  ColumnFilters<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get module => $state.composableBuilder(
-      column: $state.table.module,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get testType => $state.composableBuilder(
-      column: $state.table.testType,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get level => $state.composableBuilder(
-      column: $state.table.level,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get questionText => $state.composableBuilder(
-      column: $state.table.questionText,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get audioLocalPath => $state.composableBuilder(
-      column: $state.table.audioLocalPath,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get passageText => $state.composableBuilder(
-      column: $state.table.passageText,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get optionsJson => $state.composableBuilder(
-      column: $state.table.optionsJson,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get correctAnswer => $state.composableBuilder(
-      column: $state.table.correctAnswer,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get explanation => $state.composableBuilder(
-      column: $state.table.explanation,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get downloadedAt => $state.composableBuilder(
-      column: $state.table.downloadedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$LocalQuestionsTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $LocalQuestionsTable> {
-  $$LocalQuestionsTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get module => $state.composableBuilder(
-      column: $state.table.module,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get testType => $state.composableBuilder(
-      column: $state.table.testType,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get level => $state.composableBuilder(
-      column: $state.table.level,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get questionText => $state.composableBuilder(
-      column: $state.table.questionText,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get audioLocalPath => $state.composableBuilder(
-      column: $state.table.audioLocalPath,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get passageText => $state.composableBuilder(
-      column: $state.table.passageText,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get optionsJson => $state.composableBuilder(
-      column: $state.table.optionsJson,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get correctAnswer => $state.composableBuilder(
-      column: $state.table.correctAnswer,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get explanation => $state.composableBuilder(
-      column: $state.table.explanation,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get downloadedAt => $state.composableBuilder(
-      column: $state.table.downloadedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$LocalQuestionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $LocalQuestionsTable,
+    LocalQuestion,
+    $$LocalQuestionsTableFilterComposer,
+    $$LocalQuestionsTableOrderingComposer,
+    $$LocalQuestionsTableAnnotationComposer,
+    $$LocalQuestionsTableCreateCompanionBuilder,
+    $$LocalQuestionsTableUpdateCompanionBuilder,
+    (
+      LocalQuestion,
+      BaseReferences<_$AppDatabase, $LocalQuestionsTable, LocalQuestion>
+    ),
+    LocalQuestion,
+    PrefetchHooks Function()>;
 typedef $$LocalSessionsTableCreateCompanionBuilder = LocalSessionsCompanion
     Function({
   required String id,
@@ -1369,22 +1413,154 @@ typedef $$LocalSessionsTableUpdateCompanionBuilder = LocalSessionsCompanion
   Value<int> rowid,
 });
 
+class $$LocalSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalSessionsTable> {
+  $$LocalSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sessionType => $composableBuilder(
+      column: $table.sessionType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get module => $composableBuilder(
+      column: $table.module, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get currentIndex => $composableBuilder(
+      column: $table.currentIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timeLeftSeconds => $composableBuilder(
+      column: $table.timeLeftSeconds,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$LocalSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalSessionsTable> {
+  $$LocalSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sessionType => $composableBuilder(
+      column: $table.sessionType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get module => $composableBuilder(
+      column: $table.module, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get currentIndex => $composableBuilder(
+      column: $table.currentIndex,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timeLeftSeconds => $composableBuilder(
+      column: $table.timeLeftSeconds,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LocalSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalSessionsTable> {
+  $$LocalSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get sessionType => $composableBuilder(
+      column: $table.sessionType, builder: (column) => column);
+
+  GeneratedColumn<String> get module =>
+      $composableBuilder(column: $table.module, builder: (column) => column);
+
+  GeneratedColumn<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => column);
+
+  GeneratedColumn<int> get currentIndex => $composableBuilder(
+      column: $table.currentIndex, builder: (column) => column);
+
+  GeneratedColumn<int> get timeLeftSeconds => $composableBuilder(
+      column: $table.timeLeftSeconds, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
 class $$LocalSessionsTableTableManager extends RootTableManager<
     _$AppDatabase,
     $LocalSessionsTable,
     LocalSession,
     $$LocalSessionsTableFilterComposer,
     $$LocalSessionsTableOrderingComposer,
+    $$LocalSessionsTableAnnotationComposer,
     $$LocalSessionsTableCreateCompanionBuilder,
-    $$LocalSessionsTableUpdateCompanionBuilder> {
+    $$LocalSessionsTableUpdateCompanionBuilder,
+    (
+      LocalSession,
+      BaseReferences<_$AppDatabase, $LocalSessionsTable, LocalSession>
+    ),
+    LocalSession,
+    PrefetchHooks Function()> {
   $$LocalSessionsTableTableManager(_$AppDatabase db, $LocalSessionsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$LocalSessionsTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$LocalSessionsTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$LocalSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalSessionsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> userId = const Value.absent(),
@@ -1437,116 +1613,28 @@ class $$LocalSessionsTableTableManager extends RootTableManager<
             createdAt: createdAt,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$LocalSessionsTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $LocalSessionsTable> {
-  $$LocalSessionsTableFilterComposer(super.$state);
-  ColumnFilters<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get userId => $state.composableBuilder(
-      column: $state.table.userId,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get sessionType => $state.composableBuilder(
-      column: $state.table.sessionType,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get module => $state.composableBuilder(
-      column: $state.table.module,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get answersJson => $state.composableBuilder(
-      column: $state.table.answersJson,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get currentIndex => $state.composableBuilder(
-      column: $state.table.currentIndex,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get timeLeftSeconds => $state.composableBuilder(
-      column: $state.table.timeLeftSeconds,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get status => $state.composableBuilder(
-      column: $state.table.status,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get isSynced => $state.composableBuilder(
-      column: $state.table.isSynced,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$LocalSessionsTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $LocalSessionsTable> {
-  $$LocalSessionsTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get userId => $state.composableBuilder(
-      column: $state.table.userId,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get sessionType => $state.composableBuilder(
-      column: $state.table.sessionType,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get module => $state.composableBuilder(
-      column: $state.table.module,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get answersJson => $state.composableBuilder(
-      column: $state.table.answersJson,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get currentIndex => $state.composableBuilder(
-      column: $state.table.currentIndex,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get timeLeftSeconds => $state.composableBuilder(
-      column: $state.table.timeLeftSeconds,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get status => $state.composableBuilder(
-      column: $state.table.status,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get isSynced => $state.composableBuilder(
-      column: $state.table.isSynced,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
+typedef $$LocalSessionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $LocalSessionsTable,
+    LocalSession,
+    $$LocalSessionsTableFilterComposer,
+    $$LocalSessionsTableOrderingComposer,
+    $$LocalSessionsTableAnnotationComposer,
+    $$LocalSessionsTableCreateCompanionBuilder,
+    $$LocalSessionsTableUpdateCompanionBuilder,
+    (
+      LocalSession,
+      BaseReferences<_$AppDatabase, $LocalSessionsTable, LocalSession>
+    ),
+    LocalSession,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
