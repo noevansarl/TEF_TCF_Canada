@@ -1,12 +1,99 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function SimulationPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+  const [isPremium, setIsPremium] = useState(true)
+  const [loadingSub, setLoadingSub] = useState(true)
+  const [simulationsRemaining, setSimulationsRemaining] = useState<number>(0)
+
+  useEffect(() => {
+    async function checkSubscriptionAndCredits() {
+      try {
+        const { data: userRes } = await supabase.auth.getUser()
+        if (!userRes.user) return
+
+        const userId = userRes.user.id
+
+        // 1. Fetch user subscription details
+        const { data: userData } = await supabase
+          .from('users')
+          .select('subscription_tier, subscription_expires_at, active_pack_id, pack_expires_at')
+          .eq('id', userId)
+          .maybeSingle()
+
+        let isUserPremium = false
+        let maxSimulations = 1
+
+        if (userData) {
+          const now = new Date()
+          const subTier = userData.subscription_tier
+          const subExpires = userData.subscription_expires_at ? new Date(userData.subscription_expires_at) : null
+          const packId = userData.active_pack_id
+          const packExpires = userData.pack_expires_at ? new Date(userData.pack_expires_at) : null
+
+          const hasValidSub = subTier && 
+            ['avance', 'premium', 'institutionnel', 'essentiel', 'bronze', 'silver', 'gold', 'platinum'].includes(subTier) && 
+            (!subExpires || subExpires > now)
+
+          const hasValidPack = packId && 
+            ['bronze', 'silver', 'gold', 'platinum'].includes(packId) && 
+            (packExpires && packExpires > now)
+
+          isUserPremium = !!(hasValidSub || hasValidPack)
+
+          // Determine limit based on plan
+          if (isUserPremium) {
+            if (subTier === 'essentiel') maxSimulations = 5
+            else if (subTier === 'avance') maxSimulations = 15
+            else if (subTier === 'premium') maxSimulations = 999
+            else if (subTier === 'institutionnel') maxSimulations = 999
+            else {
+              if (packId === 'bronze') maxSimulations = 1
+              else if (packId === 'silver') maxSimulations = 5
+              else if (packId === 'gold') maxSimulations = 15
+              else if (packId === 'platinum') maxSimulations = 30
+            }
+          }
+        }
+
+        setIsPremium(isUserPremium)
+
+        // 2. Fetch simulations run this month
+        const firstDayOfMonth = new Date()
+        firstDayOfMonth.setDate(1)
+        firstDayOfMonth.setHours(0, 0, 0, 0)
+
+        const { count, error } = await supabase
+          .from('sessions')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('session_type', 'SIMULATION')
+          .gte('started_at', firstDayOfMonth.toISOString())
+
+        if (!error && count !== null) {
+          const remaining = Math.max(0, maxSimulations - count)
+          setSimulationsRemaining(remaining)
+        } else {
+          setSimulationsRemaining(maxSimulations)
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoadingSub(false)
+      }
+    }
+    checkSubscriptionAndCredits()
+  }, [])
 
   const handleStartSimulation = async (isTef: boolean) => {
+    if (!loadingSub && simulationsRemaining <= 0) {
+      alert("Vous avez épuisé vos crédits de simulation pour ce mois-ci. Veuillez passer à une offre Premium supérieure pour continuer à passer des simulations d'examens.")
+      navigate('/subscribe')
+      return
+    }
     setLoading(true)
     try {
       const { data: userRes } = await supabase.auth.getUser()
@@ -68,6 +155,40 @@ export default function SimulationPage() {
             Évaluez votre niveau réel sous les contraintes exactes des épreuves officielles. Plein écran forcé et minuteur bloquant.
           </p>
         </div>
+
+        {/* Credit Limit Badge / Upgrade Banner */}
+        {!loadingSub && (
+          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 select-none animate-fade-in">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📊</span>
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {isPremium ? "Votre quota de simulations" : "Compte Gratuit"}
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {isPremium 
+                    ? `Il vous reste ${simulationsRemaining} simulation(s) ce mois-ci.`
+                    : "Les comptes gratuits sont limités à 1 simulation d'examen par mois."}
+                </p>
+              </div>
+            </div>
+            {!isPremium ? (
+              <Link
+                to="/subscribe"
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-[#C55A11] hover:scale-105 active:scale-95 transition-all text-white text-xs font-black rounded-xl shadow-md text-center uppercase tracking-wider"
+              >
+                Débloquer l'accès Premium 🚀
+              </Link>
+            ) : simulationsRemaining <= 2 ? (
+              <Link
+                to="/subscribe"
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-[#C55A11] hover:scale-105 active:scale-95 transition-all text-white text-xs font-black rounded-xl shadow-md text-center uppercase tracking-wider"
+              >
+                Acheter plus de crédits
+              </Link>
+            ) : null}
+          </div>
+        )}
 
         {loading ? (
           <div className="flex flex-col items-center justify-center p-12 space-y-6 bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl shadow-xl">

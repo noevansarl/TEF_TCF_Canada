@@ -9,26 +9,45 @@ export default function PrivateLayout() {
   const { user, setUser } = useAuthStore()
   const navigate = useNavigate()
   const [isInstitution, setIsInstitution] = useState(false)
+  const [isPremium, setIsPremium] = useState(false)
+  const [loadingSub, setLoadingSub] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    async function checkInstitution() {
+    async function checkSubscription() {
       if (!user) return
       try {
         const { data } = await supabase
           .from('users')
-          .select('subscription_tier')
+          .select('subscription_tier, subscription_expires_at, active_pack_id, pack_expires_at')
           .eq('id', user.id)
           .maybeSingle()
 
-        if (data && data.subscription_tier === 'institutionnel') {
-          setIsInstitution(true)
+        if (data) {
+          const now = new Date()
+          const subTier = data.subscription_tier
+          const subExpires = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null
+          const packId = data.active_pack_id
+          const packExpires = data.pack_expires_at ? new Date(data.pack_expires_at) : null
+
+          const hasValidSub = subTier && 
+            ['avance', 'premium', 'institutionnel', 'essentiel', 'bronze', 'silver', 'gold', 'platinum'].includes(subTier) && 
+            (!subExpires || subExpires > now)
+
+          const hasValidPack = packId && 
+            ['bronze', 'silver', 'gold', 'platinum'].includes(packId) && 
+            (packExpires && packExpires > now)
+
+          setIsPremium(!!(hasValidSub || hasValidPack))
+          setIsInstitution(subTier === 'institutionnel')
         }
       } catch (e) {
         console.error(e)
+      } finally {
+        setLoadingSub(false)
       }
     }
-    checkInstitution()
+    checkSubscription()
   }, [user])
 
   const handleLogout = async () => {
@@ -61,6 +80,19 @@ export default function PrivateLayout() {
           </div>
           
           <div className="flex gap-4 items-center">
+            {!loadingSub && isPremium && (
+              <span className="hidden sm:flex text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-[#C55A11] border border-amber-500/20 px-2.5 py-1 rounded-lg items-center gap-1 select-none">
+                ⭐ Premium
+              </span>
+            )}
+            {!loadingSub && !isPremium && (
+              <Link
+                to="/subscribe"
+                className="bg-gradient-to-r from-amber-500 via-[#C55A11] to-red-500 text-white font-extrabold text-xs px-4 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 flex items-center gap-1.5 animate-pulse-slow"
+              >
+                <span>💎 Devenir Premium</span>
+              </Link>
+            )}
             <span className="hidden sm:inline text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/50">{user?.email}</span>
             <button onClick={() => void handleLogout()} className="hidden sm:block text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 px-3.5 py-1.5 rounded-xl font-bold transition-all shadow-sm">Déconnexion</button>
             
@@ -84,6 +116,15 @@ export default function PrivateLayout() {
       {/* Mobile navigation menu */}
       {mobileMenuOpen && (
         <nav className="md:hidden bg-white/95 backdrop-blur-md border-b border-slate-200/60 p-4 space-y-2 relative z-30 shadow-md">
+          {!loadingSub && !isPremium && (
+            <Link 
+              to="/subscribe" 
+              onClick={() => setMobileMenuOpen(false)} 
+              className="block px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-[#C55A11] to-red-500 text-white font-extrabold text-sm text-center shadow-md select-none animate-pulse-slow"
+            >
+              💎 Devenir Premium
+            </Link>
+          )}
           <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-colors">Tableau de bord</Link>
           <Link to="/modules" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-colors">Catalogue</Link>
           <Link to="/parcours" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 font-semibold text-sm transition-colors">Mon parcours</Link>

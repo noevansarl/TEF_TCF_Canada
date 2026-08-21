@@ -151,6 +151,17 @@ export default function SubscribePage() {
     }
   }, [user])
 
+  useEffect(() => {
+    const planParam = searchParams.get('plan')
+    if (planParam && user && !loadingPlanId) {
+      const validPlans = ['essentiel', 'avance', 'premium']
+      if (validPlans.includes(planParam)) {
+        // Automatically trigger Stripe subscription checkout
+        handleStripeSubscription(planParam)
+      }
+    }
+  }, [searchParams, user])
+
   const handleStripeSubscription = async (planId: string) => {
     if (!user) {
       navigate(`/register?plan=${planId}`)

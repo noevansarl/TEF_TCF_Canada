@@ -9,6 +9,47 @@ export default function DashboardPage() {
   const { user } = useAuthStore()
   const [loadingModule, setLoadingModule] = useState<string | null>(null)
   const [hasAssessedLevel, setHasAssessedLevel] = useState(true)
+  const [isPremium, setIsPremium] = useState(true)
+  const [loadingSub, setLoadingSub] = useState(true)
+
+  useEffect(() => {
+    async function checkSubscription() {
+      if (!user) return
+      try {
+        const { data } = await supabase
+          .from('users')
+          .select('subscription_tier, subscription_expires_at, active_pack_id, pack_expires_at')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (data) {
+          const now = new Date()
+          const subTier = data.subscription_tier
+          const subExpires = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null
+          const packId = data.active_pack_id
+          const packExpires = data.pack_expires_at ? new Date(data.pack_expires_at) : null
+
+          const hasValidSub = subTier && 
+            ['avance', 'premium', 'institutionnel', 'essentiel', 'bronze', 'silver', 'gold', 'platinum'].includes(subTier) && 
+            (!subExpires || subExpires > now)
+
+          const hasValidPack = packId && 
+            ['bronze', 'silver', 'gold', 'platinum'].includes(packId) && 
+            (packExpires && packExpires > now)
+
+          setIsPremium(!!(hasValidSub || hasValidPack))
+        } else {
+          setIsPremium(false)
+        }
+      } catch (err) {
+        console.error(err)
+        setIsPremium(false)
+      } finally {
+        setLoadingSub(false)
+      }
+    }
+    checkSubscription()
+  }, [user])
 
   useEffect(() => {
     async function checkAssessedLevel() {
@@ -205,6 +246,34 @@ export default function DashboardPage() {
               className="px-6 py-3.5 bg-white text-indigo-700 hover:scale-105 active:scale-95 transition-all rounded-2xl font-black text-sm shadow-md shrink-0 text-center"
             >
               Lancer le test →
+            </Link>
+          </div>
+        )}
+
+        {/* Upgrade Banner for Free Users */}
+        {!loadingSub && !isPremium && (
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-7 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl border border-white/5 relative overflow-hidden group select-none animate-fade-in">
+            {/* Glowing effect inside card */}
+            <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-indigo-500/10 blur-[80px]"></div>
+            <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-amber-500/10 blur-[80px]"></div>
+            
+            <div className="space-y-2 z-10 select-none">
+              <span className="bg-gradient-to-r from-amber-400 to-[#C55A11] bg-clip-text text-transparent text-[10px] font-black uppercase tracking-[0.2em] block">
+                Offre ayePREP Premium
+              </span>
+              <h2 className="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                <span>🔓 Débloquez la préparation complète</span>
+              </h2>
+              <p className="text-slate-350 text-xs md:text-sm leading-relaxed max-w-xl">
+                Accédez à plus de 600 exercices de CO/CE, thèmes d'Expression Écrite/Orale illimités et des corrections détaillées par notre IA entraînée selon les critères officiels.
+              </p>
+            </div>
+            
+            <Link
+              to="/subscribe"
+              className="px-6 py-3.5 bg-gradient-to-r from-amber-500 via-[#C55A11] to-red-500 hover:scale-105 active:scale-95 transition-all text-white rounded-2xl font-black text-sm shadow-lg shadow-orange-500/25 shrink-0 text-center z-10"
+            >
+              Passer Premium 💎
             </Link>
           </div>
         )}

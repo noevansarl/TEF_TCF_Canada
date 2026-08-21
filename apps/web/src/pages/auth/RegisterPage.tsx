@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { supabase } from '../../lib/supabase'
 import { motion } from 'framer-motion'
@@ -14,6 +14,8 @@ export default function RegisterPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const planParam = searchParams.get('plan')
   const user = useAuthStore(state => state.user)
   const setUser = useAuthStore(state => state.setUser)
 
@@ -84,7 +86,8 @@ export default function RegisterPage() {
           setIsSubmitted(true)
         } else {
           setUser({ id: data.user.id, email: data.user.email! }, 'user')
-          navigate(from, { replace: true })
+          const redirectPath = planParam ? `/subscribe?plan=${planParam}` : from
+          navigate(redirectPath, { replace: true })
         }
       }
     } catch (err: unknown) {
@@ -160,7 +163,7 @@ export default function RegisterPage() {
 
               <div className="pt-4">
                 <Link
-                  to="/login"
+                  to={planParam ? `/login?plan=${planParam}` : "/login"}
                   className="inline-block w-full py-4 px-6 border border-transparent text-sm font-extrabold rounded-2xl text-white bg-gradient-to-r from-[#1B3A6B] via-[#2E75B6] to-[#C55A11] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg shadow-[#1B3A6B]/30 font-sans tracking-wide text-center"
                 >
                   Aller à la page de connexion
@@ -245,7 +248,7 @@ export default function RegisterPage() {
 
               <p className="mt-10 text-center text-sm text-slate-400">
                 Déjà inscrit ?{' '}
-                <Link to="/login" className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
+                <Link to={planParam ? `/login?plan=${planParam}` : "/login"} className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
                   Se connecter
                 </Link>
               </p>
