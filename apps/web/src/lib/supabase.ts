@@ -1,18 +1,28 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../types/database.types'
 
-if (import.meta.env.PROD && (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY)) {
-  throw new Error('FATAL: VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY doivent être définis en production.')
+const isProduction = import.meta.env.PROD
+
+if (isProduction) {
+  if (
+    !import.meta.env.VITE_SUPABASE_URL ||
+    !import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    import.meta.env.VITE_SUPABASE_URL.includes('placeholder') ||
+    import.meta.env.VITE_SUPABASE_ANON_KEY === 'placeholder'
+  ) {
+    throw new Error('FATAL: VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY valides doivent être définis en production.')
+  }
 }
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder'
 
-// Detect if we should use mock client (no environment variables or placeholder keys)
-const useMock =
+// Detect if we should use mock client (no environment variables or placeholder keys, strictly disallowed in prod)
+const useMock = !isProduction && (
   supabaseUrl.includes('placeholder') ||
   supabaseAnonKey === 'placeholder' ||
   !import.meta.env.VITE_SUPABASE_URL
+)
 
 // Mock questions list based on questions.sql seed data - MUTABLE for CRUD simulation
 export let mockQuestions = [
