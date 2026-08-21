@@ -79,7 +79,7 @@ export default function PrivateLayout() {
             </nav>
           </div>
           
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center md:border-l md:border-slate-200/80 md:pl-6 md:ml-2 select-none">
             {!loadingSub && isPremium && (
               <span className="hidden sm:flex text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-[#C55A11] border border-amber-500/20 px-2.5 py-1 rounded-lg items-center gap-1 select-none">
                 ⭐ Premium
@@ -88,9 +88,10 @@ export default function PrivateLayout() {
             {!loadingSub && !isPremium && (
               <Link
                 to="/subscribe"
-                className="bg-gradient-to-r from-amber-500 via-[#C55A11] to-red-500 text-white font-extrabold text-xs px-4 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 flex items-center gap-1.5 animate-pulse-slow"
+                className="bg-slate-900 text-amber-400 border border-amber-500/30 hover:border-amber-400 hover:text-amber-300 hover:bg-slate-850 text-[11px] font-bold px-3.5 py-2 rounded-xl transition-all hover:scale-[1.03] active:scale-[0.97] shadow-sm flex items-center gap-1.5"
               >
-                <span>💎 Devenir Premium</span>
+                <span>💎</span>
+                <span>Devenir Premium</span>
               </Link>
             )}
             <span className="hidden sm:inline text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/50">{user?.email}</span>
