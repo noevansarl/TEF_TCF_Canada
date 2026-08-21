@@ -7,95 +7,95 @@ import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 // Tables de conversion officielles IRCC (2026)
 const TCF_NCLC_TABLE: Record<string, { min: number; max: number; nclc: string; clb: string; cecrl: string }[]> = {
   CO: [
-    { min: 0,   max: 180, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 181, max: 225, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 226, max: 269, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 270, max: 309, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 310, max: 348, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 349, max: 382, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 383, max: 405, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 406, max: 458, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 459, max: 699, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 330, nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 331, max: 368, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 369, max: 397, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 398, max: 457, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 458, max: 502, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 503, max: 522, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 523, max: 548, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 549, max: 699, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
   ],
   CE: [
-    { min: 0,   max: 180, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 181, max: 225, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 226, max: 268, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 269, max: 309, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 310, max: 347, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 348, max: 382, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 383, max: 405, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 406, max: 453, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 454, max: 699, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 341, nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 342, max: 374, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 375, max: 405, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 406, max: 452, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 453, max: 498, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 499, max: 523, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 524, max: 548, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 549, max: 699, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
   ],
   EE: [
-    { min: 0,   max: 180, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 181, max: 225, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 226, max: 270, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 271, max: 309, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 310, max: 348, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 349, max: 382, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 383, max: 405, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 406, max: 457, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 458, max: 699, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 3,   nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 4,   max: 5,   nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 6,   max: 6,   nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 7,   max: 9,   nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 10,  max: 11,  nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 12,  max: 13,  nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 14,  max: 15,  nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 16,  max: 20,  nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
   ],
   EO: [
-    { min: 0,   max: 180, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 181, max: 225, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 226, max: 270, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 271, max: 309, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 310, max: 348, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 349, max: 382, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 383, max: 405, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 406, max: 457, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 458, max: 699, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 3,   nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 4,   max: 5,   nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 6,   max: 6,   nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 7,   max: 9,   nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 10,  max: 11,  nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 12,  max: 13,  nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 14,  max: 15,  nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 16,  max: 20,  nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
   ],
 }
 
 const TEF_NCLC_TABLE: Record<string, { min: number; max: number; nclc: string; clb: string; cecrl: string }[]> = {
   CO: [
-    { min: 0,   max: 144, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 145, max: 180, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 181, max: 216, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 217, max: 248, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 249, max: 279, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 280, max: 297, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 298, max: 315, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 316, max: 333, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 334, max: 360, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 144, nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 145, max: 180, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 181, max: 216, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 217, max: 248, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 249, max: 279, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 280, max: 297, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 298, max: 315, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 316, max: 333, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
+    { min: 334, max: 341, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
+    { min: 342, max: 360, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
   ],
   CE: [
-    { min: 0,   max: 120, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 121, max: 150, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 151, max: 180, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 181, max: 207, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 208, max: 232, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 233, max: 247, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 248, max: 262, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 263, max: 277, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 278, max: 300, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 120, nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 121, max: 150, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 151, max: 180, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 181, max: 206, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 207, max: 232, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 233, max: 247, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 248, max: 262, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 263, max: 277, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
+    { min: 278, max: 289, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
+    { min: 290, max: 300, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
   ],
   EE: [
-    { min: 0,   max: 120, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 121, max: 150, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 151, max: 180, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 181, max: 207, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 208, max: 232, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 233, max: 247, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 248, max: 262, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 263, max: 277, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 278, max: 300, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 180, nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 181, max: 225, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 226, max: 270, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 271, max: 309, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 310, max: 348, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 349, max: 370, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 371, max: 392, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 393, max: 410, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
+    { min: 411, max: 425, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
+    { min: 426, max: 450, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
   ],
   EO: [
-    { min: 0,   max: 120, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
-    { min: 121, max: 150, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
-    { min: 151, max: 180, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
-    { min: 181, max: 207, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
-    { min: 208, max: 232, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
-    { min: 233, max: 247, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
-    { min: 248, max: 262, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C1+' },
-    { min: 263, max: 277, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
-    { min: 278, max: 300, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
+    { min: 0,   max: 180, nclc: 'NCLC <4', clb: 'CLB <4', cecrl: 'A1/A2' },
+    { min: 181, max: 225, nclc: 'NCLC 4',  clb: 'CLB 4',  cecrl: 'B1' },
+    { min: 226, max: 270, nclc: 'NCLC 5',  clb: 'CLB 5',  cecrl: 'B1+' },
+    { min: 271, max: 309, nclc: 'NCLC 6',  clb: 'CLB 6',  cecrl: 'B2' },
+    { min: 310, max: 348, nclc: 'NCLC 7',  clb: 'CLB 7',  cecrl: 'B2+' },
+    { min: 349, max: 370, nclc: 'NCLC 8',  clb: 'CLB 8',  cecrl: 'C1' },
+    { min: 371, max: 392, nclc: 'NCLC 9',  clb: 'CLB 9',  cecrl: 'C1+' },
+    { min: 393, max: 410, nclc: 'NCLC 10', clb: 'CLB 10', cecrl: 'C2' },
+    { min: 411, max: 425, nclc: 'NCLC 11', clb: 'CLB 11', cecrl: 'C2' },
+    { min: 426, max: 450, nclc: 'NCLC 12', clb: 'CLB 12', cecrl: 'C2' },
   ],
 }
 
@@ -105,6 +105,7 @@ function getLevel(table: typeof TCF_NCLC_TABLE, module: string, score: number) {
 }
 
 const levelColor: Record<string, string> = {
+  'A1/A2': 'bg-red-50 text-red-700 border-red-200/50',
   'B1': 'bg-amber-50 text-amber-700 border-amber-200/50',
   'B1+': 'bg-amber-50 text-amber-700 border-amber-200/50',
   'B2': 'bg-blue-50 text-blue-700 border-blue-200/50',
@@ -121,8 +122,8 @@ const MODULE_LABELS: Record<string, string> = {
   EO: 'Expression Orale',
 }
 
-const TCF_MAX: Record<string, number> = { CO: 699, CE: 699, EE: 699, EO: 699 }
-const TEF_MAX: Record<string, number> = { CO: 360, CE: 300, EE: 300, EO: 300 }
+const TCF_MAX: Record<string, number> = { CO: 699, CE: 699, EE: 20, EO: 20 }
+const TEF_MAX: Record<string, number> = { CO: 360, CE: 300, EE: 450, EO: 450 }
 
 export default function NclcCalculatorPage() {
   useDocumentMetadata({
@@ -148,10 +149,14 @@ export default function NclcCalculatorPage() {
   const overallNclc = (() => {
     if (!allFilled) return null
     const nums = results.map(r => {
-      const n = r.level?.nclc.replace('NCLC ', '') || '4'
-      return parseInt(n)
+      const nclcStr = r.level?.nclc || ''
+      if (nclcStr.includes('<4')) return 3
+      const numOnly = nclcStr.replace(/[^\d]/g, '')
+      const parsed = parseInt(numOnly)
+      return isNaN(parsed) ? 4 : parsed
     })
-    return Math.min(...nums)
+    const minNclc = Math.min(...nums)
+    return minNclc < 4 ? '< 4' : String(minNclc)
   })()
 
   return (
@@ -325,14 +330,17 @@ export default function NclcCalculatorPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/60 text-slate-700">
-                  {['NCLC 4','NCLC 5','NCLC 6','NCLC 7','NCLC 8','NCLC 9','NCLC 10','NCLC 11','NCLC 12'].map((nclc, i) => {
-                    const co = table.CO[i], ce = table.CE[i], ee = table.EE[i], eo = table.EO[i]
+                  {['NCLC 4','NCLC 5','NCLC 6','NCLC 7','NCLC 8','NCLC 9','NCLC 10','NCLC 11','NCLC 12'].map((nclc) => {
+                    const co = table.CO.find(r => r.nclc === nclc) || (nclc.startsWith('NCLC 1') ? table.CO.find(r => r.nclc === 'NCLC 10') : undefined)
+                    const ce = table.CE.find(r => r.nclc === nclc) || (nclc.startsWith('NCLC 1') ? table.CE.find(r => r.nclc === 'NCLC 10') : undefined)
+                    const ee = table.EE.find(r => r.nclc === nclc) || (nclc.startsWith('NCLC 1') ? table.EE.find(r => r.nclc === 'NCLC 10') : undefined)
+                    const eo = table.EO.find(r => r.nclc === nclc) || (nclc.startsWith('NCLC 1') ? table.EO.find(r => r.nclc === 'NCLC 10') : undefined)
                     return (
                       <tr key={nclc} className="hover:bg-slate-50/40 transition-colors">
                         <td className="py-3 pr-4 font-bold text-[#1B3A6B]">{nclc}</td>
                         <td className="py-3 pr-4">
-                          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold border ${levelColor[co?.cecrl] || ''}`}>
-                            {co?.cecrl}
+                          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold border ${levelColor[co?.cecrl || 'B1'] || ''}`}>
+                            {co?.cecrl || '—'}
                           </span>
                         </td>
                         <td className="py-3 pr-4 text-slate-600 font-semibold text-xs">{co ? `${co.min}–${co.max}` : '—'}</td>
