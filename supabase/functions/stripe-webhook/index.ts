@@ -5,13 +5,24 @@ import Stripe from 'https://esm.sh/stripe@14'
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-04-10' })
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
 
-const PLAN_MAP: Record<string, string> = {
-  'price_essentiel_monthly': 'essentiel',
-  'price_essentiel_yearly':  'essentiel',
-  'price_avance_monthly':    'avance',
-  'price_avance_yearly':     'avance',
-  'price_premium_monthly':   'premium',
-  'price_premium_yearly':    'premium',
+const getPlanMap = () => {
+  const map: Record<string, string> = {}
+  
+  const em = Deno.env.get('STRIPE_PRICE_ESSENTIEL_MONTHLY') || 'price_essentiel_monthly'
+  const ey = Deno.env.get('STRIPE_PRICE_ESSENTIEL_YEARLY') || 'price_essentiel_yearly'
+  const am = Deno.env.get('STRIPE_PRICE_AVANCE_MONTHLY') || 'price_avance_monthly'
+  const ay = Deno.env.get('STRIPE_PRICE_AVANCE_YEARLY') || 'price_avance_yearly'
+  const pm = Deno.env.get('STRIPE_PRICE_PREMIUM_MONTHLY') || 'price_premium_monthly'
+  const py = Deno.env.get('STRIPE_PRICE_PREMIUM_YEARLY') || 'price_premium_yearly'
+
+  map[em] = 'essentiel'
+  map[ey] = 'essentiel'
+  map[am] = 'avance'
+  map[ay] = 'avance'
+  map[pm] = 'premium'
+  map[py] = 'premium'
+  
+  return map
 }
 
 serve(async (req: Request) => {
@@ -47,15 +58,65 @@ serve(async (req: Request) => {
         const session = event.data.object as Stripe.Checkout.Session
         const userId = session.metadata?.user_id
         const priceId = session.metadata?.price_id
-        const plan = PLAN_MAP[priceId ?? ''] ?? 'essentiel'
+        const packId = session.metadata?.pack_id
 
         if (!userId) {
           console.error('Missing user_id in checkout session metadata')
           break
         }
 
-        if (session.mode === 'subscription' && session.subscription) {
+        // ── Case 1: Pack Purchase (CAD Payment via Stripe) ─────────────────
+        if (session.mode === 'payment' && packId) {
+          const PACKS: Record<string, { duration_days: number; ai_trials: number; co_tests: number; ce_tests: number; simulations: number }> = {
+            bronze:   { duration_days: 5,  ai_trials: 3,  co_tests: 40,  ce_tests: 40,  simulations: 1  },
+            silver:   { duration_days: 30, ai_trials: 8,  co_tests: 120, ce_tests: 120, simulations: 5  },
+            gold:     { duration_days: 60, ai_trials: 15, co_tests: 300, ce_tests: 300, simulations: 12 },
+            platinum: { duration_days: 90, ai_trials: 30, co_tests: -1,  ce_tests: -1,  simulations: -1 },
+          }
+
+          const pack = PACKS[packId]
+          if (pack) {
+            const expiresAt = new Date()
+            expiresAt.setDate(expiresAt.getDate() + pack.duration_days)
+
+            // Idempotency: verify if already processed
+            const { data: existingPack } = await supabase
+              .from('user_pack_subscriptions')
+              .select('id')
+              .eq('stripe_payment_intent_id', session.payment_intent as string)
+              .maybeSingle()
+
+            if (!existingPack) {
+              await supabase.from('user_pack_subscriptions').insert({
+                user_id: userId,
+                pack_id: packId,
+                expires_at: expiresAt.toISOString(),
+                payment_method: 'stripe',
+                payment_currency: session.currency?.toUpperCase() ?? 'CAD',
+                amount_paid: (session.amount_total ?? 0) / 100,
+                ai_trials_remaining: pack.ai_trials,
+                co_tests_remaining: pack.co_tests,
+                ce_tests_remaining: pack.ce_tests,
+                simulations_remaining: pack.simulations,
+                status: 'active',
+                stripe_payment_intent_id: session.payment_intent as string,
+              })
+
+              await supabase.from('users').update({
+                active_pack_id: packId,
+                pack_expires_at: expiresAt.toISOString(),
+                subscription_tier: packId,
+              }).eq('id', userId)
+
+              console.log(`✅ Pack ${packId} activé via Stripe pour user ${userId}`)
+            }
+          }
+        }
+        // ── Case 2: Subscription Purchase ──────────────────────────────────
+        else if (session.mode === 'subscription' && session.subscription) {
           const subId = session.subscription as string
+          const planMap = getPlanMap()
+          const plan = planMap[priceId ?? ''] ?? 'essentiel'
 
           // Idempotency check: see if subscription has already been created/activated
           const { data: existingSub } = await supabase

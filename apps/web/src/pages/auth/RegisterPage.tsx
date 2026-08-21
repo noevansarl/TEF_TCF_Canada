@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const planParam = searchParams.get('plan')
+  const packParam = searchParams.get('pack')
   const user = useAuthStore(state => state.user)
   const setUser = useAuthStore(state => state.setUser)
 
@@ -86,7 +87,11 @@ export default function RegisterPage() {
           setIsSubmitted(true)
         } else {
           setUser({ id: data.user.id, email: data.user.email! }, 'user')
-          const redirectPath = planParam ? `/subscribe?plan=${planParam}` : from
+          const redirectPath = planParam 
+            ? `/subscribe?plan=${planParam}` 
+            : packParam 
+            ? `/subscribe?pack=${packParam}` 
+            : from
           navigate(redirectPath, { replace: true })
         }
       }
@@ -163,7 +168,7 @@ export default function RegisterPage() {
 
               <div className="pt-4">
                 <Link
-                  to={planParam ? `/login?plan=${planParam}` : "/login"}
+                  to={planParam ? `/login?plan=${planParam}` : packParam ? `/login?pack=${packParam}` : "/login"}
                   className="inline-block w-full py-4 px-6 border border-transparent text-sm font-extrabold rounded-2xl text-white bg-gradient-to-r from-[#1B3A6B] via-[#2E75B6] to-[#C55A11] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg shadow-[#1B3A6B]/30 font-sans tracking-wide text-center"
                 >
                   Aller à la page de connexion
@@ -248,7 +253,7 @@ export default function RegisterPage() {
 
               <p className="mt-10 text-center text-sm text-slate-400">
                 Déjà inscrit ?{' '}
-                <Link to={planParam ? `/login?plan=${planParam}` : "/login"} className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
+                <Link to={planParam ? `/login?plan=${planParam}` : packParam ? `/login?pack=${packParam}` : "/login"} className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
                   Se connecter
                 </Link>
               </p>

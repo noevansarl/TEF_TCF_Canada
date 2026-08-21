@@ -162,6 +162,51 @@ export default function SubscribePage() {
     }
   }, [searchParams, user])
 
+  useEffect(() => {
+    const packParam = searchParams.get('pack')
+    if (packParam && user && !loadingPlanId) {
+      const validPacks = ['bronze', 'silver', 'gold', 'platinum']
+      if (validPacks.includes(packParam)) {
+        // Automatically trigger Stripe pack checkout
+        handleStripePackCheckout(packParam)
+      }
+    }
+  }, [searchParams, user])
+
+  const handleStripePackCheckout = async (packId: string) => {
+    if (!user) {
+      navigate(`/register?pack=${packId}`)
+      return
+    }
+    setLoadingPlanId(packId)
+    setErrorMessage(null)
+    try {
+      const { data, error: functionError } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          pack: packId,
+          user_id: user.id,
+          country: country,
+          return_url: window.location.origin
+        }
+      })
+
+      if (functionError || !data) {
+        setErrorMessage(functionError?.message || "Impossible de créer la session de paiement Stripe pour ce pack.")
+        return
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      } else if (data.error) {
+        setErrorMessage(data.error)
+      }
+    } catch (err: unknown) {
+      setErrorMessage((err as Error).message || "Une erreur est survenue lors de l'appel API.")
+    } finally {
+      setLoadingPlanId(null)
+    }
+  }
+
   const handleStripeSubscription = async (planId: string) => {
     if (!user) {
       navigate(`/register?plan=${planId}`)
@@ -505,12 +550,13 @@ export default function SubscribePage() {
                         setErrorMessage(null)
                         setShowFedaModal(true)
                       } else {
-                        alert("Le paiement par Carte Bancaire (CAD) sera bientôt disponible. Pour l'instant, veuillez utiliser le paiement en FCFA via Mobile Money.")
+                        handleStripePackCheckout(pack.id)
                       }
                     }}
                     className="w-full py-3 bg-slate-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-wider hover:bg-slate-800 shadow-md transition-all duration-300"
+                    disabled={loadingPlanId !== null}
                   >
-                    {currency === 'CFA' ? '📱 Payer Mobile Money' : 'Activer ce pack'}
+                    {loadingPlanId === pack.id ? 'Redirection...' : (currency === 'CFA' ? '📱 Payer Mobile Money' : '💳 Payer par Carte (CAD)')}
                   </button>
                 </div>
               ))}

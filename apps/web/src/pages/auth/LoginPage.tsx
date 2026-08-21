@@ -19,6 +19,7 @@ export default function LoginPage() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const planParam = searchParams.get('plan')
+  const packParam = searchParams.get('pack')
   const user = useAuthStore(state => state.user)
   const setUser = useAuthStore(state => state.setUser)
 
@@ -63,7 +64,11 @@ export default function LoginPage() {
           .eq('id', data.user.id)
           .single()
         setUser({ id: data.user.id, email: data.user.email! }, profile?.role || 'user')
-        const redirectPath = planParam ? `/subscribe?plan=${planParam}` : from
+        const redirectPath = planParam 
+          ? `/subscribe?plan=${planParam}` 
+          : packParam 
+          ? `/subscribe?pack=${packParam}` 
+          : from
         navigate(redirectPath, { replace: true })
       }
     } catch (err: unknown) {
@@ -249,7 +254,7 @@ export default function LoginPage() {
 
           <p className="mt-10 text-center text-sm text-slate-400">
             Nouveau sur la plateforme ?{' '}
-            <Link to={planParam ? `/register?plan=${planParam}` : "/register"} className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
+            <Link to={planParam ? `/register?plan=${planParam}` : packParam ? `/register?pack=${packParam}` : "/register"} className="font-bold text-[#C55A11] hover:text-[#e06515] hover:underline transition-all">
               Créer un compte gratuitement
             </Link>
           </p>
