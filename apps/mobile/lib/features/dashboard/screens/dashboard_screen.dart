@@ -27,56 +27,66 @@ class DashboardScreen extends ConsumerWidget {
                     final int xp = profile?['xp_points'] ?? 0;
                     final int streak = profile?['streak_days'] ?? 0;
                     final String tier = profile?['subscription_tier'] ?? 'gratuit';
+                    final bool hasAssessedLevel = profile?['level_assessed'] != null;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Bonjour, $name 👋',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFC55A11).withOpacity(0.2),
-                                border: Border.all(color: const Color(0xFFC55A11)),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                tier.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Color(0xFFC55A11),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Gamification Stats (Streak & XP)
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildStatChip(
-                              icon: Icons.local_fire_department,
-                              color: const Color(0xFFC55A11),
-                              value: '$streak j',
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Bonjour, $name 👋',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFC55A11).withOpacity(0.2),
+                                    border: Border.all(color: const Color(0xFFC55A11)),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    tier.toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Color(0xFFC55A11),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            _buildStatChip(
-                              icon: Icons.star_rounded,
-                              color: Colors.amber,
-                              value: '$xp XP',
+                            // Gamification Stats (Streak & XP)
+                            Row(
+                              children: [
+                                _buildStatChip(
+                                  icon: Icons.local_fire_department,
+                                  color: const Color(0xFFC55A11),
+                                  value: '$streak j',
+                                ),
+                                const SizedBox(width: 8),
+                                _buildStatChip(
+                                  icon: Icons.star_rounded,
+                                  color: Colors.amber,
+                                  value: '$xp XP',
+                                ),
+                              ],
                             ),
                           ],
                         ),
+                        if (!hasAssessedLevel) ...[
+                          const SizedBox(height: 20),
+                          _buildDiagnosticBanner(context),
+                        ],
                       ],
                     );
                   },
@@ -480,6 +490,69 @@ class DashboardScreen extends ConsumerWidget {
           IconButton(
             onPressed: () => context.push(route),
             icon: const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDiagnosticBanner(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2563EB), Color(0xFF4F46E5), Color(0xFF7C3AED)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4F46E5).withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.explore_outlined, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Évaluez votre niveau initial',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Vous n'avez pas encore passé le test diagnostique initial. Prenez 20 minutes pour évaluer votre niveau de départ afin d'adapter votre programme.",
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white.withOpacity(0.9),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => context.push('/diagnostic'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF4F46E5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Lancer le test →'),
           ),
         ],
       ),
