@@ -290,7 +290,7 @@ const List<DiagnosticQuestion> _questions = [
     id: 'diag-ce-5',
     module: 'CE',
     level: 'A2',
-    passageText: 'Menu Midi Express : Entrée + Plat ou Plat + Dessert à 15,90 $, disponible uniquement du lundi au vendredi de 11h30 à 14h00. Le café est offert sur présentation de la carte étudiante. Les boissons ne sont pas incluses dans la formule.',
+    passageText: 'Menu Midi Express : Entrée + Plat ou Plat + Dessert à 15,90 \$, disponible uniquement du lundi au vendredi de 11h30 à 14h00. Le café est offert sur présentation de la carte étudiante. Les boissons ne sont pas incluses dans la formule.',
     questionText: 'Quelle proposition est vraie au sujet de la formule Midi Express ?',
     options: {
       'A': 'Elle comprend systématiquement une boisson gazeuse.',
@@ -973,7 +973,7 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
                             currentQuestion.passageText ?? '',
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.white90,
+                              color: Colors.white70,
                               height: 1.5,
                               fontFamily: 'Serif',
                             ),
@@ -1051,7 +1051,7 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
                                   val,
                                   style: const TextStyle(
                                     fontSize: 14,
-                                    color: Colors.white90,
+                                    color: Colors.white70,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -1070,7 +1070,9 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
         // Footer info
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          border: const Border(top: BorderSide(color: Colors.white10)),
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(color: Colors.white10)),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1160,7 +1162,7 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
                         ),
                         Text(
                           _assessedLevel == 'C1' ? 'C2' : _assessedLevel == 'B2' ? 'C1' : 'B2',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.black, color: Color(0xFF10B981)),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF10B981)),
                         ),
                       ],
                     ),
