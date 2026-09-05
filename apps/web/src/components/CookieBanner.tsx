@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { syncMarketingPixels } from '../lib/tracking'
 
 interface CookieConsent {
   decided: boolean
@@ -17,12 +18,18 @@ export const useCookieStore = create<CookieConsent>()(
       decided: false,
       analytics: false,
       marketing: false,
-      setConsent: ({ analytics, marketing }) =>
-        set({ decided: true, analytics, marketing }),
-      acceptAll: () =>
-        set({ decided: true, analytics: true, marketing: true }),
-      rejectAll: () =>
-        set({ decided: true, analytics: false, marketing: false }),
+      setConsent: ({ analytics, marketing }) => {
+        set({ decided: true, analytics, marketing })
+        syncMarketingPixels()
+      },
+      acceptAll: () => {
+        set({ decided: true, analytics: true, marketing: true })
+        syncMarketingPixels()
+      },
+      rejectAll: () => {
+        set({ decided: true, analytics: false, marketing: false })
+        syncMarketingPixels()
+      },
     }),
     { name: 'fa-cookie-consent' }
   )
@@ -36,7 +43,10 @@ export function CookieBanner() {
   const [localMarketing, setLocalMarketing] = useState(marketing)
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    syncMarketingPixels()
+  }, [])
 
   if (!mounted || decided) return null
 

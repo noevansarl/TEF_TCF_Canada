@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
+import { SocialShareButtons } from '../components/SocialShareButtons'
+import { LeadMagnetModal } from '../components/LeadMagnetModal'
+import { trackMarketingEvent } from '../lib/tracking'
 
 // 5 questions démo de niveau B2 — sans auth requise
 const DEMO_QUESTIONS = [
@@ -107,6 +110,10 @@ export default function QuickTestPage() {
     setShowExplanation(false)
     if (isLast) {
       setShowResult(true)
+      trackMarketingEvent('quick_test_completed', {
+        score,
+        estimated_nclc: estimate.nclc
+      })
     } else {
       setCurrentIndex(prev => prev + 1)
     }
@@ -151,6 +158,19 @@ export default function QuickTestPage() {
                 ></div>
               </div>
             </div>
+
+            {/* Partage viral sur WhatsApp / Réseaux */}
+            <SocialShareButtons
+              title="Partager mon résultat au mini-test"
+              text={`🍁 J'ai obtenu ${score}/5 au mini-test gratuit TCF/TEF Canada sur ayePREP (niveau estimé : ${estimate.nclc}) ! Testez gratuitement votre niveau de français en 3 minutes :`}
+              url="https://ayeprep.com/test-rapide"
+            />
+
+            {/* Lead Magnet Checklist */}
+            <LeadMagnetModal
+              inline={true}
+              suggestedNclc={estimate.nclc}
+            />
 
             {/* Résumé des réponses */}
             <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl">

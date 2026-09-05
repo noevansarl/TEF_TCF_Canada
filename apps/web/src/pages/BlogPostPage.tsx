@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { BLOG_ARTICLES } from '../data/blogArticles'
 import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
+import { SocialShareButtons } from '../components/SocialShareButtons'
+import { LeadMagnetModal } from '../components/LeadMagnetModal'
 
 // Questions démo interactives pour l'inclusion dans les articles
 const DEMO_EXERCISES: Record<string, {
@@ -294,6 +296,19 @@ export default function BlogPostPage() {
                 }
               })}
             </article>
+
+            {/* Partage réseaux sociaux & WhatsApp */}
+            <SocialShareButtons
+              title="Cet article vous a aidé ? Partagez-le !"
+              text={`📚 Guide incontournable : "${article.title}" sur ayePREP`}
+              url={typeof window !== 'undefined' ? window.location.href : `https://ayeprep.com/blog/${article.slug}`}
+            />
+
+            {/* Lead Magnet Checklist & Guide */}
+            <LeadMagnetModal
+              inline={true}
+              initialExam={article.category === 'TEF Canada' ? 'TEF_CANADA' : 'TCF_CANADA'}
+            />
 
             {/* FAQs Accordion */}
             {article.faqs.length > 0 && (

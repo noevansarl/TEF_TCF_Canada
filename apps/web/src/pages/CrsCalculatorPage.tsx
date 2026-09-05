@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
 import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
+import { SocialShareButtons } from '../components/SocialShareButtons'
+import { LeadMagnetModal } from '../components/LeadMagnetModal'
+import { trackMarketingEvent } from '../lib/tracking'
 
 // ── Types et Interfaces ────────────────────────────────────────────────
 interface CrsInputs {
@@ -665,7 +668,14 @@ export default function CrsCalculatorPage() {
             </div>
 
             <button
-              onClick={() => setCalculated(true)}
+              onClick={() => {
+                setCalculated(true)
+                trackMarketingEvent('crs_simulator_used', {
+                  score: currentScore.grandTotal,
+                  has_spouse: inputs.hasSpouse,
+                  education: inputs.education
+                })
+              }}
               className="w-full py-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-2xl font-extrabold text-sm hover:opacity-95 shadow-xl shadow-blue-600/20 active:scale-[0.99] transition-all uppercase tracking-wider"
             >
               Calculer mon score global CRS
@@ -677,43 +687,58 @@ export default function CrsCalculatorPage() {
             
             {/* Résultats du score */}
             {calculated && (
-              <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/85 rounded-3xl p-6 shadow-xl relative overflow-hidden animate-fade-in">
-                <div className="absolute top-0 right-0 bg-blue-500/10 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl border-l border-b border-slate-800/60">
-                  Total
-                </div>
-                
-                <h3 className="font-extrabold text-white text-base mb-4 font-display">Votre Score Estimé</h3>
-                
-                <div className="text-center py-6 bg-slate-950/80 rounded-2xl border border-slate-850 mb-6">
-                  <div className="text-6xl font-black text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-sky-405 to-emerald-400 font-display">
-                    {currentScore.grandTotal}
+              <div className="space-y-6 animate-fade-in">
+                <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/85 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-blue-500/10 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl border-l border-b border-slate-800/60">
+                    Total
                   </div>
-                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">points sur 1200</div>
+                  
+                  <h3 className="font-extrabold text-white text-base mb-4 font-display">Votre Score Estimé</h3>
+                  
+                  <div className="text-center py-6 bg-slate-950/80 rounded-2xl border border-slate-850 mb-6">
+                    <div className="text-6xl font-black text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-sky-405 to-emerald-400 font-display">
+                      {currentScore.grandTotal}
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">points sur 1200</div>
+                  </div>
+
+                  {/* Détails par catégorie */}
+                  <div className="space-y-3.5 text-xs font-semibold">
+                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                      <span>Facteurs humains de base</span>
+                      <span className="font-bold text-white">{currentScore.agePoints + currentScore.eduPoints + currentScore.frenchTotal + currentScore.englishTotal + currentScore.canadianWorkPoints} pts</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                      <span>Facteurs conjoint</span>
+                      <span className="font-bold text-white">{currentScore.spouseTotal} pts</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                      <span>Transférabilité des compétences</span>
+                      <span className="font-bold text-white">{currentScore.transferabilityTotal} pts</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                      <span>Facteurs additionnels / Bonus</span>
+                      <span className="font-bold text-white">{currentScore.additionalTotal} pts</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 rounded-xl leading-relaxed">
+                    💡 <strong>Indication :</strong> Le seuil de tirage typique se situe actuellement entre <strong>490 et 540 points</strong>. Les tirages ciblant le français (bilingues) ont souvent des seuils beaucoup plus bas (autour de <strong>360 à 440 points</strong>) !
+                  </div>
                 </div>
 
-                {/* Détails par catégorie */}
-                <div className="space-y-3.5 text-xs font-semibold">
-                  <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
-                    <span>Facteurs humains de base</span>
-                    <span className="font-bold text-white">{currentScore.agePoints + currentScore.eduPoints + currentScore.frenchTotal + currentScore.englishTotal + currentScore.canadianWorkPoints} pts</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
-                    <span>Facteurs conjoint</span>
-                    <span className="font-bold text-white">{currentScore.spouseTotal} pts</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
-                    <span>Transférabilité des compétences</span>
-                    <span className="font-bold text-white">{currentScore.transferabilityTotal} pts</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
-                    <span>Facteurs additionnels / Bonus</span>
-                    <span className="font-bold text-white">{currentScore.additionalTotal} pts</span>
-                  </div>
-                </div>
+                {/* Partage viral WhatsApp / Réseaux */}
+                <SocialShareButtons
+                  title="Partager mon score Entrée Express"
+                  text={`🍁 J'ai calculé mes points Entrée Express Canada sur ayePREP : score estimé de ${currentScore.grandTotal} points CRS ! Calculez gratuitement votre score et découvrez combien de points le français vous rapporte :`}
+                  url="https://ayeprep.com/simulateur-crs"
+                />
 
-                <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 rounded-xl leading-relaxed">
-                  💡 <strong>Indication :</strong> Le seuil de tirage typique se situe actuellement entre <strong>490 et 540 points</strong>. Les tirages ciblant le français (bilingues) ont souvent des seuils beaucoup plus bas (autour de <strong>360 à 440 points</strong>) !
-                </div>
+                {/* Lead Magnet Checklist & Guide */}
+                <LeadMagnetModal
+                  inline={true}
+                  suggestedNclc="NCLC 9"
+                />
               </div>
             )}
 

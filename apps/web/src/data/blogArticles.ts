@@ -396,5 +396,406 @@ export const BLOG_ARTICLES: BlogPost[] = [
         a: 'Non. Le clavier fourni lors des examens TCF/TEF Canada ne dispose d\'aucun correcteur automatique d\'orthographe ou de grammaire.'
       }
     ]
+  },
+  {
+    slug: 'tcf-canada-comprehension-orale-pieges',
+    title: 'Les 7 pièges majeurs de la Compréhension Orale TCF Canada',
+    metaDescription: 'Déjouez les pièges classiques de la Compréhension Orale du TCF Canada (39 questions, 35 min) : faux-amis, négations tronquées, accent québécois et gestion du temps.',
+    category: 'TCF Canada',
+    publishedAt: '12 Juin 2026',
+    readingTimeMin: 7,
+    author: {
+      name: 'Maud Gauthier',
+      role: 'Directrice Pédagogique, Expert CECRL'
+    },
+    image: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=60',
+    excerpt: '39 questions en 35 minutes sans retour en arrière : la Compréhension Orale du TCF Canada élimine chaque année des milliers de candidats. Voici comment déjouer les 7 pièges les plus fréquents.',
+    sections: [
+      {
+        type: 'paragraph',
+        content: 'La Compréhension Orale (CO) du TCF Canada est souvent considérée comme l\'épreuve la plus anxiogène. Avec 39 questions à enchaîner en 35 minutes chrono et une seule écoute pour la majorité des documents, la moindre seconde d\'inattention peut coûter un niveau NCLC complet.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Piège n°1 : Le mot-clé répété qui est un leurre (distracteur)'
+      },
+      {
+        type: 'paragraph',
+        content: 'Les concepteurs d\'épreuves de France Éducation International connaissent parfaitement les automatismes des candidats. Lorsqu\'une option contient exactement le même mot rare entendu dans l\'enregistrement audio, il s\'agit dans plus de 60% des cas d\'une fausse piste.'
+      },
+      {
+        type: 'quote',
+        content: 'Règle d\'or ayePREP : Ne cherchez pas les mêmes mots, cherchez les synonymes et les reformulations d\'idées.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Piège n°2 : La négation informelle tronquée'
+      },
+      {
+        type: 'paragraph',
+        content: 'En français parlé courant, le "ne" de la négation disparaît très souvent : "J\'ai pas envie d\'y aller" au lieu de "Je n\'ai pas envie". Les candidats peu entraînés à l\'oral familier comprennent alors l\'exact contraire du message réel de l\'interlocuteur.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Piège n°3 : Les expressions idiomatiques québécoises'
+      },
+      {
+        type: 'paragraph',
+        content: 'Bien que le TCF Canada utilise principalement un français standard international, les épreuves de niveau B2 à C2 intègrent délibérément des dialogues issus de Radio-Canada ou de conversations à Montréal. Reconnaître des termes comme "courriel", "fin de semaine", "magasiner" ou les tournures interrogatives en "-tu" est primordial.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Piège n°4 : Le changement d\'avis de dernière seconde'
+      },
+      {
+        type: 'paragraph',
+        content: 'Un dialogue typique : "On se retrouve à 14h à la gare ? — Oui parfait... ah attends, mon train a du retard, disons plutôt 15h30 devant le café." Si vous cochez 14h dès la première réplique, vous tombez dans le piège classique.'
+      },
+      {
+        type: 'cta',
+        content: 'Entraînez-vous avec nos 39 questions CO en conditions d\'examen réelles avec chronomètre strict.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Combien de fois chaque document audio est-il joué ?',
+        a: 'Au TCF Canada, les questions 1 à 29 ne sont jouées qu\'une seule fois. Seules certaines questions complexes des niveaux supérieurs bénéficient d\'une double écoute selon les consignes affichées à l\'écran.'
+      },
+      {
+        q: 'Peut-on mettre en pause l\'enregistrement audio ?',
+        a: 'Absolument pas. L\'épreuve défile de façon continue. Dès que l\'audio se termine, vous disposez d\'environ 10 à 15 secondes pour valider votre réponse avant que la question suivante ne commence automatiquement.'
+      }
+    ]
+  },
+  {
+    slug: 'tcf-canada-expression-ecrite-taches-1-2-3',
+    title: 'Réussir les 3 tâches de l\'Expression Écrite TCF Canada',
+    metaDescription: 'Méthodologie complète pour obtenir C1/C2 en Expression Écrite TCF Canada : décompte des mots, structure des 3 tâches, et critères officiels des correcteurs.',
+    category: 'TCF Canada',
+    publishedAt: '18 Juin 2026',
+    readingTimeMin: 9,
+    author: {
+      name: 'Marc-André Tremblay',
+      role: 'Examinateur certifié TCF/TEF'
+    },
+    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&auto=format&fit=crop&q=60',
+    excerpt: '60 minutes pour rédiger 3 textes distincts : la gestion du temps et le respect scrupuleux du nombre de mots sont les deux piliers pour atteindre NCLC 7 et plus en Expression Écrite.',
+    sections: [
+      {
+        type: 'paragraph',
+        content: 'L\'épreuve d\'Expression Écrite (EE) du TCF Canada est notée sur 20 points, convertis ensuite sur l\'échelle des NCLC (Niveaux de Compétence Linguistique Canadiens). Pour obtenir le NCLC 7 (seuil d\'admissibilité clé), vous devez obtenir au moins 10/20, tandis que le NCLC 9 (pour le maximum de points CRS) requiert au moins 14/20.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Tâche 1 : Message court descriptif (minimum 60 mots / max 120 mots)'
+      },
+      {
+        type: 'paragraph',
+        content: 'Cette première tâche (notée sur 6 points) consiste généralement à rédiger un message ou un courriel amical pour raconter une expérience, donner des nouvelles ou inviter un proche. Vous devez y consacrer 10 à 12 minutes maximum.'
+      },
+      {
+        type: 'list',
+        items: [
+          'Formule d\'appel chaleureuse ("Salut Thomas, / Cher Karim,")',
+          'Description précise des faits au passé composé et à l\'imparfait',
+          'Formule de prise de congé conviviale ("À très bientôt ! / Écris-moi vite !")'
+        ]
+      },
+      {
+        type: 'heading-2',
+        content: 'Tâche 2 : Courrier d\'opinion argumenté (minimum 120 mots / max 150 mots)'
+      },
+      {
+        type: 'paragraph',
+        content: 'Ici, vous devez vous adresser à une autorité (maire, directeur, rédacteur en chef) pour donner votre avis sur un projet ou un problème de société. Vous devez y consacrer 20 minutes.'
+      },
+      {
+        type: 'list',
+        items: [
+          'Ton formel et vouvoiement obligatoire',
+          'Introduction claire posant la problématique',
+          'Deux arguments solides illustrés chacun d\'un exemple concret',
+          'Conclusion proposant une recommandation constructive'
+        ]
+      },
+      {
+        type: 'heading-2',
+        content: 'Tâche 3 : Synthèse et confrontation de points de vue (minimum 120 mots / max 180 mots)'
+      },
+      {
+        type: 'paragraph',
+        content: 'C\'est la tâche la plus discriminante de l\'épreuve ! Vous disposez de deux courts documents présentant des avis divergents sur un sujet. Votre mission comporte deux parties équilibrées : synthétiser les deux thèses sans prendre parti, puis exprimer et justifier votre point de vue personnel.'
+      },
+      {
+        type: 'quote',
+        content: 'Attention capitale : Ne recopiez JAMAIS mot pour mot les phrases des documents fournis. La paraphrase intelligente est exigée pour décrocher les points de vocabulaire en niveau C1.'
+      },
+      {
+        type: 'cta',
+        content: 'Rédigez un essai dès maintenant et faites-le corriger en 20 secondes par notre IA étalonnée sur les grilles officielles.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Que se passe-t-il si je ne respecte pas le nombre minimal de mots ?',
+        a: 'Si vous écrivez moins de mots que le seuil minimal indiqué (ex : 55 mots au lieu de 60), une pénalité sévère est appliquée automatiquement pouvant rétrograder votre note d\'un ou deux niveaux CECRL.'
+      },
+      {
+        q: 'Comment sont comptabilisés les mots ?',
+        a: 'Un mot est un ensemble de caractères séparé par un espace ou une apostrophe. Par exemple, "aujourd\'hui" compte pour deux mots, et "c\'est-à-dire" pour 4 mots.'
+      }
+    ]
+  },
+  {
+    slug: 'tef-canada-expression-orale-guide-section-a-b',
+    title: 'Expression Orale TEF Canada : Réussir les Sections A et B',
+    metaDescription: 'Guide pratique pour réussir l\'épreuve orale du TEF Canada (35 min) : réussir la Section A (poser 10 questions) et la Section B (convaincre un ami) avec aisance.',
+    category: 'TEF Canada',
+    publishedAt: '25 Juin 2026',
+    readingTimeMin: 8,
+    author: {
+      name: 'Maud Gauthier',
+      role: 'Directrice Pédagogique, Expert CECRL'
+    },
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=60',
+    excerpt: 'L\'Expression Orale du TEF Canada dure 35 minutes avec deux jeux de rôle interactifs face à l\'examinateur. Voici la stratégie exacte pour obtenir NCLC 8, 9 ou 10.',
+    sections: [
+      {
+        type: 'paragraph',
+        content: 'Contrairement au TCF Canada qui ne dure que 12 minutes à l\'oral, le TEF Canada consacre 35 minutes à l\'Expression Orale (EO) découpée en deux sections distinctes : la Section A (recueil d\'informations) et la Section B (argumentation persuasive).'
+      },
+      {
+        type: 'heading-2',
+        content: 'Section A (10 minutes) : La quête d\'informations formelle'
+      },
+      {
+        type: 'paragraph',
+        content: 'À partir d\'une petite annonce (cours de musique, voyage organisé, colocation, offre d\'emploi), vous jouez le rôle d\'un client intéressé et vous devez poser environ 10 à 12 questions pertinentes à l\'examinateur.'
+      },
+      {
+        type: 'list',
+        items: [
+          'Variez impérativement les structures de questions : inversion sujet-verbe ("Pourriez-vous me préciser..."), tournure "est-ce que", et questions ouvertes (où, quand, comment, combien).',
+          'Ne lisez pas vos notes : maintenez le contact visuel et réagissez spontanément aux réponses fournies.',
+          'Renseignez-vous sur les tarifs, les dates, les modalités d\'annulation et les prérequis techniques.'
+        ]
+      },
+      {
+        type: 'heading-2',
+        content: 'Section B (15 minutes) : Convaincre un ami sceptique'
+      },
+      {
+        type: 'paragraph',
+        content: 'Vous découvrez un document publicitaire vantant un service ou un événement (cours de yoga, week-end insolite, nouveau restaurant végane). Vous devez téléphoner à un ami (l\'examinateur) pour lui présenter l\'activité et lever toutes ses réticences pour le convaincre d\'y participer avec vous.'
+      },
+      {
+        type: 'quote',
+        content: 'Astuce examinateur : Votre ami va volontairement refuser 3 ou 4 fois en prétextant le prix, la fatigue ou le manque d\'intérêt. Préparez des contre-arguments immédiats : "Ne t\'inquiète pas pour l\'argent, je t\'invite !" ou "Justement, c\'est l\'occasion rêvée de décompresser."'
+      },
+      {
+        type: 'cta',
+        content: 'Entraînez-vous à l\'enregistrement vocal direct sur ayePREP avec transcription automatique Whisper et analyse IA.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'A-t-on le temps de préparer ses arguments avant de parler ?',
+        a: 'Oui. Vous disposez d\'une minute de préparation pour la Section A et d\'environ 2 à 3 minutes pour la Section B afin de noter vos idées maîtresses sur un brouillon.'
+      },
+      {
+        q: 'Quel niveau de langue adopter pour la Section B ?',
+        a: 'Un registre familier/courant adapté à un ami proche : tutoiement naturel, enthousiasme vocal et intonation dynamique.'
+      }
+    ]
+  },
+  {
+    slug: 'calculateur-nclc-comment-atteindre-nclc-7-express-entry',
+    title: 'Comment obtenir le NCLC 7 au TCF/TEF Canada pour l\'Entrée Express',
+    metaDescription: 'Pourquoi le NCLC 7 est le seuil clé pour immigrer au Canada ? Découvrez les scores bruts nécessaires par épreuve et le plan d\'action pour franchir ce cap.',
+    category: 'NCLC',
+    publishedAt: '03 Juillet 2026',
+    readingTimeMin: 6,
+    author: {
+      name: 'Maud Gauthier',
+      role: 'Directrice Pédagogique, Expert CECRL'
+    },
+    image: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=800&auto=format&fit=crop&q=60',
+    excerpt: 'Le NCLC 7 (équivalent B2 solide) est la porte d\'entrée officielle pour les rondes de sélection francophones du Canada. Voici les scores exacts à viser.',
+    sections: [
+      {
+        type: 'paragraph',
+        content: 'Dans le système d\'immigration canadien (IRCC), le français est devenu le levier le plus puissant pour obtenir la résidence permanente. Depuis les réformes des tirages par catégories en Entrée Express, les candidats justifiant d\'un niveau NCLC 7 minimum dans les 4 compétences bénéficient d\'extractions prioritaires avec des seuils de points CRS défiant toute concurrence.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Les scores bruts officiels pour obtenir le NCLC 7'
+      },
+      {
+        type: 'list',
+        items: [
+          'Compréhension Orale (CO) : 458 à 502 points au TCF Canada (ou 249 à 279 au TEF)',
+          'Compréhension Écrite (CE) : 453 à 498 points au TCF Canada (ou 207 à 232 au TEF)',
+          'Expression Écrite (EE) : 10 à 11 / 20 au TCF Canada (ou 310 à 348 au TEF)',
+          'Expression Orale (EO) : 10 à 11 / 20 au TCF Canada (ou 310 à 348 au TEF)'
+        ]
+      },
+      {
+        type: 'heading-2',
+        content: 'La règle stricte du maillon faible imposée par IRCC'
+      },
+      {
+        type: 'paragraph',
+        content: 'Méfiez-vous de la moyenne globale ! Pour Immigration Canada, votre niveau NCLC est strictement déterminé par votre score le plus bas parmi les 4 épreuves. Si vous obtenez NCLC 9 en CO, CE et EO mais NCLC 6 en EE, votre dossier complet sera classé NCLC 6 et vous perdrez l\'accès aux tirages réservés aux francophones.'
+      },
+      {
+        type: 'cta',
+        content: 'Calculez instantanément vos équivalences NCLC avec notre calculateur gratuit en ligne.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Quelle est la durée de validité des résultats TCF / TEF Canada ?',
+        a: 'Les attestations de résultats TCF et TEF Canada sont valables exactement 2 ans à compter de la date d\'examen pour toutes les démarches auprès d\'IRCC.'
+      },
+      {
+        q: 'Puis-je combiner deux attestations pour garder les meilleurs scores de chaque module ?',
+        a: 'Non, IRCC refuse le panachage (super-scoring). Vous devez soumettre une seule attestation contenant les 4 épreuves passées lors de la même session.'
+      }
+    ]
+  },
+  {
+    slug: 'tcf-canada-vs-tef-canada-lequel-choisir',
+    title: 'TCF Canada ou TEF Canada : Quel examen choisir en 2026 ?',
+    metaDescription: 'Comparatif approfondi : durée (2h22 vs 3h15), type d\'épreuve orale, notation et accessibilité. Quel test est le plus facile selon votre profil ?',
+    category: 'TCF Canada',
+    publishedAt: '10 Juillet 2026',
+    readingTimeMin: 8,
+    author: {
+      name: 'Marc-André Tremblay',
+      role: 'Examinateur certifié TCF/TEF'
+    },
+    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60',
+    excerpt: 'TCF ou TEF ? Les deux examens sont reconnus de manière totalement équivalente par IRCC. Pourtant, leurs formats et leurs épreuves orales sont radicalement différents.',
+    sections: [
+      {
+        type: 'paragraph',
+        content: 'Lorsque l\'on prépare son projet d\'immigration au Canada, la première question qui se pose est invariablement : "Dois-je passer le TCF Canada ou le TEF Canada ?". Si les deux attestations ont la même valeur juridique auprès d\'IRCC, le profil des candidats détermine souvent les chances de réussite.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Comparatif rapide des formats d\'examen'
+      },
+      {
+        type: 'list',
+        items: [
+          'Durée totale : 2h22 pour le TCF Canada contre 3h15 pour le TEF Canada (le TCF est plus court et moins éprouvant physiquement).',
+          'Compréhension Orale : 39 questions en 35 min (TCF) vs 60 questions en 40 min (TEF).',
+          'Compréhension Écrite : 39 questions en 35 min (TCF) vs 50 questions en 60 min (TEF).',
+          'Expression Écrite : 3 tâches en 60 min (TCF) vs 2 tâches en 60 min (TEF).',
+          'Expression Orale : 12 minutes (TCF) vs 35 minutes avec 2 jeux de rôle (TEF).'
+        ]
+      },
+      {
+        type: 'heading-2',
+        content: 'Pour qui le TCF Canada est-il le plus adapté ?'
+      },
+      {
+        type: 'paragraph',
+        content: 'Le TCF Canada convient parfaitement aux candidats qui redoutent les épreuves orales longues et théâtrales. 12 minutes suffisent pour démontrer son niveau, et les questions de compréhension écrite et orale sont progressives.'
+      },
+      {
+        type: 'heading-2',
+        content: 'Pour qui le TEF Canada est-il avantageux ?'
+      },
+      {
+        type: 'paragraph',
+        content: 'Le TEF Canada est idéal pour les candidats très à l\'aise à l\'oral spontané qui aiment argumenter, négocier et improviser dans des jeux de rôle. De plus, les 60 minutes pour 50 questions de lecture laissent plus de temps de réflexion par question que le TCF.'
+      },
+      {
+        type: 'cta',
+        content: 'Consultez notre guide comparatif interactif complet sur notre page dédiée TCF vs TEF.'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Le prix de l\'examen est-il le même entre TCF et TEF ?',
+        a: 'Les tarifs sont fixés librement par les centres agréés mais tournent généralement autour de 250€ à 320€ (ou 160 000 à 220 000 FCFA) pour les deux examens.'
+      },
+      {
+        q: 'L\'un des deux donne-t-il plus de points CRS ?',
+        a: 'Non, les deux tests sont rigoureusement alignés sur les mêmes équivalences NCLC par le gouvernement canadien.'
+      }
+    ]
+  },
+  {
+    slug: 'centres-examen-tcf-tef-afrique-inscriptions-prix',
+    title: 'Où passer le TCF/TEF Canada en Afrique : Centres, Tarifs et Dates',
+    metaDescription: 'Guide complet des centres agréés au Sénégal, Cameroun, Côte d\'Ivoire, Maroc et Bénin : inscriptions, tarifs FCFA et conseils pratiques.',
+    category: 'Immigration',
+    publishedAt: '17 Juillet 2026',
+    readingTimeMin: 9,
+    author: {
+      name: 'Maud Gauthier',
+      role: 'Directrice Pédagogique, Expert CECRL'
+    },
+    image: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800&auto=format&fit=crop&q=60',
+    excerpt: 'En Afrique francophone, les places d\'examen s\'arrachent en quelques minutes. Découvrez la liste des centres officiels agréés et les conseils pour réserver votre session sans stress.',
+    sections: [
+      {
+        type: 'paragraph',
+        content: 'Le continent africain représente le premier vivier de candidats francophones pour l\'immigration au Canada. Face à une demande exponentielle, anticiper sa réservation auprès des centres agréés est indispensable pour ne pas retarder son dossier Entrée Express de plusieurs mois.'
+      },
+      {
+        type: 'heading-2',
+        content: '1. Sénégal (Dakar & Saint-Louis)'
+      },
+      {
+        type: 'paragraph',
+        content: 'À Dakar, les examens TCF Canada sont administrés principalement par l\'Institut Français du Sénégal (IFS Dakar) et les centres agréés partenaires. Les sessions ont lieu plusieurs fois par mois, avec des tarifs oscillant entre 170 000 et 210 000 FCFA.'
+      },
+      {
+        type: 'heading-2',
+        content: '2. Côte d\'Ivoire (Abidjan)'
+      },
+      {
+        type: 'paragraph',
+        content: 'L\'Institut Français de Côte d\'Ivoire (IFCI) au Plateau et plusieurs centres privés conventionnés reçoivent les inscriptions mensuelles. Pensez à vérifier l\'ouverture des sessions en ligne dès le 1er du mois.'
+      },
+      {
+        type: 'heading-2',
+        content: '3. Cameroun (Yaoundé & Douala)'
+      },
+      {
+        type: 'paragraph',
+        content: 'Avec deux grands pôles à Douala et Yaoundé, les centres agréés enregistrent une forte affluence. Le paiement se fait généralement par virement bancaire local ou agence sur présentation de la pièce d\'identité.'
+      },
+      {
+        type: 'heading-2',
+        content: '4. Maroc (Casablanca, Rabat, Marrakech)'
+      },
+      {
+        type: 'paragraph',
+        content: 'Le réseau de l\'Institut Français du Maroc et les Chambres de Commerce Françaises organisent des sessions hebdomadaires pour le TCF et le TEF Canada. Tarifs : entre 2 800 et 3 400 MAD.'
+      },
+      {
+        type: 'quote',
+        content: 'Conseil logistique : Ne réservez votre date d\'examen qu\'après avoir validé un score satisfaisant sur au moins 3 simulations complètes sur ayePREP.'
+      },
+      {
+        type: 'cta',
+        content: 'Découvrez nos packs à durée limitée payables directement en Mobile Money (Orange Money, Wave, MTN).'
+      }
+    ],
+    faqs: [
+      {
+        q: 'Combien de temps avant la date d\'examen faut-il s\'inscrire ?',
+        a: 'En Afrique francophone, il est vivement recommandé de s\'inscrire 2 à 3 mois à l\'avance, les quotas de places étant souvent atteints dès les premières heures d\'ouverture des sessions.'
+      },
+      {
+        q: 'Quel document d\'identité présenter le jour de l\'examen ?',
+        a: 'Seul le passeport international en cours de validité est accepté pour le TCF et le TEF Canada. Les cartes d\'identité nationales sont fréquemment refusées.'
+      }
+    ]
   }
 ]
+

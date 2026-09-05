@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
 import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
+import { SocialShareButtons } from '../components/SocialShareButtons'
+import { LeadMagnetModal } from '../components/LeadMagnetModal'
+import { trackMarketingEvent } from '../lib/tracking'
 
 // Tables de conversion officielles IRCC (2026)
 const TCF_NCLC_TABLE: Record<string, { min: number; max: number; nclc: string; clb: string; cecrl: string }[]> = {
@@ -261,7 +264,13 @@ export default function NclcCalculatorPage() {
               ))}
             </div>
             <button
-              onClick={() => setCalculated(true)}
+              onClick={() => {
+                setCalculated(true)
+                trackMarketingEvent('nclc_calculator_used', {
+                  test_type: testType,
+                  overall_nclc: overallNclc || 'incomplet'
+                })
+              }}
               className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-750 text-white rounded-xl font-bold transition-all shadow-md shadow-indigo-500/10 active:scale-95 text-sm uppercase tracking-wider"
             >
               Calculer mes niveaux NCLC
@@ -270,45 +279,61 @@ export default function NclcCalculatorPage() {
 
           {/* Résultats */}
           {calculated && (
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 shadow-sm p-6 mb-6 space-y-6">
-              <h2 className="text-lg font-bold text-slate-900 font-display">3. Vos résultats</h2>
+            <div className="space-y-6 mb-6">
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 shadow-sm p-6 space-y-6">
+                <h2 className="text-lg font-bold text-slate-900 font-display">3. Vos résultats</h2>
 
-              {/* Score global */}
-              {allFilled && overallNclc !== null && (
-                <div className="text-center bg-gradient-to-br from-[#1B3A6B] to-indigo-600 text-white rounded-2xl p-6 shadow-md shadow-indigo-500/10">
-                  <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Votre niveau global estimé</p>
-                  <p className="text-5xl font-black font-display tracking-tight">NCLC {overallNclc}</p>
-                  <p className="text-xs opacity-80 font-medium mt-1.5">
-                    (basé sur votre module le plus faible — règle officielle IRCC)
-                  </p>
-                </div>
-              )}
-
-              {/* Résultats par module */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {results.map(({ module, score, level }) => (
-                  <div key={module} className="border border-slate-200/60 rounded-2xl p-4 bg-white hover:border-blue-500/15 transition-all">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">
-                      {MODULE_LABELS[module]}
+                {/* Score global */}
+                {allFilled && overallNclc !== null && (
+                  <div className="text-center bg-gradient-to-br from-[#1B3A6B] to-indigo-600 text-white rounded-2xl p-6 shadow-md shadow-indigo-500/10">
+                    <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Votre niveau global estimé</p>
+                    <p className="text-5xl font-black font-display tracking-tight">NCLC {overallNclc}</p>
+                    <p className="text-xs opacity-80 font-medium mt-1.5">
+                      (basé sur votre module le plus faible — règle officielle IRCC)
                     </p>
-                    {score === null ? (
-                      <p className="text-slate-400 text-xs italic font-medium">Score non saisi</p>
-                    ) : level ? (
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-2xl font-black text-[#1B3A6B] font-display">{level.nclc}</p>
-                          <p className="text-xs text-slate-400 font-semibold">{level.clb}</p>
-                        </div>
-                        <span className={`px-2.5 py-1 rounded-xl text-xs font-extrabold border ${levelColor[level.cecrl] || 'bg-gray-105 text-slate-600 border-slate-200'}`}>
-                          {level.cecrl}
-                        </span>
-                      </div>
-                    ) : (
-                      <p className="text-red-500 text-xs font-bold">Score hors plage valide</p>
-                    )}
                   </div>
-                ))}
+                )}
+
+                {/* Résultats par module */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {results.map(({ module, score, level }) => (
+                    <div key={module} className="border border-slate-200/60 rounded-2xl p-4 bg-white hover:border-blue-500/15 transition-all">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">
+                        {MODULE_LABELS[module]}
+                      </p>
+                      {score === null ? (
+                        <p className="text-slate-400 text-xs italic font-medium">Score non saisi</p>
+                      ) : level ? (
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-2xl font-black text-[#1B3A6B] font-display">{level.nclc}</p>
+                            <p className="text-xs text-slate-400 font-semibold">{level.clb}</p>
+                          </div>
+                          <span className={`px-2.5 py-1 rounded-xl text-xs font-extrabold border ${levelColor[level.cecrl] || 'bg-gray-105 text-slate-600 border-slate-200'}`}>
+                            {level.cecrl}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-red-500 text-xs font-bold">Score hors plage valide</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {/* Partage viral sur les réseaux sociaux & WhatsApp */}
+              <SocialShareButtons
+                title="Partager mon estimation NCLC"
+                text={`🍁 J'ai calculé mes scores ${testType === 'TCF_CANADA' ? 'TCF Canada' : 'TEF Canada'} sur ayePREP : niveau global estimé NCLC ${overallNclc || '7'} ! Faites le test gratuitement pour votre dossier d'immigration :`}
+                url="https://ayeprep.com/calculateur-nclc"
+              />
+
+              {/* Lead Magnet intégré pour capture de prospect */}
+              <LeadMagnetModal
+                inline={true}
+                initialExam={testType}
+                suggestedNclc={overallNclc && overallNclc !== '< 4' ? `NCLC ${Math.min(parseInt(overallNclc) + 1, 10)}` : 'NCLC 9'}
+              />
             </div>
           )}
 

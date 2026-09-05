@@ -118,7 +118,7 @@ Thumbs.db
 supabase/.temp/
 scratch/
 lint-output.txt
-
+*.apk
 
 .vercel
 .env*
