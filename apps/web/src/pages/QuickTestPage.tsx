@@ -213,13 +213,33 @@ export default function QuickTestPage() {
               <p className="text-slate-350 text-xs mb-6 font-semibold leading-relaxed">
                 Ce test ne comprend que 5 questions. Notre plateforme complète propose plus de 2 000 sujets officiels, corrections intelligentes par IA et simulations complètes.
               </p>
-              <Link
-                to="/register"
-                className="inline-block bg-gradient-to-r from-blue-600 to-sky-500 text-white font-extrabold text-xs py-3 px-8 rounded-xl hover:opacity-95 shadow-lg shadow-blue-500/25 transition-all select-none uppercase tracking-wider"
-              >
-                Créer mon compte gratuit →
-              </Link>
-              <p className="text-[10px] text-slate-550 mt-3 font-semibold select-none">Sans carte bancaire · Accès immédiat</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link
+                  to="/register"
+                  className="w-full sm:w-auto inline-block bg-gradient-to-r from-blue-600 to-sky-500 text-white font-extrabold text-xs py-3.5 px-6 rounded-xl hover:opacity-95 shadow-lg shadow-blue-500/25 transition-all select-none uppercase tracking-wider text-center"
+                >
+                  Créer mon compte gratuit →
+                </Link>
+                <Link
+                  to="/packs"
+                  className="w-full sm:w-auto inline-block bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-extrabold text-xs py-3.5 px-6 rounded-xl transition-all select-none uppercase tracking-wider text-center"
+                >
+                  Packs Mobile Money (dès 9 800 F)
+                </Link>
+              </div>
+
+              <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+                <span className="font-medium">✓ Sans carte bancaire requise</span>
+                <a
+                  href={`https://wa.me/22890116744?text=${encodeURIComponent(`Bonjour, j'ai obtenu ${score}/5 au test rapide (estimation : ${estimate.nclc}). Quel pack de préparation me conseillez-vous ?`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1.5 transition-colors"
+                >
+                  <span>💬</span>
+                  <span>Un doute sur votre score ? Contactez-nous par WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>

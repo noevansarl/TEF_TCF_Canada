@@ -72,13 +72,40 @@ export function WhatsAppButton() {
             <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#25d366_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
             {/* Bulle de message de l'agent */}
-            <div className="self-start bg-slate-800 border border-slate-700/60 text-slate-100 p-3 rounded-2xl rounded-tl-none shadow-md max-w-[85%] relative z-10">
+            <div className="self-start bg-slate-800 border border-slate-700/60 text-slate-100 p-3 rounded-2xl rounded-tl-none shadow-md max-w-[90%] relative z-10 space-y-2">
               <p className="text-xs font-medium leading-relaxed">
-                Bonjour ! 👋 Comment pouvons-nous vous aider aujourd'hui à préparer votre TCF ou TEF Canada ?
+                Bonjour ! 👋 Je suis votre conseiller ayePREP. Comment puis-je vous aider pour votre TCF ou TEF Canada ?
               </p>
-              <span className="text-[9px] text-slate-400 mt-1 block text-right font-medium">
+              <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                <span>⚡</span>
+                <span>Réponse en direct par WhatsApp</span>
+              </div>
+              <span className="text-[9px] text-slate-400 block text-right font-medium">
                 {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
+            </div>
+
+            {/* Questions rapides interactives (Pills) */}
+            <div className="space-y-1.5 pt-1 relative z-10">
+              <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider px-1">Questions fréquentes :</p>
+              {[
+                { label: '⚡ Tester mon niveau (Gratuit)', text: 'Bonjour ! Je prépare le TEF/TCF Canada et je souhaite évaluer mon niveau gratuitement.' },
+                { label: '💳 Payer un pack en Mobile Money', text: 'Bonjour ! J\'aimerais souscrire à un pack de préparation par Mobile Money (Orange, MTN, Wave). Comment faire ?' },
+                { label: '📝 Faire corriger mon Expression Écrite', text: 'Bonjour ! J\'aimerais faire évaluer et corriger mon texte d\'Expression Écrite pour connaître ma note NCLC.' },
+              ].map((pill, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    const encoded = encodeURIComponent(pill.text)
+                    window.open(`https://wa.me/22890116744?text=${encoded}`, '_blank', 'noopener,noreferrer')
+                    setIsOpen(false)
+                  }}
+                  className="w-full text-left text-[11px] font-semibold text-slate-200 bg-slate-800/90 hover:bg-emerald-600/30 hover:text-white hover:border-emerald-500/50 border border-slate-700/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center justify-between group"
+                >
+                  <span className="truncate">{pill.label}</span>
+                  <span className="text-slate-400 group-hover:text-emerald-300 group-hover:translate-x-0.5 transition-all text-xs">→</span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -86,17 +113,17 @@ export function WhatsAppButton() {
           <div className="p-3 bg-slate-900 border-t border-slate-800 flex items-center gap-2 relative z-10">
             <input
               type="text"
-              placeholder="Écrivez votre message..."
+              placeholder="Ou écrivez votre message..."
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSend();
               }}
-              className="flex-1 bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+              className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
             />
             <button
               onClick={handleSend}
-              className="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 shadow-md"
+              className="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 shadow-md flex-shrink-0"
               aria-label="Envoyer sur WhatsApp"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transform rotate-45 translate-x-px -translate-y-px">

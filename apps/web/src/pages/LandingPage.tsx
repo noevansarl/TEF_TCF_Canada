@@ -109,8 +109,9 @@ export default function LandingPage() {
           </Link>
           <div className={`nav__menu ${burgerOpen ? 'nav__menu--open' : ''}`}>
             <ul className="nav__links" role="list">
+              <li><Link to="/test-rapide" onClick={() => setBurgerOpen(false)} className="nav__link font-extrabold text-emerald-700 flex items-center gap-1">⚡ Test Rapide <span className="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">Gratuit</span></Link></li>
               <li><a href="#modules" onClick={() => setBurgerOpen(false)} className="nav__link">Modules</a></li>
-              <li><a href="#tarifs" onClick={() => setBurgerOpen(false)} className="nav__link">Tarifs</a></li>
+              <li><Link to="/packs" onClick={() => setBurgerOpen(false)} className="nav__link">Packs & Tarifs</Link></li>
               <li><Link to="/calculateur-nclc" onClick={() => setBurgerOpen(false)} className="nav__link">Calculateur NCLC</Link></li>
               <li><Link to="/simulateur-crs" onClick={() => setBurgerOpen(false)} className="nav__link">Simulateur CRS</Link></li>
               <li><Link to="/reussites" onClick={() => setBurgerOpen(false)} className="nav__link">Témoignages</Link></li>
@@ -168,17 +169,27 @@ export default function LandingPage() {
                 </svg>
               </Link>
             ) : (
-              <Link to="/register" className="btn btn--primary btn--lg">
-                Commencer gratuitement
-                <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 ml-1">
-                  <path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
-                </svg>
-              </Link>
+              <>
+                <Link to="/test-rapide" className="btn btn--primary btn--lg group">
+                  <span className="mr-1">⚡</span>
+                  Tester mon niveau (Gratuit · 3 min)
+                  <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 ml-1 transition-transform group-hover:translate-x-1">
+                    <path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
+                  </svg>
+                </Link>
+                <Link to="/packs" className="btn btn--ghost btn--lg">
+                  Voir les packs (dès 9 800 FCFA)
+                </Link>
+              </>
             )}
-            <Link to={user ? "/session/co-session-id" : "/login"} className="btn btn--ghost btn--lg">
-              Voir une démonstration
-            </Link>
           </div>
+          {!user && (
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500 font-semibold pt-1">
+              <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-bold">✓</span> Sans inscription</span>
+              <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-bold">✓</span> Sans carte bancaire</span>
+              <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-bold">✓</span> Mobile Money accepté (Orange, MTN, Wave, Moov)</span>
+            </div>
+          )}
           <div className="hero__stats">
             <div className="stat">
               <span className="stat__number">25 000</span>
