@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 const CATEGORIES = [
   {
@@ -134,6 +135,12 @@ export default function HelpCenterPage() {
   const [search, setSearch] = useState('')
   const [openCategory, setOpenCategory] = useState<string | null>('start')
   const [openArticle, setOpenArticle] = useState<string | null>(null)
+
+  useDocumentMetadata({
+    title: "Centre d'Aide ayePREP : FAQ TCF/TEF Canada",
+    description: "Toutes les réponses à vos questions sur ayePREP : abonnements, corrections IA, simulations d'examen, remboursements et préparation au TCF/TEF Canada.",
+    url: 'https://ayeprep.com/aide',
+  })
 
   const filtered = CATEGORIES.map(cat => ({
     ...cat,

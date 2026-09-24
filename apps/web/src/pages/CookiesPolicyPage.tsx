@@ -1,9 +1,16 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useCookieStore } from '../components/CookieBanner'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 export default function CookiesPolicyPage() {
   const { analytics, marketing, setConsent, acceptAll, rejectAll } = useCookieStore()
+
+  useDocumentMetadata({
+    title: 'Politique de Cookies | ayePREP',
+    description: "Politique de cookies d'ayePREP : quels cookies nous utilisons et comment gérer vos préférences.",
+    url: 'https://ayeprep.com/cookies',
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">

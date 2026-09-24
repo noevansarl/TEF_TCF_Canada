@@ -57,9 +57,27 @@ export function useDocumentMetadata({
     cleanups.push(setOrCreateMeta('name', 'twitter:card', 'summary_large_image'))
     cleanups.push(setOrCreateMeta('name', 'twitter:image', image))
 
+    // Canonical URL (évite le contenu dupliqué aux yeux de Google, ex: query strings, trailing slash)
+    const prevCanonical = document.querySelector('link[rel="canonical"]')
+    const prevCanonicalHref = prevCanonical?.getAttribute('href') || null
+    let canonicalEl = prevCanonical
+    if (!canonicalEl) {
+      canonicalEl = document.createElement('link')
+      canonicalEl.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonicalEl)
+    }
+    canonicalEl.setAttribute('href', url.split('?')[0].split('#')[0])
+
     return () => {
       document.title = prevTitle
       cleanups.forEach(cleanup => cleanup())
+      if (canonicalEl) {
+        if (prevCanonicalHref !== null) {
+          canonicalEl.setAttribute('href', prevCanonicalHref)
+        } else {
+          canonicalEl.remove()
+        }
+      }
     }
   }, [title, description, image, url, type])
 }

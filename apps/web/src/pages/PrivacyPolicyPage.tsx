@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 export default function PrivacyPolicyPage() {
+  useDocumentMetadata({
+    title: 'Politique de Confidentialité | ayePREP',
+    description: "Politique de confidentialité d'ayePREP : comment nous collectons, utilisons et protégeons vos données personnelles.",
+    url: 'https://ayeprep.com/confidentialite',
+  })
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Header */}

@@ -4,6 +4,7 @@ import { Logo } from '../components/Logo'
 import { SocialShareButtons } from '../components/SocialShareButtons'
 import { LeadMagnetModal } from '../components/LeadMagnetModal'
 import { trackMarketingEvent } from '../lib/tracking'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 // 5 questions démo de niveau B2 — sans auth requise
 const DEMO_QUESTIONS = [
@@ -92,6 +93,12 @@ export default function QuickTestPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [showResult, setShowResult] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
+
+  useDocumentMetadata({
+    title: 'Test Rapide Gratuit TCF/TEF Canada : Évaluez Votre Niveau | ayePREP',
+    description: 'Faites un test gratuit en quelques minutes pour évaluer votre niveau de français avant le TCF Canada ou le TEF Canada. Questions officielles avec corrections détaillées.',
+    url: 'https://ayeprep.com/test-rapide',
+  })
 
   const question = DEMO_QUESTIONS[currentIndex]
   const selected = answers[question.id]

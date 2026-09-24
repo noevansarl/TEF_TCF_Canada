@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 // ── Témoignages ────────────────────────────────────────────────────────
 const STORIES = [
@@ -94,6 +95,13 @@ const STATS = [
 
 export default function SuccessStoriesPage() {
   const { user } = useAuthStore()
+
+  useDocumentMetadata({
+    title: 'Témoignages de Réussite TCF/TEF Canada | ayePREP',
+    description: "Découvrez les témoignages de candidats ayant obtenu le NCLC 7, 9 ou plus au TCF Canada et au TEF Canada grâce à ayePREP, pour booster leur dossier Express Entry.",
+    url: 'https://ayeprep.com/reussites',
+  })
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] relative overflow-hidden font-sans">
       {/* Decorative radial glows */}

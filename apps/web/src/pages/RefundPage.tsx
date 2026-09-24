@@ -1,9 +1,17 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 export default function RefundPage() {
   const { user } = useAuthStore()
+
+  useDocumentMetadata({
+    title: 'Politique de Remboursement | ayePREP',
+    description: "Conditions et modalités de remboursement des abonnements et packs ayePREP.",
+    url: 'https://ayeprep.com/remboursement',
+  })
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b px-4 py-4">

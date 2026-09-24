@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 const PACKS = [
   {
@@ -73,6 +74,12 @@ const PACKS = [
 export default function ExamPacksPage() {
   const { user } = useAuthStore()
   const [currency, setCurrency] = useState<'CAD' | 'CFA'>('CAD')
+
+  useDocumentMetadata({
+    title: "Packs de Préparation TCF/TEF Canada : Tarifs et Offres | ayePREP",
+    description: "Découvrez nos packs de préparation au TCF Canada et au TEF Canada : simulations illimitées, corrections IA des expressions écrite et orale, suivi personnalisé.",
+    url: 'https://ayeprep.com/packs',
+  })
 
   const formatPrice = (pack: typeof PACKS[0]) => {
     if (currency === 'CFA') {

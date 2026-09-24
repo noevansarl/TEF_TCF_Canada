@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 export default function LegalMentionsPage() {
+  useDocumentMetadata({
+    title: 'Mentions Légales | ayePREP',
+    description: "Mentions légales d'ayePREP : informations sur l'éditeur du site et l'hébergement.",
+    url: 'https://ayeprep.com/mentions-legales',
+  })
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Header */}

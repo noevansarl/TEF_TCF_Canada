@@ -2,12 +2,19 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { BLOG_ARTICLES } from '../data/blogArticles'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 const CATEGORIES = ['Tout', 'TCF Canada', 'TEF Canada', 'NCLC', 'Immigration', 'Conjugaison & Grammaire']
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState('Tout')
   const [searchQuery, setSearchQuery] = useState('')
+
+  useDocumentMetadata({
+    title: 'Blog TCF/TEF Canada : Guides, Astuces et Stratégies | ayePREP',
+    description: "Guides gratuits pour réussir le TCF Canada et le TEF Canada : grammaire, compréhension orale, expression écrite, calcul du NCLC et conseils pour l'immigration Express Entry.",
+    url: 'https://ayeprep.com/blog',
+  })
 
   // Filtrer les articles
   const filteredArticles = BLOG_ARTICLES.filter(article => {

@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 export default function CgvPage() {
+  useDocumentMetadata({
+    title: 'Conditions Générales de Vente | ayePREP',
+    description: "Conditions générales de vente d'ayePREP applicables aux abonnements et packs de préparation au TCF/TEF Canada.",
+    url: 'https://ayeprep.com/cgv',
+  })
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Header */}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata'
 
 interface AffiliateRecord {
   id: string
@@ -29,7 +30,13 @@ export default function AffiliatePage() {
   const [loading, setLoading] = useState(true)
   const [affiliate, setAffiliate] = useState<AffiliateRecord | null>(null)
   const [conversions, setConversions] = useState<ConversionRecord[] | []>([])
-  
+
+  useDocumentMetadata({
+    title: "Programme d'Affiliation ayePREP : Gagnez des Commissions",
+    description: "Rejoignez le programme d'affiliation ayePREP et gagnez des commissions en recommandant notre plateforme de préparation au TCF/TEF Canada.",
+    url: 'https://ayeprep.com/affiliation',
+  })
+
   // Registration Form States
   const [partnerName, setPartnerName] = useState('')
   const [wantedCode, setWantedCode] = useState('')
