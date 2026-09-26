@@ -72,8 +72,13 @@ tcf canada, tef canada, nclc, crs, entrée express, immigration canada, test de 
 ## Feature graphic (1024x500, obligatoire) — ✅ prêt
 `docs/play_store_assets/feature-graphic-1024x500.png` — drapeau canadien + logo + message clé, cohérent avec la charte marketing existante.
 
-## Captures d'écran (min. 2, recommandé 4-8, format téléphone 16:9 ou 9:16) — ⏳ restant
-Aucune disponible actuellement — nécessite de lancer l'app sur un émulateur/téléphone Android pour les capturer. C'est le seul asset visuel manquant avant de pouvoir soumettre la fiche complète.
+## Captures d'écran (min. 2, recommandé 4-8) — ✅ prêt
+5 captures réelles (1440×2880, ratio 2:1) dans `docs/play_store_assets/screenshots/`, prises en direct sur appareil physique :
+1. `01-welcome.png` — écran d'accueil / splash
+2. `02-dashboard.png` — tableau de bord (accueil connecté)
+3. `03-catalogue.png` — catalogue d'entraînement avec vrais thèmes
+4. `04-progression.png` — suivi de progression NCLC + graphique
+5. `05-diagnostic-question.png` — test diagnostique en cours (vraie question C1 réelle, audio, chrono)
 
 ## Autres sections à compléter directement dans Play Console (ne peuvent pas être préparées à l'avance)
 - Questionnaire de classification du contenu — voir suggestion ci-dessous
