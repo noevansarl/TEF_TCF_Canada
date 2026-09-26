@@ -62,15 +62,42 @@ Téléchargez ayePREP dès maintenant et préparez-vous comme si c'était le vra
 tcf canada, tef canada, nclc, crs, entrée express, immigration canada, test de français, préparation examen, cecrl, français canada
 
 ## Coordonnées (obligatoire)
-- **Email de contact** : (à définir — ex: contact@ayeprep.com)
+- **Email de contact** : support@ayeprep.com (déjà utilisé comme adresse support réelle sur le site)
 - **Site web** : https://ayeprep.com
 - **Politique de confidentialité** : https://ayeprep.com/confidentialite (déjà en ligne)
 
-## Icône (512x512, PNG 32-bit avec alpha)
-Source disponible : `apps/mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png` — à redimensionner en 512x512 pour Play Store.
+## Icône (512x512, PNG 32-bit avec alpha) — ✅ prêt
+`docs/play_store_assets/icon-512.png` — générée à partir du vrai logo ayePREP (recadrée sur l'emblème toque + A pour rester lisible en petite taille).
 
-## Feature graphic (1024x500, obligatoire)
-Aucun visuel existant à ce format — à créer. Les visuels promo déjà disponibles (`apps/web/public/flyer_promo_ayeprep.jpg`, `story_promo_ayeprep.jpg`) sont dans d'autres ratios et ne conviennent pas tels quels.
+## Feature graphic (1024x500, obligatoire) — ✅ prêt
+`docs/play_store_assets/feature-graphic-1024x500.png` — drapeau canadien + logo + message clé, cohérent avec la charte marketing existante.
 
-## Captures d'écran (min. 2, recommandé 4-8, format téléphone 16:9 ou 9:16)
-Aucune disponible actuellement — nécessite de lancer l'app sur un émulateur/téléphone Android pour les capturer.
+## Captures d'écran (min. 2, recommandé 4-8, format téléphone 16:9 ou 9:16) — ⏳ restant
+Aucune disponible actuellement — nécessite de lancer l'app sur un émulateur/téléphone Android pour les capturer. C'est le seul asset visuel manquant avant de pouvoir soumettre la fiche complète.
+
+## Autres sections à compléter directement dans Play Console (ne peuvent pas être préparées à l'avance)
+- Questionnaire de classification du contenu — voir suggestion ci-dessous
+- Public cible et contenu — public visé : 18 ans et plus (candidats à l'immigration), pas de contenu destiné aux enfants
+- Formulaire "Sécurité des données" — voir détails ci-dessous
+- Déclaration Annonces : **Non**, l'app n'affiche aucune publicité
+
+## Suggestion pour le questionnaire de classification du contenu (IARC)
+Pas de violence, contenu sexuel, drogue, jeux d'argent ni langage grossier. Réponds "Non" à toutes les questions de contenu sensible. Devrait aboutir à une classification **"Tout public" / PEGI 3**.
+
+## Formulaire "Sécurité des données" — permissions réelles vérifiées dans l'APK compilé
+Permissions détectées : `INTERNET`, `ACCESS_NETWORK_STATE`, `WAKE_LOCK`, `POST_NOTIFICATIONS`, `VIBRATE`, `RECORD_AUDIO` (enregistrement des réponses orales EO), `com.google.android.c2dm.permission.RECEIVE` (notifications push Firebase), `com.android.vending.BILLING` (achats in-app).
+Aucune permission caméra, localisation, contacts ou stockage de fichiers.
+
+**Données collectées et leur usage :**
+| Type de donnée | Collectée ? | Usage | Partagée avec un tiers ? |
+|---|---|---|---|
+| Adresse e-mail | Oui | Authentification, communication | Non (sauf Supabase en tant que sous-traitant technique) |
+| Nom | Oui | Personnalisation du profil | Non |
+| ID utilisateur | Oui | Fonctionnement du compte | Non |
+| Activité dans l'app (scores, progression) | Oui | Fonctionnalité principale (suivi pédagogique) | Non |
+| Enregistrements audio (réponses orales EO) | Oui | Correction IA, fonctionnalité principale | Oui — envoyé à un service d'IA tiers (OpenAI) pour la correction |
+| Historique d'achats | Oui | Gestion de l'abonnement | Oui — Google Play Billing / FedaPay (traitement du paiement) |
+| Localisation, contacts, photos, santé | Non | — | — |
+
+**Chiffrement en transit :** Oui (HTTPS/TLS, Supabase).
+**Suppression des données :** Oui — les utilisateurs peuvent demander la suppression complète de leur compte et de leurs données via le site web (ayeprep.com → Profil → "Supprimer mon compte"), fonctionnalité déjà active. Lien à fournir dans le formulaire : `https://ayeprep.com/profile`.
