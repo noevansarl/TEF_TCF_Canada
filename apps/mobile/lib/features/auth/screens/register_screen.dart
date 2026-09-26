@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/providers/providers.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -19,6 +20,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isSubmitted = false;
   String? _errorMessage;
 
   @override
@@ -40,15 +42,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     try {
       final supabaseService = ref.read(supabaseServiceProvider);
-      await supabaseService.signUp(
+      final response = await supabaseService.signUp(
         _emailController.text.trim(),
         _passwordController.text,
         _nameController.text.trim(),
       );
-      
-      if (mounted) {
-        // L'inscription réussie connecte généralement l'utilisateur ou envoie une confirmation.
-        // On redirige vers le dashboard directement.
+
+      if (!mounted) return;
+
+      final session = (response is AuthResponse) ? response.session : null;
+      final user = (response is AuthResponse) ? response.user : null;
+
+      if (session == null || user?.emailConfirmedAt == null) {
+        // La confirmation par e-mail est requise avant de pouvoir se connecter.
+        setState(() {
+          _isSubmitted = true;
+          _isLoading = false;
+        });
+      } else {
         context.go('/dashboard');
       }
     } catch (e) {
@@ -57,6 +68,73 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  Widget _buildEmailConfirmationView() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 60),
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: const Color(0xFF2E75B6).withOpacity(0.1),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFF2E75B6).withOpacity(0.2)),
+            ),
+            alignment: Alignment.center,
+            child: const Text('✉️', style: TextStyle(fontSize: 36)),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Confirmez votre e-mail',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "Un e-mail de confirmation a été envoyé à l'adresse ${_emailController.text.trim()}.",
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Veuillez cliquer sur le lien contenu dans cet e-mail pour valider votre compte. Après confirmation, vous pourrez vous connecter.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.5),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1B3A6B).withOpacity(0.2),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF1B3A6B).withOpacity(0.3)),
+            ),
+            child: const Text(
+              "💡 Astuce : si vous ne recevez rien d'ici quelques minutes, vérifiez votre dossier Spams / Courriers indésirables.",
+              style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+            ),
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () => context.go('/login'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white24),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: const Text("Aller à l'écran de connexion"),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -68,7 +146,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         elevation: 0,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
+      body: _isSubmitted
+          ? SingleChildScrollView(child: _buildEmailConfirmationView())
+          : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Form(

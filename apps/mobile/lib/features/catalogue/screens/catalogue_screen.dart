@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/models/question.dart';
 import '../../../shared/services/file_downloader.dart';
@@ -16,31 +17,55 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
   String _selectedModule = 'CO'; // CO, CE, EE, EO
   String _selectedLevel = 'B2';  // B1, B2, C1, C2
   bool _isDownloading = false;
+  bool _isLoadingSheets = true;
 
-  // Modèles fictifs de livrets d'exercices à afficher
-  final List<Map<String, dynamic>> _exerciseSheets = [
-    {
-      'id': 'sheet-1',
-      'title': 'Entraînement Intensif Section A',
-      'questionsCount': 10,
-      'durationMinutes': 15,
-      'theme': 'Vie quotidienne au Canada',
-    },
-    {
-      'id': 'sheet-2',
-      'title': 'Compréhension du discours radiophonique',
-      'questionsCount': 12,
-      'durationMinutes': 18,
-      'theme': 'Médias & Actualités',
-    },
-    {
-      'id': 'sheet-3',
-      'title': 'Annonces publiques et messages brefs',
-      'questionsCount': 8,
-      'durationMinutes': 10,
-      'theme': 'Transports & Environnement',
-    },
-  ];
+  // Livrets d'exercices construits à partir des vraies questions en base,
+  // groupées par thème, pour le module/niveau actuellement sélectionné.
+  List<Map<String, dynamic>> _exerciseSheets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExerciseSheets();
+  }
+
+  Future<void> _loadExerciseSheets() async {
+    setState(() => _isLoadingSheets = true);
+    try {
+      final supabaseService = ref.read(supabaseServiceProvider);
+      final previews = await supabaseService.fetchThemePreviews(
+        _selectedModule,
+        'TCF_CANADA',
+        _selectedLevel,
+      );
+
+      final sheets = previews.map((p) {
+        final theme = (p['theme'] as String?)?.trim() ?? 'Général';
+        final count = (p['question_count'] as num?)?.toInt() ?? 0;
+        return {
+          'id': 'theme-$theme',
+          'title': theme,
+          'questionsCount': count,
+          'durationMinutes': (count * 1.5).round().clamp(5, 45),
+          'theme': theme,
+        };
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          _exerciseSheets = sheets.take(6).toList();
+          _isLoadingSheets = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _exerciseSheets = [];
+          _isLoadingSheets = false;
+        });
+      }
+    }
+  }
 
   // Gérer le téléchargement hors-ligne d'un module
   Future<void> _downloadForOffline(String module, String level) async {
@@ -122,10 +147,109 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
     }
   }
 
+  // Un utilisateur est considéré premium s'il a un abonnement payant actif
+  // ou un pack actif non expiré (même logique que la RLS sur "questions").
+  bool _isPremiumProfile(Map<String, dynamic>? profile) {
+    if (profile == null) return false;
+    const paidTiers = ['avance', 'premium', 'institutionnel', 'essentiel', 'bronze', 'silver', 'gold', 'platinum'];
+    final tier = profile['subscription_tier'] as String?;
+    final activePackId = profile['active_pack_id'] as String?;
+    final hasEntitlement = (tier != null && paidTiers.contains(tier)) ||
+        (activePackId != null && paidTiers.contains(activePackId));
+    if (!hasEntitlement) return false;
+
+    DateTime? parseDate(dynamic v) => v is String ? DateTime.tryParse(v) : null;
+    final subExpires = parseDate(profile['subscription_expires_at']);
+    final packExpires = parseDate(profile['pack_expires_at']);
+    final now = DateTime.now();
+    final subValid = subExpires == null || subExpires.isAfter(now);
+    final packValid = packExpires == null || packExpires.isAfter(now);
+    return subValid || packValid;
+  }
+
+  void _showPaywall(String theme) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🔒', style: TextStyle(fontSize: 40)),
+            const SizedBox(height: 16),
+            const Text(
+              'Contenu réservé aux abonnés',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Le thème "$theme" fait partie de notre bibliothèque premium. Abonnez-vous pour débloquer toutes les simulations et corrections IA.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white60, fontSize: 13, height: 1.4),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.push('/pay-fedapay');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFC55A11),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                child: const Text('📱 Payer par Mobile Money (Afrique)'),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  final uri = Uri.parse('https://ayeprep.com/packs');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.white24),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                child: const Text('💳 Payer par carte bancaire (autres pays)'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Plus tard', style: TextStyle(color: Colors.white38)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // Créer une session dynamique en base et démarrer
-  Future<void> _startSession(String sheetId, String module) async {
+  Future<void> _startSession(String sheetId, String module, String theme) async {
+    final profile = await ref.read(userProfileProvider.future);
+    if (!_isPremiumProfile(profile)) {
+      if (mounted) _showPaywall(theme);
+      return;
+    }
+
+    if (!mounted) return;
     final String mockSessionId = 'sess-${DateTime.now().millisecondsSinceEpoch}';
-    
+
     // Redirection vers le lecteur de session
     context.push('/session/$mockSessionId', extra: {
       'module': module,
@@ -181,7 +305,10 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
                   backgroundColor: Colors.white.withOpacity(0.05),
                   labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.white60),
                   onSelected: (selected) {
-                    if (selected) setState(() => _selectedModule = m);
+                    if (selected) {
+                      setState(() => _selectedModule = m);
+                      _loadExerciseSheets();
+                    }
                   },
                 );
               }).toList(),
@@ -202,7 +329,10 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
                   backgroundColor: Colors.white.withOpacity(0.05),
                   labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.white60),
                   onSelected: (selected) {
-                    if (selected) setState(() => _selectedLevel = l);
+                    if (selected) {
+                      setState(() => _selectedLevel = l);
+                      _loadExerciseSheets();
+                    }
                   },
                 );
               }).toList(),
@@ -256,7 +386,19 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
 
             // Exercise Sheets list
             Expanded(
-              child: ListView.builder(
+              child: _isLoadingSheets
+                  ? const Center(
+                      child: CircularProgressIndicator(color: Color(0xFFC55A11)),
+                    )
+                  : _exerciseSheets.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Aucun contenu disponible pour $_selectedModule ($_selectedLevel) pour le moment.',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white38, fontSize: 13),
+                          ),
+                        )
+                      : ListView.builder(
                 itemCount: _exerciseSheets.length,
                 itemBuilder: (context, index) {
                   final sheet = _exerciseSheets[index];
@@ -304,7 +446,7 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: () => _startSession(sheet['id'], _selectedModule),
+                          onPressed: () => _startSession(sheet['id'], _selectedModule, sheet['theme']),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFC55A11),
                             foregroundColor: Colors.white,

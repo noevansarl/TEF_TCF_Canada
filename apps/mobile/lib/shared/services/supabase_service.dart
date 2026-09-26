@@ -98,6 +98,30 @@ class SupabaseService {
     await client.auth.signOut();
   }
 
+  // Aperçu des thèmes disponibles pour un module/niveau (inclut le contenu
+  // premium sans en exposer le contenu réel, via une fonction SECURITY DEFINER).
+  Future<List<Map<String, dynamic>>> fetchThemePreviews(
+      String module, String testType, String level) async {
+    if (useMock) {
+      return [
+        {'theme': 'Vie quotidienne au Canada', 'question_count': 5},
+        {'theme': 'Médias & Actualités', 'question_count': 4},
+        {'theme': 'Transports & Environnement', 'question_count': 3},
+      ];
+    }
+    try {
+      final response = await client.rpc('get_theme_previews', params: {
+        'p_module': module,
+        'p_test_type': testType,
+        'p_level': level,
+      });
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint('Error fetching theme previews: $e');
+      return [];
+    }
+  }
+
   // Charger les questions d'un module/niveau
   Future<List<Map<String, dynamic>>> fetchQuestions(
       String module, String testType, String level) async {

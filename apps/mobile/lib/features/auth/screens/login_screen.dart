@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/providers/providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -47,7 +48,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Connexion échouée : Vérifiez vos identifiants.';
+        final isUnconfirmed = e is AuthException &&
+            (e.code == 'email_not_confirmed' ||
+                e.message.toLowerCase().contains('not confirmed'));
+        _errorMessage = isUnconfirmed
+            ? "Votre e-mail n'a pas encore été confirmé. Vérifiez votre boîte de réception (et vos spams) pour valider votre compte avant de vous connecter."
+            : 'Connexion échouée : Vérifiez vos identifiants.';
         _isLoading = false;
       });
     }
