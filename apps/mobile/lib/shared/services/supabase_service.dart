@@ -122,6 +122,24 @@ class SupabaseService {
     }
   }
 
+  // Questions réelles pour le test diagnostique gratuit (accessible sans
+  // abonnement, via une fonction SECURITY DEFINER dédiée).
+  Future<List<Map<String, dynamic>>> fetchDiagnosticQuestions(
+      String module, String testType, int limit) async {
+    if (useMock) return [];
+    try {
+      final response = await client.rpc('get_diagnostic_questions', params: {
+        'p_module': module,
+        'p_test_type': testType,
+        'p_limit': limit,
+      });
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint('Error fetching diagnostic questions: $e');
+      return [];
+    }
+  }
+
   // Charger les questions d'un module/niveau
   Future<List<Map<String, dynamic>>> fetchQuestions(
       String module, String testType, String level) async {

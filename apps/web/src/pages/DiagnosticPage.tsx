@@ -23,8 +23,9 @@ interface DiagnosticQuestion {
   explanation: string
 }
 
-// ── 30 Questions de diagnostic (15 CO, 15 CE) ─────────────────────────
-const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
+// ── Questions de secours (utilisees uniquement si la recuperation des
+// vraies questions depuis Supabase echoue). 30 questions generiques. ────
+const FALLBACK_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
   // --- CO (Compréhension Orale) : Questions 1 à 15 ---
   {
     id: 'diag-co-1',
@@ -474,6 +475,9 @@ export default function DiagnosticPage() {
   const [step, setStep] = useState<'welcome' | 'test' | 'results'>('welcome')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [questions, setQuestions] = useState<DiagnosticQuestion[]>([])
+  const [loadingQuestions, setLoadingQuestions] = useState(false)
+  const QUESTIONS_PER_MODULE = 8
   
   // Timer : 20 minutes en secondes = 1200 secondes
   const [timeLeft, setTimeLeft] = useState(1200)
@@ -488,9 +492,9 @@ export default function DiagnosticPage() {
   const [assessedLevel, setAssessedLevel] = useState<'A2' | 'B1' | 'B2' | 'C1'>('B2')
   const [saving, setSaving] = useState(false)
 
-  const currentQuestion = DIAGNOSTIC_QUESTIONS[currentIndex]
+  const currentQuestion = questions[currentIndex]
   const userSelectedAnswer = answers[currentQuestion?.id]
-  const progressPercent = Math.round((currentIndex / DIAGNOSTIC_QUESTIONS.length) * 100)
+  const progressPercent = Math.round((currentIndex / questions.length) * 100)
 
   // ── Timer Effect ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -567,7 +571,7 @@ export default function DiagnosticPage() {
     
     // Auto-advance after 400ms for fluid UX
     setTimeout(() => {
-      if (currentIndex < DIAGNOSTIC_QUESTIONS.length - 1) {
+      if (currentIndex < questions.length - 1) {
         setCurrentIndex(prev => prev + 1)
       } else {
         handleFinishTest({ ...answers, [currentQuestion.id]: option })
@@ -575,17 +579,47 @@ export default function DiagnosticPage() {
     }, 400)
   }
 
+  // Recupere de vraies questions CO/CE depuis Supabase pour le diagnostic
+  // (outil gratuit), avec repli sur les questions generiques en cas d'echec.
+  const loadRealQuestionsAndStart = async () => {
+    setLoadingQuestions(true)
+    try {
+      const [coRes, ceRes] = await Promise.all([
+        supabase.rpc('get_diagnostic_questions', { p_module: 'CO', p_test_type: 'TCF_CANADA', p_limit: QUESTIONS_PER_MODULE }),
+        supabase.rpc('get_diagnostic_questions', { p_module: 'CE', p_test_type: 'TCF_CANADA', p_limit: QUESTIONS_PER_MODULE }),
+      ])
+
+      const rawCo = coRes.data as DiagnosticQuestion[] | null
+      const rawCe = ceRes.data as DiagnosticQuestion[] | null
+
+      if (!rawCo || !rawCe || rawCo.length < QUESTIONS_PER_MODULE || rawCe.length < QUESTIONS_PER_MODULE) {
+        throw new Error('Pas assez de questions reelles disponibles')
+      }
+
+      setQuestions([...rawCo, ...rawCe])
+    } catch (err) {
+      console.error('Error loading real diagnostic questions, using fallback:', err)
+      setQuestions([
+        ...FALLBACK_DIAGNOSTIC_QUESTIONS.filter(q => q.module === 'CO').slice(0, QUESTIONS_PER_MODULE),
+        ...FALLBACK_DIAGNOSTIC_QUESTIONS.filter(q => q.module === 'CE').slice(0, QUESTIONS_PER_MODULE),
+      ])
+    } finally {
+      setLoadingQuestions(false)
+      setStep('test')
+    }
+  }
+
   const handleFinishTest = async (finalAnswers: Record<string, string>) => {
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current)
     
     // Calculate score
-    const score = DIAGNOSTIC_QUESTIONS.filter(q => finalAnswers[q.id] === q.correct_answer).length
+    const score = questions.filter(q => finalAnswers[q.id] === q.correct_answer).length
 
     // Determine CEFR level
     let level: 'A2' | 'B1' | 'B2' | 'C1' = 'A2'
-    if (score >= 26) level = 'C1'
-    else if (score >= 18) level = 'B2'
-    else if (score >= 10) level = 'B1'
+    if (score >= 14) level = 'C1'
+    else if (score >= 10) level = 'B2'
+    else if (score >= 5) level = 'B1'
 
     setAssessedLevel(level)
     setStep('results')
@@ -611,7 +645,7 @@ export default function DiagnosticPage() {
             test_type: 'BOTH',
             status: 'completed',
             score: score,
-            total_questions: DIAGNOSTIC_QUESTIONS.length,
+            total_questions: questions.length,
             started_at: new Date(Date.now() - (1200 - timeLeft) * 1000).toISOString(),
             completed_at: new Date().toISOString()
           })
@@ -620,7 +654,7 @@ export default function DiagnosticPage() {
 
         if (session) {
           // Insert questions records into public.answers
-          const answerInserts = DIAGNOSTIC_QUESTIONS.map(q => ({
+          const answerInserts = questions.map(q => ({
             session_id: session.id,
             user_id: userId,
             question_id: q.id,
@@ -673,12 +707,12 @@ export default function DiagnosticPage() {
               <div className="bg-slate-950/50 border border-slate-850 p-4 rounded-2xl">
                 <span className="text-xl block mb-1 select-none">🎧</span>
                 <span className="text-xs font-black text-slate-300 block uppercase tracking-wider">Écoute</span>
-                <span className="text-[10px] text-slate-500 font-semibold mt-0.5 block">15 QCM Audio</span>
+                <span className="text-[10px] text-slate-500 font-semibold mt-0.5 block">8 QCM Audio</span>
               </div>
               <div className="bg-slate-950/50 border border-slate-850 p-4 rounded-2xl">
                 <span className="text-xl block mb-1 select-none">📖</span>
                 <span className="text-xs font-black text-slate-300 block uppercase tracking-wider">Lecture</span>
-                <span className="text-[10px] text-slate-500 font-semibold mt-0.5 block">15 QCM Écrits</span>
+                <span className="text-[10px] text-slate-500 font-semibold mt-0.5 block">8 QCM Écrits</span>
               </div>
             </div>
 
@@ -698,10 +732,11 @@ export default function DiagnosticPage() {
             </div>
 
             <button
-              onClick={() => setStep('test')}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-750 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/10 active:scale-98 select-none"
+              onClick={loadRealQuestionsAndStart}
+              disabled={loadingQuestions}
+              className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-750 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/10 active:scale-98 select-none disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              🚀 Commencer le Diagnostic
+              {loadingQuestions ? 'Préparation du test...' : '🚀 Commencer le Diagnostic'}
             </button>
           </motion.div>
         </main>
@@ -727,7 +762,7 @@ export default function DiagnosticPage() {
         <header className="px-6 py-4 border-b border-slate-900 bg-slate-950/80 backdrop-blur-md relative z-10 select-none">
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
             <span className="text-xs font-black tracking-widest text-slate-450 uppercase">
-              Question {currentIndex + 1} / {DIAGNOSTIC_QUESTIONS.length}
+              Question {currentIndex + 1} / {questions.length}
             </span>
             
             {/* Timer */}

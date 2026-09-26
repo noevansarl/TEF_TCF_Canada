@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/providers/providers.dart';
+import '../../../shared/utils/paywall.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -230,6 +231,8 @@ class DashboardScreen extends ConsumerWidget {
                   duration: '2h 45m',
                   questions: '80 questions',
                   testType: 'TCF_CANADA',
+                  level: (profileAsync.value?['level_assessed'] as String?) ?? 'B2',
+                  isPremium: isPremiumProfile(profileAsync.value),
                 ),
                 const SizedBox(height: 12),
                 _buildSimulationCard(
@@ -238,6 +241,8 @@ class DashboardScreen extends ConsumerWidget {
                   duration: '2h 55m',
                   questions: '90 questions',
                   testType: 'TEF_CANADA',
+                  level: (profileAsync.value?['level_assessed'] as String?) ?? 'B2',
+                  isPremium: isPremiumProfile(profileAsync.value),
                 ),
                 const SizedBox(height: 30),
                 const Text(
@@ -366,6 +371,8 @@ class DashboardScreen extends ConsumerWidget {
     required String duration,
     required String questions,
     required String testType,
+    required String level,
+    required bool isPremium,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -413,12 +420,16 @@ class DashboardScreen extends ConsumerWidget {
           ),
           IconButton(
             onPressed: () {
+              if (!isPremium) {
+                showPaywall(context, title);
+                return;
+              }
               // Créer une simulation en base et lancer
               final String mockSessionId = 'sim-${DateTime.now().millisecondsSinceEpoch}';
               context.push('/session/$mockSessionId', extra: {
-                'module': 'FULL_TCF',
+                'module': testType == 'TEF_CANADA' ? 'FULL_TEF' : 'FULL_TCF',
                 'testType': testType,
-                'level': 'MIXED',
+                'level': level,
                 'isOffline': false,
               });
             },

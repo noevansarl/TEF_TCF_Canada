@@ -30,8 +30,9 @@ class DiagnosticQuestion {
   });
 }
 
-// 30 Orientation questions (15 CO, 15 CE)
-const List<DiagnosticQuestion> _questions = [
+// Questions de secours (utilisées uniquement si la récupération des vraies
+// questions depuis Supabase échoue). 30 questions génériques (15 CO, 15 CE).
+const List<DiagnosticQuestion> _fallbackQuestions = [
   // --- CO (Compréhension Orale) ---
   DiagnosticQuestion(
     id: 'diag-co-1',
@@ -464,6 +465,10 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
   String _step = 'welcome'; // 'welcome' | 'test' | 'results'
   int _currentIndex = 0;
   final Map<String, String> _answers = {};
+  List<DiagnosticQuestion> _questions = [];
+  bool _isPreparingTest = false;
+
+  static const int _questionsPerModule = 8;
   
   // Timer settings
   Timer? _timer;
@@ -491,6 +496,52 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
     _playerStateSub?.cancel();
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  // Récupère de vraies questions CO/CE depuis Supabase pour le diagnostic
+  // (outil gratuit), avec repli sur les questions génériques en cas d'échec.
+  Future<void> _loadRealQuestions() async {
+    setState(() => _isPreparingTest = true);
+    try {
+      final supabaseService = ref.read(supabaseServiceProvider);
+      final results = await Future.wait([
+        supabaseService.fetchDiagnosticQuestions('CO', 'TCF_CANADA', _questionsPerModule),
+        supabaseService.fetchDiagnosticQuestions('CE', 'TCF_CANADA', _questionsPerModule),
+      ]);
+      final rawCo = results[0];
+      final rawCe = results[1];
+
+      if (rawCo.length < _questionsPerModule || rawCe.length < _questionsPerModule) {
+        throw Exception('Pas assez de questions reelles disponibles');
+      }
+
+      List<DiagnosticQuestion> mapRows(List<Map<String, dynamic>> rows, String module) {
+        return rows.map((r) {
+          final rawOptions = r['options'] as Map<String, dynamic>? ?? {};
+          return DiagnosticQuestion(
+            id: r['id'] as String,
+            module: module,
+            level: (r['level'] as String?) ?? 'B1',
+            questionText: r['question_text'] as String? ?? '',
+            audioUrl: r['audio_url'] as String?,
+            passageText: r['passage_text'] as String?,
+            options: rawOptions.map((k, v) => MapEntry(k, v.toString())),
+            correctAnswer: r['correct_answer'] as String? ?? 'A',
+            explanation: (r['explanation'] as String?) ?? '',
+          );
+        }).toList();
+      }
+
+      _questions = [...mapRows(rawCo, 'CO'), ...mapRows(rawCe, 'CE')];
+    } catch (e) {
+      debugPrint('Error loading real diagnostic questions, using fallback: $e');
+      _questions = [
+        ..._fallbackQuestions.where((q) => q.module == 'CO').take(_questionsPerModule),
+        ..._fallbackQuestions.where((q) => q.module == 'CE').take(_questionsPerModule),
+      ];
+    } finally {
+      if (mounted) setState(() => _isPreparingTest = false);
+    }
   }
 
   void _initAudioPlayer() {
@@ -607,13 +658,13 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
       }
     }
 
-    // Determine CEFR Level
+    // Determine CEFR Level (seuils proportionnels aux anciens, ramenés de 30 a 16 questions)
     String level = 'A2';
-    if (score >= 26) {
+    if (score >= 14) {
       level = 'C1';
-    } else if (score >= 18) {
-      level = 'B2';
     } else if (score >= 10) {
+      level = 'B2';
+    } else if (score >= 5) {
       level = 'B1';
     }
 
@@ -752,11 +803,11 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildWelcomeCard('🎧', 'Écoute', '15 QCM Audio'),
+                    child: _buildWelcomeCard('🎧', 'Écoute', '8 QCM Audio'),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildWelcomeCard('📖', 'Lecture', '15 QCM Écrits'),
+                    child: _buildWelcomeCard('📖', 'Lecture', '8 QCM Écrits'),
                   ),
                 ],
               ),
@@ -781,16 +832,20 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
             ],
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _step = 'test';
-                _currentIndex = 0;
-                _timeLeft = 1200;
-                _answers.clear();
-                _audioPlayCounts.clear();
-              });
-              _startTimer();
-            },
+            onPressed: _isPreparingTest
+                ? null
+                : () async {
+                    await _loadRealQuestions();
+                    if (!mounted) return;
+                    setState(() {
+                      _step = 'test';
+                      _currentIndex = 0;
+                      _timeLeft = 1200;
+                      _answers.clear();
+                      _audioPlayCounts.clear();
+                    });
+                    _startTimer();
+                  },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFC55A11),
               foregroundColor: Colors.white,
@@ -798,10 +853,16 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
               minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text(
-              '🚀 Commencer le Diagnostic',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            child: _isPreparingTest
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text(
+                    '🚀 Commencer le Diagnostic',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
           ),
         ],
       ),

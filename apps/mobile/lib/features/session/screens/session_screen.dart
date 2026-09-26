@@ -13,6 +13,41 @@ import '../../../shared/models/session.dart';
 import '../widgets/qcm_question_widget.dart';
 import '../widgets/interactive_roleplay_widget.dart';
 
+// Ordre officiel des épreuves lors d'une simulation complète.
+const List<String> kSimulationModuleOrder = ['CO', 'CE', 'EE', 'EO'];
+
+// Nombre de questions officiel par épreuve/type d'examen (barème 2026).
+int moduleQuestionCount(String module, String testType) {
+  if (testType == 'TEF_CANADA') {
+    switch (module) {
+      case 'CO': return 60;
+      case 'CE': return 50;
+      case 'EE': return 2;
+      case 'EO': return 4;
+    }
+  } else {
+    switch (module) {
+      case 'CO': return 39;
+      case 'CE': return 39;
+      case 'EE': return 3;
+      case 'EO': return 3;
+    }
+  }
+  return 10;
+}
+
+// Durée officielle par épreuve/type d'examen, en secondes.
+int moduleDurationSeconds(String module, String testType) {
+  final isTef = testType == 'TEF_CANADA';
+  switch (module) {
+    case 'CO': return isTef ? 2400 : 2100;
+    case 'CE': return isTef ? 3600 : 2100;
+    case 'EE': return 3600;
+    case 'EO': return isTef ? 2100 : 720;
+  }
+  return 1800;
+}
+
 class SessionScreen extends ConsumerStatefulWidget {
   final String sessionId;
   final String module;
@@ -35,13 +70,20 @@ class SessionScreen extends ConsumerStatefulWidget {
 
 class _SessionScreenState extends ConsumerState<SessionScreen> {
   List<Question> _questions = [];
+  final List<Question> _allQuestions = []; // Accumulé sur tous les modules d'une simulation
   int _currentIndex = 0;
   final Map<String, String> _answers = {};
   bool _isLoading = true;
-  
+
+  // Simulation multi-épreuves (FULL_TCF / FULL_TEF) : module réellement actif,
+  // distinct de widget.module qui reste le marqueur global de la simulation.
+  bool get _isSimulation => widget.module.startsWith('FULL_');
+  late String _currentModule = _isSimulation ? kSimulationModuleOrder.first : widget.module;
+
   // Timer attributes
   Timer? _timer;
   int _timeLeftSeconds = 1800; // 30 minutes par défaut
+  int _elapsedBeforeCurrentModule = 0; // Cumul du temps passé sur les épreuves déjà terminées (simulation)
 
   // EE Written input controller
   final _writtenAnswerController = TextEditingController();
@@ -69,7 +111,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   void initState() {
     super.initState();
     _loadQuestions();
-    _startTimer();
     _initAudioPlayer();
   }
 
@@ -228,6 +269,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_timeLeftSeconds > 0) {
         setState(() {
@@ -235,25 +277,25 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         });
       } else {
         _timer?.cancel();
-        _finishSession();
+        _advanceToNextModuleOrFinish();
       }
     });
   }
 
   Future<void> _loadQuestions() async {
     setState(() => _isLoading = true);
-    
+
     try {
       if (widget.isOffline) {
         // Récupérer depuis Drift DB locale
         final localDb = ref.read(appDatabaseProvider);
         final localQs = await localDb.getOfflineQuestions(
-          widget.module,
+          _currentModule,
           widget.testType,
           widget.level,
           10, // 10 questions max hors-ligne
         );
-        
+
         setState(() {
           _questions = localQs.map((q) => Question(
             id: q.id,
@@ -277,13 +319,24 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         // Récupérer en ligne depuis Supabase
         final supabaseService = ref.read(supabaseServiceProvider);
         final rawQs = await supabaseService.fetchQuestions(
-          widget.module,
+          _currentModule,
           widget.testType,
           widget.level,
         );
 
+        var loaded = rawQs.map((q) => Question.fromJson(q)).toList();
+
+        if (_isSimulation) {
+          // Simulation officielle : mélanger et limiter au nombre officiel de questions.
+          loaded.shuffle();
+          final targetCount = moduleQuestionCount(_currentModule, widget.testType);
+          if (loaded.length > targetCount) {
+            loaded = loaded.sublist(0, targetCount);
+          }
+        }
+
         setState(() {
-          _questions = rawQs.map((q) => Question.fromJson(q)).toList();
+          _questions = loaded;
           _isLoading = false;
         });
       }
@@ -292,6 +345,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       if (_questions.isEmpty) {
         _loadFallbackQuestions();
       }
+
+      _timeLeftSeconds = _isSimulation
+          ? moduleDurationSeconds(_currentModule, widget.testType)
+          : 1800;
+      _currentIndex = 0;
+      _startTimer();
     } catch (e) {
       _loadFallbackQuestions();
     }
@@ -302,7 +361,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       _questions = [
         Question(
           id: 'mock-q-1',
-          module: widget.module,
+          module: _currentModule,
           testType: widget.testType,
           level: widget.level,
           questionText: 'Compréhension du Canada : Quelle est la capitale fédérale du Canada ?',
@@ -319,7 +378,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         ),
         Question(
           id: 'mock-q-2',
-          module: widget.module,
+          module: _currentModule,
           testType: widget.testType,
           level: widget.level,
           questionText: 'Identifiez le synonyme de "perfectionner" :',
@@ -354,20 +413,70 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         _writtenAnswerController.clear();
       });
     } else {
-      _finishSession();
+      _advanceToNextModuleOrFinish();
     }
+  }
+
+  // En simulation, passe à l'épreuve suivante (CO→CE→EE→EO) en conservant les
+  // questions/réponses déjà données ; sinon (ou après EO) termine la session.
+  Future<void> _advanceToNextModuleOrFinish() async {
+    _timer?.cancel();
+
+    if (_isSimulation) {
+      final currentPos = kSimulationModuleOrder.indexOf(_currentModule);
+      _elapsedBeforeCurrentModule +=
+          moduleDurationSeconds(_currentModule, widget.testType) - _timeLeftSeconds;
+      if (currentPos < kSimulationModuleOrder.length - 1) {
+        _allQuestions.addAll(_questions);
+        final nextModule = kSimulationModuleOrder[currentPos + 1];
+
+        if (mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              backgroundColor: const Color(0xFF1E293B),
+              title: const Text('Épreuve suivante', style: TextStyle(color: Colors.white)),
+              content: Text(
+                'Vous passez maintenant à l\'épreuve $nextModule.',
+                style: const TextStyle(color: Colors.white70),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFC55A11)),
+                  child: const Text('Continuer'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        setState(() {
+          _currentModule = nextModule;
+          _writtenAnswerController.clear();
+        });
+        await _loadQuestions();
+        return;
+      }
+      _allQuestions.addAll(_questions);
+    }
+
+    _finishSession();
   }
 
   Future<void> _finishSession() async {
     _timer?.cancel();
     setState(() => _isLoading = true);
 
-    // Calculer le score auto pour QCM (CO, CE)
+    // Calculer le score auto pour QCM (CO, CE), sur toutes les épreuves
+    // accumulées en cas de simulation complète.
     double score = 0;
     int correctCount = 0;
     int qcmCount = 0;
 
-    for (final q in _questions) {
+    final scoredQuestions = _isSimulation ? _allQuestions : _questions;
+    for (final q in scoredQuestions) {
       if (q.correctAnswer != null) {
         qcmCount++;
         if (_answers[q.id] == q.correctAnswer) {
@@ -375,10 +484,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         }
       }
     }
-    
+
     if (qcmCount > 0) {
       score = (correctCount / qcmCount) * 100;
     }
+
+    final int currentModuleElapsed =
+        (_isSimulation ? moduleDurationSeconds(_currentModule, widget.testType) : 1800) - _timeLeftSeconds;
+    final int totalDurationSeconds = _elapsedBeforeCurrentModule + currentModuleElapsed;
 
     // Récupérer le user ID courant
     final supabaseService = ref.read(supabaseServiceProvider);
@@ -391,9 +504,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       sessionType: 'TRAINING',
       module: widget.module,
       testType: widget.testType,
-      startedAt: DateTime.now().subtract(Duration(seconds: 1800 - _timeLeftSeconds)),
+      startedAt: DateTime.now().subtract(Duration(seconds: totalDurationSeconds)),
       completedAt: DateTime.now(),
-      durationSeconds: 1800 - _timeLeftSeconds,
+      durationSeconds: totalDurationSeconds,
       scoreAuto: score,
       status: 'completed',
       answers: _answers,
@@ -445,7 +558,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     final currentQuestion = _questions[_currentIndex];
-    final isRoleplay = widget.module == 'EO' &&
+    final isRoleplay = _currentModule == 'EO' &&
         (currentQuestion.theme.toLowerCase().contains('roleplay') ||
             currentQuestion.theme.toLowerCase().contains('jeu de rôle') ||
             currentQuestion.questionText.toLowerCase().contains('jeu de rôle') ||
@@ -481,7 +594,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           },
         ),
         title: Text(
-          '${widget.module} - Question ${_currentIndex + 1}/${_questions.length}',
+          '$_currentModule - Question ${_currentIndex + 1}/${_questions.length}',
           style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -527,13 +640,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // CO Audio Player placeholder
-                      if (widget.module == 'CO') ...[
+                      if (_currentModule == 'CO') ...[
                         _buildAudioPlayerCard(currentQuestion.audioUrl),
                         const SizedBox(height: 20),
                       ],
 
                       // QCM Question Details (CO, CE)
-                      if (widget.module == 'CE' || widget.module == 'CO') ...[
+                      if (_currentModule == 'CE' || _currentModule == 'CO') ...[
                         QcmQuestionWidget(
                           question: currentQuestion,
                           selectedAnswer: _answers[currentQuestion.id],
@@ -542,12 +655,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                       ],
 
                       // EE Written Essay area
-                      if (widget.module == 'EE') ...[
+                      if (_currentModule == 'EE') ...[
                         _buildWrittenEssayArea(currentQuestion),
                       ],
 
                       // EO Voice Recording area
-                      if (widget.module == 'EO') ...[
+                      if (_currentModule == 'EO') ...[
                         _buildEoArea(currentQuestion),
                       ],
                     ],
