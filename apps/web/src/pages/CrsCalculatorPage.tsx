@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { useAuthStore } from '../store/authStore'
@@ -145,8 +145,9 @@ export default function CrsCalculatorPage() {
   })
   const { user } = useAuthStore()
   const [inputs, setInputs] = useState<CrsInputs>(DEFAULT_INPUTS)
-  const [calculated, setCalculated] = useState(false)
+  const [calculated, setCalculated] = useState(true)
   const [targetFrenchNclc, setTargetFrenchNclc] = useState(9) // Curseur "Et si..."
+  const scoreCardRef = useRef<HTMLDivElement>(null)
 
   // ── Engine de Calcul CRS ───────────────────────────────────────────────
   const computeScore = (currentInputs: CrsInputs) => {
@@ -300,7 +301,7 @@ export default function CrsCalculatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-955 relative overflow-hidden font-sans text-slate-101 pb-16">
+    <div className="min-h-screen bg-[#F8F9FA] relative overflow-hidden font-sans text-slate-800 pb-16">
       {/* Schema.org */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify({
         "@context": "https://schema.org",
@@ -314,18 +315,18 @@ export default function CrsCalculatorPage() {
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" }
       })}} />
       {/* Decorative Orbs */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
-      <div className="absolute bottom-20 right-1/4 w-[600px] h-[600px] bg-indigo-600/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
+      <div className="absolute bottom-20 right-1/4 w-[600px] h-[600px] bg-indigo-500/5 rounded-full filter blur-3xl pointer-events-none select-none z-0"></div>
 
       {/* Header */}
-      <header className="bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 sticky top-0 z-40 relative z-10 select-none">
+      <header className="bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 sticky top-0 z-40 relative z-10 select-none">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Logo />
           <div className="flex items-center gap-4">
-            <Link to="/calculateur-nclc" className="text-xs font-bold text-slate-400 hover:text-white transition-colors">
+            <Link to="/calculateur-nclc" className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
               Convertir TCF/TEF en NCLC
             </Link>
-            <Link to="/register" className="px-4.5 py-2 bg-gradient-to-r from-blue-600 to-sky-500 rounded-xl text-xs font-extrabold text-white hover:opacity-95 shadow-lg shadow-blue-500/25 transition-all">
+            <Link to="/register" className="px-4.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-750 rounded-xl text-xs font-extrabold text-white hover:opacity-95 shadow-md shadow-indigo-500/10 transition-all">
               Créer un compte gratuit
             </Link>
           </div>
@@ -333,19 +334,19 @@ export default function CrsCalculatorPage() {
       </header>
 
       <div className="max-w-5xl mx-auto px-4 py-12 relative z-10">
-        <Link to={user ? "/dashboard" : "/"} className="inline-flex items-center gap-1.5 text-xs text-blue-450 hover:text-blue-300 font-bold transition-colors select-none mb-6">
+        <Link to={user ? "/dashboard" : "/"} className="inline-flex items-center gap-1.5 text-xs text-[#1B3A6B] hover:text-blue-700 font-bold transition-colors select-none mb-6">
           ← {user ? "Retour au tableau de bord" : "Retour à l'accueil"}
         </Link>
         
         {/* Titre principal */}
         <div className="text-center mb-12 select-none">
-          <span className="inline-block bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full mb-4 border border-blue-500/20">
+          <span className="inline-block bg-blue-50 text-[#1B3A6B] border border-blue-200/80 text-[11px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full mb-3 shadow-xs">
             Immigration Canada — Entrée Express 2026
           </span>
-          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight font-display mb-4">
-            Simulateur de points <span className="bg-gradient-to-r from-blue-450 to-sky-400 bg-clip-text text-transparent">CRS / SCG</span>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight font-display mb-3">
+            Simulateur de points <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">CRS / SCG</span>
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto font-medium leading-relaxed">
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto font-normal leading-relaxed">
             Estimez instantanément vos points d'immigration pour le bassin Entrée Express. Découvrez l'impact d'un excellent score en français (TCF/TEF).
           </p>
         </div>
@@ -357,25 +358,25 @@ export default function CrsCalculatorPage() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* 1. Profil de base */}
-            <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl">
-              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2 font-display">
-                <span className="bg-blue-500/20 text-blue-400 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-extrabold">1</span>
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2.5 font-display">
+                <span className="bg-blue-50 text-[#1B3A6B] border border-blue-100 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black">1</span>
                 Informations Personnelles
               </h2>
 
               <div className="space-y-4">
                 {/* Spouse toggle */}
-                <div className="flex items-center justify-between p-3.5 bg-slate-950/60 rounded-2xl border border-slate-850">
+                <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
                   <div>
-                    <p className="text-sm font-bold text-white">Situation familiale</p>
-                    <p className="text-xs text-slate-455 font-semibold mt-0.5">Avez-vous un conjoint de fait qui vous accompagne au Canada ?</p>
+                    <p className="text-sm font-bold text-slate-900">Situation familiale</p>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Avez-vous un conjoint de fait qui vous accompagne au Canada ?</p>
                   </div>
                   <button
                     onClick={() => handleInputChange('hasSpouse', !inputs.hasSpouse)}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                       inputs.hasSpouse 
-                        ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/10' 
-                        : 'bg-slate-950 text-slate-400 border-slate-850 hover:bg-slate-900'
+                        ? 'bg-[#1B3A6B] text-white border-[#1B3A6B] shadow-sm' 
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     {inputs.hasSpouse ? 'Avec Conjoint' : 'Célibataire'}
@@ -385,28 +386,28 @@ export default function CrsCalculatorPage() {
                 {/* Age & Education grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Âge ({inputs.age} ans)</label>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Âge ({inputs.age} ans)</label>
                     <input
                       type="range"
                       min={17}
                       max={50}
                       value={inputs.age}
                       onChange={e => handleInputChange('age', parseInt(e.target.value))}
-                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1B3A6B]"
                     />
-                    <div className="flex justify-between text-[10px] text-slate-500 font-bold mt-1.5">
+                    <div className="flex justify-between text-[11px] text-slate-400 font-bold mt-1.5">
                       <span>17 ans</span>
-                      <span className="text-blue-400">{inputs.age} ans</span>
+                      <span className="text-[#1B3A6B] font-black">{inputs.age} ans</span>
                       <span>50 ans</span>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-450 uppercase tracking-wider">Niveau d'études</label>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Niveau d'études</label>
                     <select
                       value={inputs.education}
                       onChange={e => handleInputChange('education', e.target.value)}
-                      className="w-full bg-slate-950/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 font-semibold transition-all hover:bg-slate-900/60 cursor-pointer"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all cursor-pointer"
                     >
                       <option value="none">Aucun ou inférieur au diplôme d'études secondaires</option>
                       <option value="highschool">Diplôme d'études secondaires (lycée)</option>
@@ -423,19 +424,19 @@ export default function CrsCalculatorPage() {
             </div>
 
             {/* 2. Expérience de travail */}
-            <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl">
-              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2 font-display">
-                <span className="bg-blue-500/20 text-blue-400 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-extrabold">2</span>
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2.5 font-display">
+                <span className="bg-blue-50 text-[#1B3A6B] border border-blue-100 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black">2</span>
                 Expérience Professionnelle
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-455 uppercase tracking-wider">Au Canada</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Au Canada</label>
                   <select
                     value={inputs.canadianWorkYears}
                     onChange={e => handleInputChange('canadianWorkYears', parseInt(e.target.value))}
-                    className="w-full bg-slate-955/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 font-semibold transition-all hover:bg-slate-900/60 cursor-pointer"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all cursor-pointer"
                   >
                     <option value={0}>Aucune</option>
                     <option value={1}>1 an</option>
@@ -447,11 +448,11 @@ export default function CrsCalculatorPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-455 uppercase tracking-wider">À l'étranger (Hors Canada)</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">À l'étranger (Hors Canada)</label>
                   <select
                     value={inputs.foreignWorkYears}
                     onChange={e => handleInputChange('foreignWorkYears', parseInt(e.target.value))}
-                    className="w-full bg-slate-955/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 font-semibold transition-all hover:bg-slate-900/60 cursor-pointer"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all cursor-pointer"
                   >
                     <option value={0}>Aucune</option>
                     <option value={1}>1 an</option>
@@ -463,19 +464,19 @@ export default function CrsCalculatorPage() {
             </div>
 
             {/* 3. Compétences Linguistiques */}
-            <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-6">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2 font-display">
-                <span className="bg-blue-500/20 text-blue-400 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-extrabold">3</span>
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-6">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2.5 font-display">
+                <span className="bg-blue-50 text-[#1B3A6B] border border-blue-100 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black">3</span>
                 Compétences Linguistiques (Niveaux NCLC/CLB)
               </h2>
 
               {/* Français (First official language) */}
-              <div className="p-5 bg-blue-950/20 border border-blue-500/20 rounded-2xl space-y-4">
+              <div className="p-5 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-bold text-blue-300 flex items-center gap-2 select-none">
+                  <p className="text-sm font-bold text-[#1B3A6B] flex items-center gap-2 select-none">
                     🇫🇷 Français (Première langue)
                   </p>
-                  <Link to="/calculateur-nclc" className="text-[10px] font-bold text-blue-400 hover:underline transition-all">
+                  <Link to="/calculateur-nclc" className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline transition-all">
                     Vous ne connaissez pas vos niveaux ?
                   </Link>
                 </div>
@@ -488,11 +489,11 @@ export default function CrsCalculatorPage() {
                     { label: '🎤 Parole (EO)', field: 'frenchSpeaking' },
                   ].map(item => (
                     <div key={item.field} className="space-y-1.5">
-                      <label className="block text-[10px] font-black text-slate-450 uppercase">{item.label}</label>
+                      <label className="block text-[10px] font-black text-slate-600 uppercase">{item.label}</label>
                       <select
                         value={inputs[item.field as keyof CrsInputs] as number}
                         onChange={e => handleInputChange(item.field as keyof CrsInputs, parseInt(e.target.value))}
-                        className="w-full bg-slate-950/80 border border-slate-805 text-slate-350 focus:text-white rounded-xl px-2.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold cursor-pointer"
+                        className="w-full bg-white border border-blue-200 text-slate-900 rounded-xl px-2.5 py-2.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
                       >
                         <option value={0}>Aucun / &lt; NCLC 4</option>
                         <option value={4}>NCLC 4</option>
@@ -509,8 +510,8 @@ export default function CrsCalculatorPage() {
               </div>
 
               {/* Anglais (Second official language) */}
-              <div className="p-5 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-4">
-                <p className="text-sm font-bold text-slate-300 select-none">
+              <div className="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-4">
+                <p className="text-sm font-bold text-slate-800 select-none">
                   🇬🇧 Anglais (Deuxième langue)
                 </p>
 
@@ -522,11 +523,11 @@ export default function CrsCalculatorPage() {
                     { label: '🎤 Parole (Speaking)', field: 'englishSpeaking' },
                   ].map(item => (
                     <div key={item.field} className="space-y-1.5">
-                      <label className="block text-[10px] font-black text-slate-450 uppercase">{item.label}</label>
+                      <label className="block text-[10px] font-black text-slate-600 uppercase">{item.label}</label>
                       <select
                         value={inputs[item.field as keyof CrsInputs] as number}
                         onChange={e => handleInputChange(item.field as keyof CrsInputs, parseInt(e.target.value))}
-                        className="w-full bg-slate-955/80 border border-slate-805 text-slate-350 focus:text-white rounded-xl px-2.5 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-slate-700 font-bold cursor-pointer"
+                        className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl px-2.5 py-2.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400 cursor-pointer"
                       >
                         <option value={0}>Aucun / &lt; CLB 4</option>
                         <option value={5}>CLB 5</option>
@@ -543,19 +544,19 @@ export default function CrsCalculatorPage() {
 
             {/* 4. Conjoint (Si coché) */}
             {inputs.hasSpouse && (
-              <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-4 animate-fade-in">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2 font-display">
-                  <span className="bg-blue-500/20 text-blue-400 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-extrabold">4</span>
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4 animate-fade-in">
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2.5 font-display">
+                  <span className="bg-blue-50 text-[#1B3A6B] border border-blue-100 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black">4</span>
                   Profil du Conjoint
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Éducation Conjoint</label>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Éducation Conjoint</label>
                     <select
                       value={inputs.spouseEducation}
                       onChange={e => handleInputChange('spouseEducation', e.target.value)}
-                      className="w-full bg-slate-950/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none font-semibold cursor-pointer"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white cursor-pointer"
                     >
                       <option value="none">Aucun / Secondaire</option>
                       <option value="diploma1yr">Diplôme d'un an</option>
@@ -567,11 +568,11 @@ export default function CrsCalculatorPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Expérience Canada Conjoint</label>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Expérience Canada Conjoint</label>
                     <select
                       value={inputs.spouseCanadianWorkYears}
                       onChange={e => handleInputChange('spouseCanadianWorkYears', parseInt(e.target.value))}
-                      className="w-full bg-slate-950/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none font-semibold cursor-pointer"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white cursor-pointer"
                     >
                       <option value={0}>Aucune</option>
                       <option value={1}>1 an</option>
@@ -581,11 +582,11 @@ export default function CrsCalculatorPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Niveau de Langue Conjoint</label>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Niveau de Langue Conjoint</label>
                     <select
                       value={inputs.spouseLanguageLevel}
                       onChange={e => handleInputChange('spouseLanguageLevel', parseInt(e.target.value))}
-                      className="w-full bg-slate-950/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none font-semibold cursor-pointer"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white cursor-pointer"
                     >
                       <option value={0}>Inférieur à NCLC/CLB 5</option>
                       <option value={5}>NCLC/CLB 5 ou 6</option>
@@ -598,9 +599,9 @@ export default function CrsCalculatorPage() {
             )}
 
             {/* 5. Facteurs additionnels */}
-            <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2 font-display">
-                <span className="bg-blue-500/20 text-blue-400 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-extrabold">
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2.5 font-display">
+                <span className="bg-blue-50 text-[#1B3A6B] border border-blue-100 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black">
                   {inputs.hasSpouse ? '5' : '4'}
                 </span>
                 Facteurs Additionnels (Bonus)
@@ -609,29 +610,29 @@ export default function CrsCalculatorPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Sibling & Nomination */}
                 <div className="space-y-4">
-                  <label className="flex items-center justify-between p-3.5 bg-slate-950/40 rounded-2xl border border-slate-850 cursor-pointer select-none">
+                  <label className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 hover:bg-slate-100/60 transition-colors cursor-pointer select-none">
                     <div>
-                      <span className="text-xs font-bold text-white block">Frère / Sœur au Canada</span>
-                      <span className="text-[10px] text-slate-500 font-semibold mt-0.5">Résident permanent ou citoyen canadien</span>
+                      <span className="text-xs font-bold text-slate-900 block">Frère / Sœur au Canada</span>
+                      <span className="text-[10px] text-slate-500 font-medium mt-0.5">Résident permanent ou citoyen canadien</span>
                     </div>
                     <input
                       type="checkbox"
                       checked={inputs.hasSiblingInCanada}
                       onChange={e => handleInputChange('hasSiblingInCanada', e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-800 bg-slate-950 text-blue-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                      className="w-4 h-4 rounded border-slate-300 text-[#1B3A6B] focus:ring-0 cursor-pointer"
                     />
                   </label>
 
-                  <label className="flex items-center justify-between p-3.5 bg-slate-955/40 rounded-2xl border border-slate-850 cursor-pointer select-none">
+                  <label className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 hover:bg-slate-100/60 transition-colors cursor-pointer select-none">
                     <div>
-                      <span className="text-xs font-bold text-white block">Désignation Provinciale (PNP)</span>
-                      <span className="text-[10px] text-slate-500 font-semibold mt-0.5">Un certificat de nomination provinciale (+600 pts)</span>
+                      <span className="text-xs font-bold text-slate-900 block">Désignation Provinciale (PNP)</span>
+                      <span className="text-[10px] text-slate-500 font-medium mt-0.5">Un certificat de nomination provinciale (+600 pts)</span>
                     </div>
                     <input
                       type="checkbox"
                       checked={inputs.provincialNomination}
                       onChange={e => handleInputChange('provincialNomination', e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-800 bg-slate-955 text-blue-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                      className="w-4 h-4 rounded border-slate-300 text-[#1B3A6B] focus:ring-0 cursor-pointer"
                     />
                   </label>
                 </div>
@@ -639,11 +640,11 @@ export default function CrsCalculatorPage() {
                 {/* Canadian study & Arranged Employment */}
                 <div className="space-y-3.5">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Études au Canada</label>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Études au Canada</label>
                     <select
                       value={inputs.canadianStudy}
                       onChange={e => handleInputChange('canadianStudy', e.target.value)}
-                      className="w-full bg-slate-950/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none font-semibold cursor-pointer"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white cursor-pointer"
                     >
                       <option value="none">Aucun diplôme d'études obtenu au Canada</option>
                       <option value="1-2years">Diplôme ou certificat d'études de 1 ou 2 ans</option>
@@ -652,11 +653,11 @@ export default function CrsCalculatorPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Offre d'emploi réservé</label>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Offre d'emploi réservé</label>
                     <select
                       value={inputs.arrangedEmployment}
                       onChange={e => handleInputChange('arrangedEmployment', e.target.value)}
-                      className="w-full bg-slate-950/80 border border-slate-800/80 text-slate-300 focus:text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none font-semibold cursor-pointer"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white cursor-pointer"
                     >
                       <option value="none">Aucune offre d'emploi ou non admissible</option>
                       <option value="teer123">Offre d'emploi TEER 1, 2 ou 3 (50 points)</option>
@@ -670,13 +671,14 @@ export default function CrsCalculatorPage() {
             <button
               onClick={() => {
                 setCalculated(true)
+                scoreCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                 trackMarketingEvent('crs_simulator_used', {
                   score: currentScore.grandTotal,
                   has_spouse: inputs.hasSpouse,
                   education: inputs.education
                 })
               }}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-2xl font-extrabold text-sm hover:opacity-95 shadow-xl shadow-blue-600/20 active:scale-[0.99] transition-all uppercase tracking-wider"
+              className="w-full py-4 bg-gradient-to-r from-[#1B3A6B] to-blue-600 hover:from-[#152e56] hover:to-blue-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-blue-900/15 active:scale-[0.99] transition-all uppercase tracking-wider cursor-pointer"
             >
               Calculer mon score global CRS
             </button>
@@ -687,43 +689,52 @@ export default function CrsCalculatorPage() {
             
             {/* Résultats du score */}
             {calculated && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/85 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-blue-500/10 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl border-l border-b border-slate-800/60">
-                    Total
+              <div className="space-y-6 animate-fade-in" ref={scoreCardRef}>
+                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-blue-50 text-[#1B3A6B] border-l border-b border-blue-100 text-[10px] font-black px-3.5 py-1.5 rounded-bl-xl uppercase tracking-wider">
+                    Score Officiel
                   </div>
                   
-                  <h3 className="font-extrabold text-white text-base mb-4 font-display">Votre Score Estimé</h3>
+                  <h3 className="font-black text-slate-900 text-base mb-4 font-display">Votre Score Estimé</h3>
                   
-                  <div className="text-center py-6 bg-slate-950/80 rounded-2xl border border-slate-850 mb-6">
-                    <div className="text-6xl font-black text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-sky-405 to-emerald-400 font-display">
+                  <div className="text-center py-6 bg-gradient-to-br from-[#1B3A6B] via-blue-800 to-indigo-900 text-white rounded-2xl shadow-md shadow-blue-900/10 mb-6">
+                    <div className="text-6xl font-black text-white font-display tracking-tight">
                       {currentScore.grandTotal}
                     </div>
-                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">points sur 1200</div>
+                    <div className="text-[11px] text-blue-200 font-extrabold uppercase tracking-wider mt-1.5">points sur 1200</div>
                   </div>
 
-                  {/* Détails par catégorie */}
-                  <div className="space-y-3.5 text-xs font-semibold">
-                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                  {/* Détails par catégorie - MAXIMUM DE LISIBILITÉ ET CONTRASTE */}
+                  <div className="space-y-3 text-xs font-medium">
+                    <div className="flex justify-between items-center text-slate-600 border-b border-slate-100 pb-2.5">
                       <span>Facteurs humains de base</span>
-                      <span className="font-bold text-white">{currentScore.agePoints + currentScore.eduPoints + currentScore.frenchTotal + currentScore.englishTotal + currentScore.canadianWorkPoints} pts</span>
+                      <span className="font-black text-slate-900 text-sm">{currentScore.agePoints + currentScore.eduPoints + currentScore.frenchTotal + currentScore.englishTotal + currentScore.canadianWorkPoints} pts</span>
                     </div>
-                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                    <div className="flex justify-between items-center text-slate-600 border-b border-slate-100 pb-2.5">
                       <span>Facteurs conjoint</span>
-                      <span className="font-bold text-white">{currentScore.spouseTotal} pts</span>
+                      <span className="font-black text-slate-900 text-sm">{currentScore.spouseTotal} pts</span>
                     </div>
-                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                    <div className="flex justify-between items-center text-slate-600 border-b border-slate-100 pb-2.5">
                       <span>Transférabilité des compétences</span>
-                      <span className="font-bold text-white">{currentScore.transferabilityTotal} pts</span>
+                      <span className="font-black text-slate-900 text-sm">{currentScore.transferabilityTotal} pts</span>
                     </div>
-                    <div className="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                    <div className="flex justify-between items-center text-slate-600 border-b border-slate-100 pb-2.5">
                       <span>Facteurs additionnels / Bonus</span>
-                      <span className="font-bold text-white">{currentScore.additionalTotal} pts</span>
+                      <span className="font-black text-slate-900 text-sm">{currentScore.additionalTotal} pts</span>
                     </div>
                   </div>
 
-                  <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 rounded-xl leading-relaxed">
-                    💡 <strong>Indication :</strong> Le seuil de tirage typique se situe actuellement entre <strong>490 et 540 points</strong>. Les tirages ciblant le français (bilingues) ont souvent des seuils beaucoup plus bas (autour de <strong>360 à 440 points</strong>) !
+                  {/* Encart Indication - FOND VERT PASTEL CLAIR + TEXTE VERT TRÈS SOMBRE ET CONTRASTÉ */}
+                  <div className="mt-6 p-4 bg-emerald-50/90 border border-emerald-300/80 rounded-2xl text-xs leading-relaxed shadow-xs">
+                    <div className="flex items-start gap-2.5">
+                      <span className="text-base select-none mt-0.5">💡</span>
+                      <div>
+                        <strong className="font-bold text-emerald-950 text-xs block mb-1">Indication :</strong>
+                        <p className="text-emerald-900 font-medium leading-relaxed">
+                          Le seuil de tirage typique se situe actuellement entre <strong className="font-extrabold text-emerald-950">490 et 540 points</strong>. Les tirages ciblant le français (bilingues) ont souvent des seuils beaucoup plus bas (autour de <strong className="font-extrabold text-emerald-950">360 à 440 points</strong>) !
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -743,12 +754,12 @@ export default function CrsCalculatorPage() {
             )}
 
             {/* Simulateur interactif "Et si..." (WOW FACTOR) */}
-            <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-6">
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-6">
               <div className="flex items-center gap-2 select-none">
-                <span className="text-xl">🚀</span>
+                <span className="text-2xl">🚀</span>
                 <div>
-                  <h3 className="font-bold text-white text-sm font-display">Simulateur d'Objectif</h3>
-                  <p className="text-[10px] text-slate-500 font-semibold">Découvrez l'effet de votre progression en français</p>
+                  <h3 className="font-black text-slate-900 text-sm font-display">Simulateur d'Objectif</h3>
+                  <p className="text-[11px] text-slate-500 font-medium">Découvrez l'effet de votre progression en français</p>
                 </div>
               </div>
 
@@ -756,8 +767,8 @@ export default function CrsCalculatorPage() {
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-xs font-bold mb-2">
-                    <span className="text-slate-400">Objectif français :</span>
-                    <span className="text-blue-400">NCLC {targetFrenchNclc}</span>
+                    <span className="text-slate-700">Objectif français :</span>
+                    <span className="text-[#1B3A6B] font-black text-sm">NCLC {targetFrenchNclc}</span>
                   </div>
                   <input
                     type="range"
@@ -765,9 +776,9 @@ export default function CrsCalculatorPage() {
                     max={10}
                     value={targetFrenchNclc}
                     onChange={e => setTargetFrenchNclc(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-850 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1B3A6B]"
                   />
-                  <div className="flex justify-between text-[9px] text-slate-500 font-bold mt-1">
+                  <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-1.5">
                     <span>NCLC 4</span>
                     <span>NCLC 7 (Seuil)</span>
                     <span>NCLC 9 (Objectif)</span>
@@ -776,36 +787,36 @@ export default function CrsCalculatorPage() {
                 </div>
 
                 {/* Score gain display */}
-                <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-850 text-center space-y-1">
-                  <p className="text-xs text-slate-400 font-medium">Votre score avec cet objectif :</p>
-                  <p className="text-4xl font-extrabold text-white font-display">
+                <div className="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl text-center space-y-1.5">
+                  <p className="text-xs text-slate-600 font-medium">Votre score avec cet objectif :</p>
+                  <p className="text-4xl font-black text-slate-900 font-display">
                     {simulatedScore.grandTotal} <span className="text-xs font-bold text-slate-500">pts</span>
                   </p>
                   
                   {scoreDiff > 0 ? (
-                    <div className="inline-block mt-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs px-3 py-1 rounded-full animate-bounce">
+                    <div className="inline-block mt-2 bg-emerald-100 border border-emerald-300 text-emerald-800 font-extrabold text-xs px-3.5 py-1 rounded-full animate-bounce">
                       🚀 Gain de +{scoreDiff} points !
                     </div>
                   ) : scoreDiff < 0 ? (
-                    <div className="inline-block mt-2 bg-rose-500/10 border border-rose-500/30 text-rose-400 font-extrabold text-xs px-3 py-1 rounded-full">
+                    <div className="inline-block mt-2 bg-rose-100 border border-rose-300 text-rose-800 font-extrabold text-xs px-3.5 py-1 rounded-full">
                       ⚠️ Actuellement configuré à un niveau supérieur
                     </div>
                   ) : (
-                    <p className="text-[10px] text-slate-500 mt-2 font-medium">C'est votre niveau actuel configuré à gauche</p>
+                    <p className="text-[11px] text-slate-500 mt-2 font-medium">C'est votre niveau actuel configuré à gauche</p>
                   )}
                 </div>
 
                 {/* Explication du gain */}
                 {scoreDiff > 0 && (
-                  <div className="text-xs text-slate-450 leading-relaxed space-y-2 select-none">
-                    <p className="font-bold text-slate-350">Comment ce gain s'explique :</p>
-                    <ul className="list-disc pl-4 space-y-1 font-medium">
+                  <div className="text-xs text-slate-600 leading-relaxed space-y-2 select-none bg-blue-50/40 border border-blue-100/80 p-4 rounded-2xl">
+                    <p className="font-bold text-slate-900">Comment ce gain s'explique :</p>
+                    <ul className="list-disc pl-4 space-y-1 font-medium text-slate-700">
                       {targetFrenchNclc >= 7 && (
-                        <li><strong>Bonus Bilingue IRCC :</strong> Déblocage automatique de +25 à +50 points additionnels.</li>
+                        <li><strong className="text-slate-900">Bonus Bilingue IRCC :</strong> Déblocage automatique de +25 à +50 points additionnels.</li>
                       )}
-                      <li><strong>Compétences accrues :</strong> Augmentation des points du capital humain (+31 à +34 points par épreuve).</li>
+                      <li><strong className="text-slate-900">Compétences accrues :</strong> Augmentation des points du capital humain (+31 à +34 points par épreuve).</li>
                       {targetFrenchNclc >= 7 && inputs.education !== 'none' && inputs.education !== 'highschool' && (
-                        <li><strong>Transférabilité d'études :</strong> Déblocage de points bonus combinés (+25 à +50 points).</li>
+                        <li><strong className="text-slate-900">Transférabilité d'études :</strong> Déblocage de points bonus combinés (+25 à +50 points).</li>
                       )}
                     </ul>
                   </div>
@@ -813,14 +824,14 @@ export default function CrsCalculatorPage() {
               </div>
 
               {/* CTA direct vers la préparation */}
-              <div className="bg-gradient-to-b from-blue-950/20 to-slate-900 border border-blue-500/15 rounded-2xl p-5 text-center space-y-4">
+              <div className="bg-gradient-to-br from-blue-50 via-indigo-50/40 to-white border border-blue-200/80 rounded-2xl p-5 text-center space-y-3 shadow-xs">
                 <div>
-                  <p className="text-xs font-bold text-blue-300 select-none">Prêt à décrocher votre visa canadien ?</p>
-                  <p className="text-[10px] text-slate-400 mt-1 font-medium">Atteignez le niveau NCLC {targetFrenchNclc === 9 ? '9' : '9 ou plus'} grâce à notre programme de préparation intensif.</p>
+                  <p className="text-xs font-bold text-[#1B3A6B] select-none">Prêt à décrocher votre visa canadien ?</p>
+                  <p className="text-[11px] text-slate-600 mt-1 font-medium">Atteignez le niveau NCLC {targetFrenchNclc === 9 ? '9' : '9 ou plus'} grâce à notre programme de préparation intensif.</p>
                 </div>
                 <Link
                   to="/register"
-                  className="block w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl hover:opacity-95 shadow-md shadow-emerald-500/10 transition-all text-center"
+                  className="block w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl hover:opacity-95 shadow-md shadow-blue-500/15 transition-all text-center"
                 >
                   S'inscrire gratuitement &amp; s'entraîner
                 </Link>
@@ -830,17 +841,17 @@ export default function CrsCalculatorPage() {
         </div>
 
         {/* Notes explicatives sur le barème */}
-        <div className="bg-slate-900/20 border border-slate-800/80 backdrop-blur-sm rounded-3xl p-6 mt-12 text-xs text-slate-400 space-y-4 select-none">
-          <h4 className="font-bold text-white text-sm">À propos du barème de calcul CRS (Comprehensive Ranking System)</h4>
-          <p className="leading-relaxed font-medium">Le CRS est le système basé sur des points utilisé par le gouvernement canadien pour évaluer et classer les candidats dans le bassin d'Entrée Express. Les points sont calculés en fonction des informations fournies (âge, niveau d'études, compétences linguistiques, expérience de travail).</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 leading-relaxed font-medium">
-            <div>
-              <p className="font-bold text-slate-300 mb-1">Règle du Bilinguisme d'Immigration Canada :</p>
-              <p>IRCC accorde une importance critique au français. Si vous atteignez un niveau minimum de <strong>NCLC 7 dans les 4 compétences</strong> (Compréhension Orale, Écrite, Expression Écrite, Orale) en français, vous gagnez un bonus automatique de <strong>25 points</strong> (ou <strong>50 points</strong> si vous avez également un score d'anglais de CLB 5 ou supérieur).</p>
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-6 mt-12 text-xs text-slate-600 space-y-4 select-none shadow-sm">
+          <h4 className="font-bold text-slate-900 text-sm font-display">À propos du barème de calcul CRS (Comprehensive Ranking System)</h4>
+          <p className="leading-relaxed font-normal text-slate-600">Le CRS est le système basé sur des points utilisé par le gouvernement canadien pour évaluer et classer les candidats dans le bassin d'Entrée Express. Les points sont calculés en fonction des informations fournies (âge, niveau d'études, compétences linguistiques, expérience de travail).</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 leading-relaxed font-normal">
+            <div className="p-4 bg-slate-50 border border-slate-200/70 rounded-2xl">
+              <p className="font-bold text-[#1B3A6B] mb-1">Règle du Bilinguisme d'Immigration Canada :</p>
+              <p className="text-slate-600 leading-relaxed font-normal">IRCC accorde une importance critique au français. Si vous atteignez un niveau minimum de <strong className="text-slate-900 font-bold">NCLC 7 dans les 4 compétences</strong> (Compréhension Orale, Écrite, Expression Écrite, Orale) en français, vous gagnez un bonus automatique de <strong className="text-slate-900 font-bold">25 points</strong> (ou <strong className="text-slate-900 font-bold">50 points</strong> si vous avez également un score d'anglais de CLB 5 ou supérieur).</p>
             </div>
-            <div>
-              <p className="font-bold text-slate-300 mb-1">Impact sur la Transférabilité :</p>
-              <p>Obtenir un niveau NCLC 9 en français combiné avec un diplôme d'études universitaires ou de l'expérience professionnelle à l'étranger permet de maximiser la section "Transférabilité des compétences", débloquant des dizaines de points supplémentaires essentiels pour être invité.</p>
+            <div className="p-4 bg-slate-50 border border-slate-200/70 rounded-2xl">
+              <p className="font-bold text-[#1B3A6B] mb-1">Impact sur la Transférabilité :</p>
+              <p className="text-slate-600 leading-relaxed font-normal">Obtenir un niveau NCLC 9 en français combiné avec un diplôme d'études universitaires ou de l'expérience professionnelle à l'étranger permet de maximiser la section "Transférabilité des compétences", débloquant des dizaines de points supplémentaires essentiels pour être invité.</p>
             </div>
           </div>
         </div>

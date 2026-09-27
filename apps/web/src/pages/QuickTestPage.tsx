@@ -63,7 +63,7 @@ const DEMO_QUESTIONS = [
   {
     id: 'demo-5',
     module: 'CE',
-    question: 'Extrait : "Le gouvernement a annoncé une hausse de 3% du SMIC, mesure saluité par les syndicats mais jugée insuffisante par les associations de travailleurs précaires." Quel groupe est INSATISFAIT de cette décision ?',
+    question: 'Extrait : "Le gouvernement a annoncé une hausse de 3 % du SMIC, mesure saluée par les syndicats mais jugée insuffisante par les associations de travailleurs précaires." Quel groupe est INSATISFAIT de cette décision ?',
     options: {
       A: "Le gouvernement",
       B: "Les syndicats",
@@ -71,7 +71,7 @@ const DEMO_QUESTIONS = [
       D: "Le patronat"
     },
     correct: 'C',
-    explanation: "'Jugée insuffisante' = pas assez selon eux = insatisfaction. 'Saluée' par les syndicats = ils approuvent. Les associations de précaires estiment que la hausse n'est pas assez importante."
+    explanation: "'Jugée insuffisante' = pas assez selon eux = insatisfaction. 'Saluée' par les syndicats = ils approuvent. Les associations de travailleurs précaires estiment que la hausse n'est pas assez importante."
   }
 ]
 

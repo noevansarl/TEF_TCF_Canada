@@ -9,6 +9,10 @@ export default {
         secondary: { DEFAULT: '#C55A11', light: '#e06515' },
         success:   '#1E7145',
         error:     '#C00000',
+        slate: {
+          850: '#141c2e',
+          955: '#070b14',
+        },
       },
       fontFamily: {
         sans:  ['Inter', 'system-ui', 'sans-serif'],
