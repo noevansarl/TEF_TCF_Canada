@@ -50,7 +50,10 @@ POUR QUI ?
 - Candidats devant présenter le TCF Canada ou le TEF Canada dans les prochaines semaines
 - Toute personne souhaitant évaluer et améliorer son niveau de français selon le CECRL
 
-ayePREP est un organisme indépendant de préparation linguistique. Les marques TCF et TEF appartiennent à leurs organismes respectifs.
+⚠️ AVIS IMPORTANT
+ayePREP est un organisme indépendant de préparation linguistique. Nous ne sommes affiliés à aucun gouvernement, ni au gouvernement du Canada, ni à Immigration, Réfugiés et Citoyenneté Canada (IRCC), ni aux organismes TCF/TEF. Les marques TCF et TEF appartiennent à leurs organismes respectifs (France Éducation International et CCI Paris Île-de-France).
+
+Les informations sur le NCLC, le Système de classement global (CRS) et le programme Entrée Express sont fournies à titre indicatif uniquement, à des fins de préparation aux examens. Pour les informations officielles et à jour sur l'immigration canadienne, consultez la source officielle du gouvernement du Canada : https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express.html
 
 Téléchargez ayePREP dès maintenant et préparez-vous comme si c'était le vrai jour J.
 ```
