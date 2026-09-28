@@ -482,6 +482,11 @@ class _NclcCalculatorScreenState extends State<NclcCalculatorScreen> {
                   }).toList(),
                 ),
               ],
+              const SizedBox(height: 24),
+              const Text(
+                "ayePREP n'est pas affilié au gouvernement du Canada ni à Immigration, Réfugiés et Citoyenneté Canada (IRCC). Ces tables sont basées sur les barèmes officiels IRCC 2026 et fournies à titre indicatif uniquement. Consultez le site officiel d'IRCC (canada.ca) pour les informations officielles.",
+                style: TextStyle(color: Colors.white38, fontSize: 11, height: 1.4),
+              ),
             ],
           ),
         ),

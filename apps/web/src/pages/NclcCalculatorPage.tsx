@@ -409,8 +409,8 @@ export default function NclcCalculatorPage() {
 
           {/* Informations légales */}
           <p className="text-center text-xs text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto mt-8">
-            Les tables de conversion sont basées sur les barèmes officiels IRCC 2026.
-            Ce calculateur est fourni à titre indicatif.
+ayePREP n'est pas affilié au gouvernement du Canada ni à Immigration, Réfugiés et Citoyenneté Canada (IRCC).
+            Les tables de conversion sont basées sur les barèmes officiels IRCC 2026 et fournies à titre indicatif uniquement.
             Consultez le site officiel d'<a href="https://www.canada.ca/fr/immigration-refugies-citoyennete.html" target="_blank" rel="noopener noreferrer" className="underline font-bold text-slate-500 hover:text-slate-700 transition-colors">IRCC</a> pour les informations officielles.
           </p>
         </div>

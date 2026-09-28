@@ -855,6 +855,13 @@ export default function CrsCalculatorPage() {
             </div>
           </div>
         </div>
+
+        {/* Disclaimer de non-affiliation gouvernementale */}
+        <p className="text-center text-xs text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto mt-8">
+          ayePREP n'est pas affilié au gouvernement du Canada ni à Immigration, Réfugiés et Citoyenneté Canada (IRCC).
+          Ce barème est basé sur le système officiel du CRS et fourni à titre indicatif uniquement.
+          Consultez le site officiel d'<a href="https://www.canada.ca/fr/immigration-refugies-citoyennete.html" target="_blank" rel="noopener noreferrer" className="underline font-bold text-slate-500 hover:text-slate-700 transition-colors">IRCC</a> pour les informations officielles.
+        </p>
       </div>
     </div>
   )
