@@ -783,6 +783,11 @@ export default function LandingPage() {
         </div>
         <div className="footer__bottom">
           <p>© 2026 ayePREP. Tous droits réservés. Hébergé en Europe (RGPD conforme).</p>
+          <p>
+            Un produit édité par{' '}
+            <a href="https://ayegroupe.com" target="_blank" rel="noopener">AYEGROUPE</a>
+            {' '}— ingénierie logicielle, négoce et logistique.
+          </p>
         </div>
       </footer>
     </div>
