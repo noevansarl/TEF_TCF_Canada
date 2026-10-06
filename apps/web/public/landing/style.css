@@ -736,6 +736,15 @@ ul[role="list"] { list-style: none; }
   padding: calc(var(--space) * 3) 0;
   text-align: center; font-size: 0.8125rem;
 }
+/* Lien en pleine phrase, contrairement aux listes de .footer__col : sans
+   couleur ni soulignement propres il heritait du texte voisin et rien ne
+   signalait qu'il etait cliquable. */
+.footer__bottom a { color: #fff; font-weight: 600; text-decoration: underline;
+                    text-underline-offset: 2px; text-decoration-thickness: 1px;
+                    text-decoration-color: rgba(255,255,255,.4);
+                    transition: text-decoration-color var(--transition); }
+.footer__bottom a:hover,
+.footer__bottom a:focus-visible { text-decoration-color: #fff; }
 
 /* ===== ANIMATIONS D'ENTRÉE ===== */
 [data-animate] {
