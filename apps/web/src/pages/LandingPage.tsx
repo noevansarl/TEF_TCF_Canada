@@ -728,7 +728,7 @@ export default function LandingPage() {
               <a href="#" aria-label="Instagram">Insta</a>
               <a href="https://www.facebook.com/profile.php?id=61594160280409" target="_blank" rel="noopener noreferrer" aria-label="Facebook">FB</a>
               <a href="#" aria-label="YouTube">YT</a>
-              <a href="#" aria-label="TikTok">TikTok</a>
+              <a href="https://www.tiktok.com/@ayegroupe" target="_blank" rel="noopener noreferrer" aria-label="TikTok">TikTok</a>
             </div>
           </div>
           <nav className="footer__nav" aria-label="Liens du bas de page">
