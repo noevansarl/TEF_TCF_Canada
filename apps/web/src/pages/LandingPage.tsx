@@ -114,7 +114,7 @@ export default function LandingPage() {
               <li><Link to="/packs" onClick={() => setBurgerOpen(false)} className="nav__link">Packs & Tarifs</Link></li>
               <li><Link to="/calculateur-nclc" onClick={() => setBurgerOpen(false)} className="nav__link">Calculateur NCLC</Link></li>
               <li><Link to="/simulateur-crs" onClick={() => setBurgerOpen(false)} className="nav__link">Simulateur CRS</Link></li>
-              <li><Link to="/reussites" onClick={() => setBurgerOpen(false)} className="nav__link">Témoignages</Link></li>
+              <li><Link to="/reussites" onClick={() => setBurgerOpen(false)} className="nav__link">Notre méthode</Link></li>
               <li><a href="#faq" onClick={() => setBurgerOpen(false)} className="nav__link">FAQ</a></li>
             </ul>
             <div className="nav__cta">
@@ -192,18 +192,18 @@ export default function LandingPage() {
           )}
           <div className="hero__stats">
             <div className="stat">
-              <span className="stat__number">25 000</span>
-              <span className="stat__label">Candidats formés</span>
+              <span className="stat__number">4</span>
+              <span className="stat__label">Épreuves officielles reproduites</span>
             </div>
             <div className="stat__divider" aria-hidden="true"></div>
             <div className="stat">
-              <span className="stat__number">92 %</span>
-              <span className="stat__label">de réussite B2+</span>
+              <span className="stat__number">2 000+</span>
+              <span className="stat__label">Sujets conformes au format 2026</span>
             </div>
             <div className="stat__divider" aria-hidden="true"></div>
             <div className="stat">
-              <span className="stat__number">2 000</span>
-              <span className="stat__label">Sujets originaux</span>
+              <span className="stat__number">14 jours</span>
+              <span className="stat__label">Garantie remboursé, sans condition</span>
             </div>
           </div>
         </div>
@@ -259,7 +259,7 @@ export default function LandingPage() {
               { icon: '📱', text: 'Web + iOS + Android' },
               { icon: '🔄', text: 'Sujets mis à jour chaque mois' },
               { icon: '🤖', text: 'Correction IA immédiate' },
-              { icon: '🏆', text: '95% de taux de réussite' },
+              { icon: '🔒', text: 'Données hébergées en Europe (RGPD)' },
               { icon: '🌍', text: 'Paiement Mobile Money disponible' },
             ].map(item => (
               <span key={item.text} className="benefit-item">
@@ -274,7 +274,7 @@ export default function LandingPage() {
       {/* ===== CONFIANCE ===== */}
       <section className="trust" aria-label="Références et certifications">
         <div className="container trust__content">
-          <p className="trust__label">Confiance accordée par des candidats de</p>
+          <p className="trust__label">Conçu pour les candidats francophones de</p>
           <div className="trust__flags" aria-label="Pays représentés">
             <span>🇫🇷</span><span>🇨🇲</span><span>🇸🇳</span><span>🇲🇦</span>
             <span>🇩🇿</span><span>🇹🇳</span><span>🇨🇮</span><span>🇧🇯</span>
@@ -617,40 +617,32 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== TEMOIGNAGES ===== */}
-      <section className="testimonials" id="temoignages">
+      {/* ===== CONFIANCE / GARANTIE ===== */}
+      <section className="testimonials" id="confiance">
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">Témoignages</span>
-            <h2 className="section-title">Ils ont réussi. Vous le pouvez aussi.</h2>
+            <span className="section-tag">Pourquoi nous faire confiance</span>
+            <h2 className="section-title">Une rigueur vérifiable, pas des promesses en l'air</h2>
+            <p className="section-subtitle">
+              ayePREP vient de lancer. Plutôt que d'inventer des chiffres, voici exactement ce qu'on peut vous garantir dès aujourd'hui.
+            </p>
           </div>
-          <div className="testimonials__slider" role="region" aria-label="Témoignages clients">
-            <div className="testimonials__track" style={{ gap: '24px' }}>
-              <article className="testimonial-card">
-                <div className="testimonial-card__rating">★★★★★</div>
-                <blockquote className="testimonial-card__quote">
-                  "Après 3 mois sur ayePREP, j'ai obtenu C1 au TCF Canada 
-                  avec 498 points. Les simulations en conditions réelles m'ont préparée. Les corrections IA étaient parfaites."
-                </blockquote>
-                <cite className="testimonial-card__author">
-                  <div className="testimonial-card__avatar">AS</div>
-                  <div>
-                    <strong>Aminata S.</strong>
-                    <span>Sénégal → Montréal</span>
-                    <span className="testimonial-card__score text-success font-bold block text-xs">TCF: 498 pts (C1)</span>
-                  </div>
-                </cite>
-              </article>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div className="bg-white border border-slate-200/70 rounded-2xl p-6 text-center">
+              <div className="text-3xl mb-3">⏱️</div>
+              <h3 className="font-bold text-slate-900 mb-2">Format strictement officiel</h3>
+              <p className="text-sm text-slate-600">Durées, nombre de questions et structure identiques à l'examen réel — pas d'approximation.</p>
             </div>
-          </div>
-          {/* CTA vers la page témoignages complète */}
-          <div className="text-center mt-8">
-            <Link
-              to="/reussites"
-              className="inline-flex items-center gap-2 text-[#1B3A6B] font-bold hover:underline text-sm"
-            >
-              🌟 Voir tous les témoignages (4 800+ candidats) →
-            </Link>
+            <div className="bg-white border border-slate-200/70 rounded-2xl p-6 text-center">
+              <div className="text-3xl mb-3">💳</div>
+              <h3 className="font-bold text-slate-900 mb-2">Remboursé sous 14 jours</h3>
+              <p className="text-sm text-slate-600">Sans condition ni justification si ayePREP ne vous convient pas. <Link to="/remboursement" className="underline">Voir la politique</Link>.</p>
+            </div>
+            <div className="bg-white border border-slate-200/70 rounded-2xl p-6 text-center">
+              <div className="text-3xl mb-3">🆓</div>
+              <h3 className="font-bold text-slate-900 mb-2">Testez avant de payer</h3>
+              <p className="text-sm text-slate-600">Test de niveau et exercices gratuits, sans carte bancaire, pour juger la qualité par vous-même.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -713,7 +705,7 @@ export default function LandingPage() {
             Votre score <span style={{ background: 'linear-gradient(135deg, #C55A11 0%, #F59E0B 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: 800 }}>C2</span> commence aujourd'hui.
           </h2>
           <p style={{ opacity: 0.85, marginBottom: '24px', fontSize: '1.125rem' }}>
-            Rejoignez 25 000 candidats qui ont choisi la rigueur des conditions réelles.
+            Testez gratuitement la rigueur des conditions réelles — remboursé sous 14 jours si ça ne vous convient pas.
           </p>
           <Link to={user ? "/dashboard" : "/register"} className="btn btn--white btn--lg">
             Créer mon compte gratuit — c'est immédiat
@@ -746,7 +738,7 @@ export default function LandingPage() {
                 <li><a href="#modules">Modules</a></li>
                 <li><a href="#tarifs">Tarifs</a></li>
                 <li><Link to="/packs">Packs à durée limitée</Link></li>
-                <li><Link to="/reussites">Témoignages</Link></li>
+                <li><Link to="/reussites">Notre méthode</Link></li>
                 <li><Link to="/affiliation">Programme d'affiliation</Link></li>
                 <li><Link to="/blog">Le Blog SEO</Link></li>
               </ul>

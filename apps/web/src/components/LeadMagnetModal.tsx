@@ -185,7 +185,7 @@ Accédez à plus de 2 000 sujets réels et simulations chronométrées sur :
             Téléchargez la Checklist 30 Jours & Guide Ultime {exam === 'TCF_CANADA' ? 'TCF' : 'TEF'} Canada
           </h3>
           <p className="text-xs md:text-sm text-slate-300 mb-6 leading-relaxed">
-            Rejoignez plus de 25 000 candidats. Découvrez les 39 pièges fréquents, les connecteurs indispensables pour C1/C2 et le calendrier d'entraînement quotidien.
+            Gratuit, sans carte bancaire. Découvrez les 39 pièges fréquents, les connecteurs indispensables pour C1/C2 et le calendrier d'entraînement quotidien.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
