@@ -16,7 +16,10 @@ export default function LandingPage() {
     "description": "Plateforme n°1 de préparation au TCF Canada et TEF Canada.",
     "url": "https://ayeprep.com",
     "inLanguage": "fr",
-    "sameAs": ["https://www.youtube.com/@ayeprep"],
+    "sameAs": [
+      "https://www.facebook.com/profile.php?id=61594160280409",
+      "https://www.instagram.com/ayeprep.ca"
+    ],
     "contactPoint": { "@type": "ContactPoint", "contactType": "customer support", "availableLanguage": "French" }
   })
 
@@ -725,7 +728,7 @@ export default function LandingPage() {
             </Link>
             <p className="footer__tagline">Préparez-vous comme si c'était le vrai jour J.</p>
             <div className="footer__social">
-              <a href="#" aria-label="Instagram">Insta</a>
+              <a href="https://www.instagram.com/ayeprep.ca" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Insta</a>
               <a href="https://www.facebook.com/profile.php?id=61594160280409" target="_blank" rel="noopener noreferrer" aria-label="Facebook">FB</a>
               <a href="#" aria-label="YouTube">YT</a>
               <a href="https://www.tiktok.com/@ayegroupe" target="_blank" rel="noopener noreferrer" aria-label="TikTok">TikTok</a>
