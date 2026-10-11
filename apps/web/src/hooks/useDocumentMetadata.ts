@@ -11,7 +11,7 @@ export interface DocumentMetadataOptions {
 export function useDocumentMetadata({
   title,
   description,
-  image = 'https://ayeprep.com/logoayePREP.png',
+  image = 'https://ayeprep.com/og-image.png',
   url = typeof window !== 'undefined' ? window.location.href : 'https://ayeprep.com',
   type = 'website'
 }: DocumentMetadataOptions) {
