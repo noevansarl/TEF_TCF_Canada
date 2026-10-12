@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 import { YouTubeSection } from '../components/YouTubeSection'
+import { InfoTicker } from '../components/InfoTicker'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -228,6 +229,8 @@ export default function DashboardPage() {
             Préparez-vous à votre propre rythme et suivez votre évolution vers le niveau C2.
           </p>
         </div>
+
+        <InfoTicker />
 
         {/* Diagnostic Banner */}
         {!hasAssessedLevel && (
