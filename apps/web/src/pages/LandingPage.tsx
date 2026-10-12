@@ -438,6 +438,10 @@ export default function LandingPage() {
           <div className="section-header">
             <span className="section-tag">Tarification</span>
             <h2 className="section-title">Un plan pour chaque objectif</h2>
+            <p className="section-subtitle">
+              Abonnements mensuels, sans engagement.
+              Vous préférez payer en une fois sans renouvellement automatique ? <Link to="/packs" className="underline font-bold">Voir nos packs à durée fixe</Link> (Mobile Money disponible).
+            </p>
           </div>
           <div className="pricing__toggle" role="group">
             <button 

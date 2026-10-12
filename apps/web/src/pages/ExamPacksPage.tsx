@@ -152,6 +152,17 @@ export default function ExamPacksPage() {
           )}
         </div>
 
+        {/* Aide à la décision : pack vs abonnement */}
+        <div className="bg-[#1B3A6B]/5 border border-[#1B3A6B]/15 rounded-2xl px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <p className="text-xs text-slate-600 font-medium">
+            💡 Les packs ci-dessous sont des accès <strong className="text-slate-900">à durée fixe, sans renouvellement automatique</strong> — idéal si vous visez une date d'examen précise.
+            Vous préférez un accès continu sans limite de durée ?
+          </p>
+          <a href="/#tarifs" className="shrink-0 text-xs font-black text-[#1B3A6B] hover:underline whitespace-nowrap">
+            Voir les abonnements mensuels →
+          </a>
+        </div>
+
         {/* Grille des packs */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {PACKS.map(pack => (
