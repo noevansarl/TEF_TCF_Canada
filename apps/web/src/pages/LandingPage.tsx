@@ -730,7 +730,7 @@ export default function LandingPage() {
             <div className="footer__social">
               <a href="https://www.instagram.com/ayeprep.ca" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Insta</a>
               <a href="https://www.facebook.com/profile.php?id=61594160280409" target="_blank" rel="noopener noreferrer" aria-label="Facebook">FB</a>
-              <a href="#" aria-label="YouTube">YT</a>
+              <a href="https://www.youtube.com/@ayeWeb" target="_blank" rel="noopener noreferrer" aria-label="YouTube">YT</a>
               <a href="https://www.tiktok.com/@ayegroupe" target="_blank" rel="noopener noreferrer" aria-label="TikTok">TikTok</a>
             </div>
           </div>
