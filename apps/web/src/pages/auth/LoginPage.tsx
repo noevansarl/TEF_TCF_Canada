@@ -161,12 +161,7 @@ export default function LoginPage() {
         {/* Left Column - Form */}
         <div className="p-6 sm:p-10 md:p-14 flex flex-col justify-center">
           <div className="mb-10 flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-tr from-[#1B3A6B] to-[#2E75B6] rounded-xl shadow-lg shadow-[#1B3A6B]/20">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 14l9-5-9-5-9 5 9 5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-              </svg>
-            </div>
+            <img src="/logoayePREP-emblem.png" alt="ayePREP" className="w-11 h-11 object-contain" />
             <div className="flex flex-col">
               <span className="text-white font-black text-sm tracking-[0.2em] leading-none">ayePREP</span>
             </div>
