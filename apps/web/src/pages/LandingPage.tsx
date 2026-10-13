@@ -108,7 +108,7 @@ export default function LandingPage() {
       <header className="header scrolled" id="header">
         <nav className="nav container">
           <Link to="/" className="nav__logo" aria-label="Accueil ayePREP" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/logoayePREP.png" alt="ayePREP Logo" className="w-12 h-12 object-contain" />
+            <img src="/logoayePREP.png" alt="ayePREP Logo" className="h-10 w-auto object-contain" />
           </Link>
           <div className={`nav__menu ${burgerOpen ? 'nav__menu--open' : ''}`}>
             <ul className="nav__links" role="list">
@@ -728,7 +728,7 @@ export default function LandingPage() {
         <div className="container footer__content">
           <div className="footer__brand">
             <Link to="/" className="footer__logo" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              <img src="/logoayePREP.png" alt="ayePREP Logo" className="w-12 h-12 object-contain" />
+              <img src="/logoayePREP-emblem.png" alt="ayePREP Logo" className="w-12 h-12 object-contain" />
             </Link>
             <p className="footer__tagline">Préparez-vous comme si c'était le vrai jour J.</p>
             <div className="footer__social">

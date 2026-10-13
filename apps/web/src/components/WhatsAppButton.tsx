@@ -39,7 +39,7 @@ export function WhatsAppButton() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <img 
-                  src="/logoayePREP.png" 
+                  src="/logoayePREP-emblem.png"
                   alt="ayePREP Support" 
                   className="w-10 h-10 rounded-full bg-white object-contain border border-emerald-500/20"
                 />
