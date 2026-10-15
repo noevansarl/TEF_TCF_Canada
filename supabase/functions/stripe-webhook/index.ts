@@ -1,28 +1,106 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14'
+import { PACKS, grantPack } from '../_shared/packs.ts'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-04-10' })
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
 
+// price_id → plan
 const getPlanMap = () => {
+  const entries: [string | undefined, string][] = [
+    [Deno.env.get('STRIPE_PRICE_ESSENTIEL_MONTHLY'), 'essentiel'],
+    [Deno.env.get('STRIPE_PRICE_ESSENTIEL_YEARLY'), 'essentiel'],
+    [Deno.env.get('STRIPE_PRICE_AVANCE_MONTHLY'), 'avance'],
+    [Deno.env.get('STRIPE_PRICE_AVANCE_YEARLY'), 'avance'],
+    [Deno.env.get('STRIPE_PRICE_PREMIUM_MONTHLY'), 'premium'],
+    [Deno.env.get('STRIPE_PRICE_PREMIUM_YEARLY'), 'premium'],
+  ]
   const map: Record<string, string> = {}
-  
-  const em = Deno.env.get('STRIPE_PRICE_ESSENTIEL_MONTHLY') || 'price_essentiel_monthly'
-  const ey = Deno.env.get('STRIPE_PRICE_ESSENTIEL_YEARLY') || 'price_essentiel_yearly'
-  const am = Deno.env.get('STRIPE_PRICE_AVANCE_MONTHLY') || 'price_avance_monthly'
-  const ay = Deno.env.get('STRIPE_PRICE_AVANCE_YEARLY') || 'price_avance_yearly'
-  const pm = Deno.env.get('STRIPE_PRICE_PREMIUM_MONTHLY') || 'price_premium_monthly'
-  const py = Deno.env.get('STRIPE_PRICE_PREMIUM_YEARLY') || 'price_premium_yearly'
-
-  map[em] = 'essentiel'
-  map[ey] = 'essentiel'
-  map[am] = 'avance'
-  map[ay] = 'avance'
-  map[pm] = 'premium'
-  map[py] = 'premium'
-  
+  for (const [priceId, plan] of entries) if (priceId) map[priceId] = plan
   return map
+}
+
+const SUBSCRIPTION_PLANS = ['essentiel', 'avance', 'premium']
+
+// Statut Stripe → statut table subscriptions
+const STATUS_MAP: Record<string, string> = {
+  active: 'active',
+  trialing: 'trialing',
+  past_due: 'past_due',   // Stripe relance encore le paiement : accès conservé
+  paused: 'paused',
+  canceled: 'cancelled',
+  unpaid: 'cancelled',
+  incomplete_expired: 'cancelled',
+}
+const ENTITLED = new Set(['active', 'trialing', 'past_due'])
+
+/**
+ * Synchronise un abonnement Stripe (création, renouvellement, changement, résiliation)
+ * vers les tables subscriptions et users. Idempotent.
+ */
+async function syncSubscription(supabase: SupabaseClient, sub: Stripe.Subscription, fallbackUserId?: string) {
+  const status = STATUS_MAP[sub.status]
+  if (!status) {
+    // 'incomplete' : premier paiement pas encore effectué → rien à accorder
+    console.log(`Abonnement ${sub.id} au statut ${sub.status} — ignoré`)
+    return
+  }
+
+  let userId = sub.metadata?.user_id || fallbackUserId
+  if (!userId) {
+    const { data, error } = await supabase.from('users').select('id')
+      .eq('stripe_customer_id', sub.customer as string).maybeSingle()
+    if (error) throw error
+    userId = data?.id
+  }
+  if (!userId) {
+    console.error(`Utilisateur introuvable pour l'abonnement ${sub.id}`)
+    return
+  }
+
+  const item = sub.items.data[0]
+  const price = item?.price
+  const plan = getPlanMap()[price?.id ?? '']
+  if (!plan) {
+    console.error(`Prix inconnu ${price?.id} pour l'abonnement ${sub.id}`)
+    return
+  }
+
+  const expiresAt = new Date(sub.current_period_end * 1000).toISOString()
+
+  const { error: subError } = await supabase.from('subscriptions').upsert({
+    user_id: userId,
+    plan,
+    billing_period: price.recurring?.interval === 'year' ? 'yearly' : 'monthly',
+    stripe_sub_id: sub.id,
+    stripe_price_id: price.id,
+    platform: 'web',
+    status,
+    trial_end: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+    expires_at: expiresAt,
+    cancel_at_period_end: sub.cancel_at_period_end,
+    cancelled_at: sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null,
+    amount_paid: (price.unit_amount ?? 0) / 100,
+    currency: (price.currency ?? 'eur').toUpperCase(),
+  }, { onConflict: 'stripe_sub_id' })
+  if (subError) throw subError
+
+  if (ENTITLED.has(status)) {
+    const { error } = await supabase.from('users').update({
+      subscription_tier: plan,
+      subscription_expires_at: expiresAt,
+      stripe_customer_id: sub.customer as string,
+    }).eq('id', userId)
+    if (error) throw error
+  } else {
+    // Ne rétrograde que si l'utilisateur est toujours sur un abonnement (pas un pack actif)
+    const { error } = await supabase.from('users').update({
+      subscription_tier: 'gratuit',
+      subscription_expires_at: null,
+    }).eq('id', userId).in('subscription_tier', SUBSCRIPTION_PLANS)
+    if (error) throw error
+  }
 }
 
 serve(async (req: Request) => {
@@ -57,7 +135,6 @@ serve(async (req: Request) => {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const userId = session.metadata?.user_id
-        const priceId = session.metadata?.price_id
         const packId = session.metadata?.pack_id
 
         if (!userId) {
@@ -65,121 +142,70 @@ serve(async (req: Request) => {
           break
         }
 
-        // ── Case 1: Pack Purchase (CAD Payment via Stripe) ─────────────────
+        // ── Achat de pack (paiement unique) ──────────────────────────────
         if (session.mode === 'payment' && packId) {
-          const PACKS: Record<string, { duration_days: number; ai_trials: number; co_tests: number; ce_tests: number; simulations: number }> = {
-            bronze:   { duration_days: 5,  ai_trials: 3,  co_tests: 40,  ce_tests: 40,  simulations: 1  },
-            silver:   { duration_days: 30, ai_trials: 8,  co_tests: 120, ce_tests: 120, simulations: 5  },
-            gold:     { duration_days: 60, ai_trials: 15, co_tests: 300, ce_tests: 300, simulations: 12 },
-            platinum: { duration_days: 90, ai_trials: 30, co_tests: -1,  ce_tests: -1,  simulations: -1 },
-          }
-
-          const pack = PACKS[packId]
-          if (pack) {
-            const expiresAt = new Date()
-            expiresAt.setDate(expiresAt.getDate() + pack.duration_days)
-
-            // Idempotency: verify if already processed
-            const { data: existingPack } = await supabase
-              .from('user_pack_subscriptions')
-              .select('id')
-              .eq('stripe_payment_intent_id', session.payment_intent as string)
-              .maybeSingle()
-
-            if (!existingPack) {
-              await supabase.from('user_pack_subscriptions').insert({
-                user_id: userId,
-                pack_id: packId,
-                expires_at: expiresAt.toISOString(),
-                payment_method: 'stripe',
-                payment_currency: session.currency?.toUpperCase() ?? 'CAD',
-                amount_paid: (session.amount_total ?? 0) / 100,
-                ai_trials_remaining: pack.ai_trials,
-                co_tests_remaining: pack.co_tests,
-                ce_tests_remaining: pack.ce_tests,
-                simulations_remaining: pack.simulations,
-                status: 'active',
-                stripe_payment_intent_id: session.payment_intent as string,
-              })
-
-              await supabase.from('users').update({
-                active_pack_id: packId,
-                pack_expires_at: expiresAt.toISOString(),
-                subscription_tier: packId,
-              }).eq('id', userId)
-
-              console.log(`✅ Pack ${packId} activé via Stripe pour user ${userId}`)
-            }
-          }
-        }
-        // ── Case 2: Subscription Purchase ──────────────────────────────────
-        else if (session.mode === 'subscription' && session.subscription) {
-          const subId = session.subscription as string
-          const planMap = getPlanMap()
-          const plan = planMap[priceId ?? ''] ?? 'essentiel'
-
-          // Idempotency check: see if subscription has already been created/activated
-          const { data: existingSub } = await supabase
-            .from('subscriptions')
-            .select('id')
-            .eq('stripe_sub_id', subId)
-            .maybeSingle()
-
-          if (existingSub) {
-            console.log(`Stripe subscription ${subId} already processed (idempotent ignore)`)
+          if (session.payment_status !== 'paid') {
+            console.log(`Session ${session.id} non payée (${session.payment_status}) — ignorée`)
             break
           }
-
-          const sub = await stripe.subscriptions.retrieve(subId)
-          const expiresAt = new Date(sub.current_period_end * 1000).toISOString()
-
-          await supabase.from('users').update({
-            subscription_tier: plan,
-            subscription_expires_at: expiresAt,
-            stripe_customer_id: session.customer as string,
-          }).eq('id', userId)
-
-          await supabase.from('subscriptions').upsert({
-            user_id: userId,
-            plan,
-            stripe_sub_id: sub.id,
-            stripe_price_id: priceId,
-            status: 'active',
-            expires_at: expiresAt,
-            amount_paid: (session.amount_total ?? 0) / 100,
-            currency: session.currency?.toUpperCase() ?? 'EUR',
-            platform: 'web',
-          }, { onConflict: 'stripe_sub_id' })
+          if (!PACKS[packId]) {
+            console.error('Pack inconnu:', packId)
+            break
+          }
+          const result = await grantPack(supabase, {
+            userId,
+            packId,
+            paymentMethod: 'stripe',
+            currency: (session.currency ?? '').toUpperCase(),
+            amountPaid: (session.amount_total ?? 0) / 100,
+            stripePaymentIntentId: session.payment_intent as string,
+          })
+          if (result === 'created') console.log(`✅ Pack ${packId} activé via Stripe pour user ${userId}`)
+        }
+        // ── Abonnement ───────────────────────────────────────────────────
+        else if (session.mode === 'subscription' && session.subscription) {
+          const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+          await syncSubscription(supabase, sub, userId)
         }
         break
       }
 
-      case 'invoice.payment_failed': {
+      // Renouvellement payé → prolonge subscription_expires_at
+      case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice
-        await supabase.from('users').update({
-          subscription_tier: 'gratuit',
-        }).eq('stripe_customer_id', invoice.customer as string)
+        if (invoice.subscription) {
+          const sub = await stripe.subscriptions.retrieve(invoice.subscription as string)
+          await syncSubscription(supabase, sub)
+        }
         break
       }
 
-      case 'customer.subscription.deleted': {
-        const sub = event.data.object as Stripe.Subscription
-        await supabase.from('users').update({
-          subscription_tier: 'gratuit',
-          subscription_expires_at: null,
-        }).eq('stripe_customer_id', sub.customer as string)
+      // Échec de paiement : Stripe va relancer. On passe en past_due sans couper l'accès ;
+      // la coupure intervient via customer.subscription.updated/deleted si les relances échouent.
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice
+        if (invoice.subscription) {
+          const { error } = await supabase.from('subscriptions')
+            .update({ status: 'past_due' })
+            .eq('stripe_sub_id', invoice.subscription as string)
+          if (error) throw error
+        }
+        break
+      }
 
-        await supabase.from('subscriptions').update({
-          status: 'cancelled',
-          cancelled_at: new Date().toISOString(),
-        }).eq('stripe_sub_id', sub.id)
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
+        await syncSubscription(supabase, event.data.object as Stripe.Subscription)
         break
       }
     }
-  } catch (_err) {
-    console.error('Error processing webhook event:', event.type)
-    // Retourner 200 quand même pour éviter que Stripe ne retente indéfiniment
-    // (les erreurs de traitement sont loggées pour investigation)
+  } catch (err) {
+    // 500 → Stripe réessaiera automatiquement (traitement idempotent)
+    console.error(`Error processing webhook event ${event.type}:`, err)
+    return new Response(JSON.stringify({ error: 'Processing failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   return new Response(JSON.stringify({ received: true }), {

@@ -3,52 +3,66 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { supabase } from '../lib/supabase'
 
-const COUNTRY_OPERATORS: Record<string, { name: string, code: string, operators: { label: string, value: string }[] }> = {
+// Codes opérateurs FedaPay. Les modes « directs » (mtn_open, moov, sbin, mtn_ci, moov_tg,
+// togocel, free_sn) envoient un push USSD ; les autres (Orange, Wave…) passent par la
+// page de paiement sécurisée FedaPay (voir supabase/functions/_shared/fedapay.ts).
+const COUNTRY_OPERATORS: Record<string, { name: string, code: string, prefix: string, operators: { label: string, value: string }[] }> = {
   BJ: {
     name: 'Bénin',
     code: 'BJ',
+    prefix: '229',
     operators: [
       { label: 'MTN Mobile Money', value: 'mtn_open' },
-      { label: 'Moov Money', value: 'moov_money' }
+      { label: 'Moov Money', value: 'moov' },
+      { label: 'Celtiis Cash', value: 'sbin' }
     ]
   },
   TG: {
     name: 'Togo',
     code: 'TG',
+    prefix: '228',
     operators: [
-      { label: 'Moov Money (T-Money)', value: 'moov_money' }
+      { label: 'Moov Money (Flooz)', value: 'moov_tg' },
+      { label: 'T-Money (Togocel)', value: 'togocel' }
     ]
   },
   SN: {
     name: 'Sénégal',
     code: 'SN',
+    prefix: '221',
     operators: [
-      { label: 'Orange Money', value: 'orange_money_sn' },
-      { label: 'Wave', value: 'wave_money' }
+      { label: 'Free Money', value: 'free_sn' },
+      { label: 'Orange Money', value: 'orange_sn' },
+      { label: 'Wave', value: 'wave_sn' }
     ]
   },
   CI: {
     name: 'Côte d\'Ivoire',
     code: 'CI',
+    prefix: '225',
     operators: [
-      { label: 'Orange Money', value: 'orange_money_ci' },
-      { label: 'MTN Mobile Money', value: 'mtn_open' },
-      { label: 'Moov Money', value: 'moov_money' },
-      { label: 'Wave', value: 'wave_money' }
+      { label: 'MTN Mobile Money', value: 'mtn_ci' },
+      { label: 'Orange Money', value: 'orange_ci' },
+      { label: 'Moov Money', value: 'moov_ci' },
+      { label: 'Wave', value: 'wave_ci' }
     ]
   },
   CM: {
     name: 'Cameroun',
     code: 'CM',
+    prefix: '237',
     operators: [
-      { label: 'MTN Mobile Money', value: 'mtn_open' }
+      { label: 'MTN Mobile Money', value: 'mtn_cm' },
+      { label: 'Orange Money', value: 'orange_cm' }
     ]
   },
   ML: {
     name: 'Mali',
     code: 'ML',
+    prefix: '223',
     operators: [
-      { label: 'Orange Money', value: 'orange_money_ml' }
+      { label: 'Orange Money', value: 'orange_ml' },
+      { label: 'Moov Money', value: 'moov_ml' }
     ]
   }
 }
@@ -256,7 +270,7 @@ export default function SubscribePage() {
     setLoading(true)
     setErrorMessage(null)
 
-    const prefix = country === 'BJ' ? '229' : country === 'TG' ? '228' : country === 'SN' ? '221' : country === 'CI' ? '225' : country === 'CM' ? '237' : '223'
+    const prefix = COUNTRY_OPERATORS[country]?.prefix ?? '229'
     const fullPhone = `+${prefix}${phoneNumber.replace(/\s+/g, '')}`
 
     try {
@@ -266,8 +280,7 @@ export default function SubscribePage() {
           method: operator,
           phone_number: fullPhone,
           phone_country: country,
-          customer_name: customerName || user.email || 'Client ayePREP',
-          customer_email: user.email
+          customer_name: customerName || user.email || 'Client ayePREP'
         }
       })
 
@@ -286,6 +299,14 @@ export default function SubscribePage() {
       }
 
       setTransactionId(data.transaction_id)
+
+      // Opérateur sans push direct : le client finalise sur la page FedaPay,
+      // qui le renvoie ensuite sur /subscribe?id=…&status=…
+      if (data.mode === 'checkout' && data.payment_url) {
+        window.location.href = data.payment_url
+        return
+      }
+
       setPaymentStep('waiting')
 
       // Commencer la scrutation (polling)
@@ -300,30 +321,29 @@ export default function SubscribePage() {
 
   const startPolling = (txId: string) => {
     let attemptsCount = 0
-    const maxAttempts = 20 // 20 fois 3 secondes = 60 secondes maximum
+    const maxAttempts = 60 // 60 fois 5 secondes = 5 minutes maximum
 
     const interval = setInterval(async () => {
       attemptsCount++
       if (attemptsCount > maxAttempts) {
         clearInterval(interval)
-        setErrorMessage("Le délai de validation a expiré. Si vous avez été débité, veuillez contacter le support.")
+        setErrorMessage("Le délai de validation a expiré. Si vous avez été débité, votre pack sera activé automatiquement dès confirmation de l'opérateur ; sinon contactez le support.")
         setPaymentStep('error')
         return
       }
 
       try {
-        const { data, error } = await supabase
-          .from('payment_attempts')
-          .select('status')
-          .eq('fedapay_transaction_id', String(txId))
-          .maybeSingle()
+        // Vérifie le statut directement auprès de FedaPay (via l'Edge Function)
+        const { data, error } = await supabase.functions.invoke('fedapay-payment', {
+          body: { action: 'check', transaction_id: String(txId) }
+        })
 
         if (error) {
           console.error("Erreur lors de la vérification du statut :", error)
           return
         }
 
-        if (data?.status === 'completed') {
+        if (data?.status === 'approved') {
           clearInterval(interval)
           setPaymentStep('success')
         } else if (data?.status === 'declined' || data?.status === 'canceled') {
@@ -334,8 +354,33 @@ export default function SubscribePage() {
       } catch (err) {
         console.error("Erreur polling:", err)
       }
-    }, 3000)
+    }, 5000)
   }
+
+  // Retour depuis la page de paiement FedaPay : /subscribe?id=<transaction>&status=<statut>
+  const fedapayReturnId = searchParams.get('id')
+  useEffect(() => {
+    if (!fedapayReturnId || !user || !/^\d+$/.test(fedapayReturnId)) return
+    supabase.functions.invoke('fedapay-payment', {
+      body: { action: 'check', transaction_id: fedapayReturnId }
+    }).then(({ data }: { data: { status?: string, pack_id?: string } | null }) => {
+      const pack = PACKS.find(p => p.id === data?.pack_id)
+      if (!pack) return
+      setTab('pack')
+      setSelectedPack(pack)
+      setTransactionId(fedapayReturnId)
+      setShowFedaModal(true)
+      if (data?.status === 'approved') {
+        setPaymentStep('success')
+      } else if (data?.status === 'declined' || data?.status === 'canceled') {
+        setErrorMessage(data.status === 'declined' ? "La transaction a été rejetée par l'opérateur." : "La transaction a été annulée.")
+        setPaymentStep('error')
+      } else {
+        setPaymentStep('waiting')
+        startPolling(fedapayReturnId)
+      }
+    })
+  }, [fedapayReturnId, user])
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] relative overflow-hidden font-sans py-10 px-4">
@@ -668,7 +713,7 @@ export default function SubscribePage() {
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Numéro de téléphone</label>
                   <div className="flex gap-2">
                     <span className="flex items-center px-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-black text-slate-500">
-                      +{country === 'BJ' ? '229' : country === 'TG' ? '228' : country === 'SN' ? '221' : country === 'CI' ? '225' : country === 'CM' ? '237' : '223'}
+                      +{COUNTRY_OPERATORS[country]?.prefix ?? '229'}
                     </span>
                     <input
                       type="tel"

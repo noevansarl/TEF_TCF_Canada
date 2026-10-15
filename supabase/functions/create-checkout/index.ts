@@ -17,19 +17,27 @@ function getCorsHeaders(req: Request) {
   }
 }
 
-const PRICES: Record<string, Record<string, string>> = {
+// Identifiants de prix Stripe — aucun fallback : un prix manquant doit échouer explicitement
+const PRICES: Record<string, Record<string, string | undefined>> = {
   essentiel: {
-    monthly: Deno.env.get('STRIPE_PRICE_ESSENTIEL_MONTHLY') || 'price_essentiel_monthly',
-    yearly: Deno.env.get('STRIPE_PRICE_ESSENTIEL_YEARLY') || 'price_essentiel_yearly',
+    monthly: Deno.env.get('STRIPE_PRICE_ESSENTIEL_MONTHLY'),
+    yearly: Deno.env.get('STRIPE_PRICE_ESSENTIEL_YEARLY'),
   },
   avance: {
-    monthly: Deno.env.get('STRIPE_PRICE_AVANCE_MONTHLY') || 'price_avance_monthly',
-    yearly: Deno.env.get('STRIPE_PRICE_AVANCE_YEARLY') || 'price_avance_yearly',
+    monthly: Deno.env.get('STRIPE_PRICE_AVANCE_MONTHLY'),
+    yearly: Deno.env.get('STRIPE_PRICE_AVANCE_YEARLY'),
   },
   premium: {
-    monthly: Deno.env.get('STRIPE_PRICE_PREMIUM_MONTHLY') || 'price_premium_monthly',
-    yearly: Deno.env.get('STRIPE_PRICE_PREMIUM_YEARLY') || 'price_premium_yearly',
+    monthly: Deno.env.get('STRIPE_PRICE_PREMIUM_MONTHLY'),
+    yearly: Deno.env.get('STRIPE_PRICE_PREMIUM_YEARLY'),
   },
+}
+
+const PACK_PRICES: Record<string, string | undefined> = {
+  bronze: Deno.env.get('STRIPE_PRICE_PACK_BRONZE'),
+  silver: Deno.env.get('STRIPE_PRICE_PACK_SILVER'),
+  gold: Deno.env.get('STRIPE_PRICE_PACK_GOLD'),
+  platinum: Deno.env.get('STRIPE_PRICE_PACK_PLATINUM'),
 }
 
 serve(async (req: Request) => {
@@ -65,18 +73,18 @@ serve(async (req: Request) => {
 
     // ── CASE 1: PACK CHECKOUT (SINGLE PAYMENT) ─────────────────────
     if (pack) {
-      const PACK_PRICES: Record<string, string> = {
-        bronze: Deno.env.get('STRIPE_PRICE_PACK_BRONZE') || 'price_pack_bronze',
-        silver: Deno.env.get('STRIPE_PRICE_PACK_SILVER') || 'price_pack_silver',
-        gold: Deno.env.get('STRIPE_PRICE_PACK_GOLD') || 'price_pack_gold',
-        platinum: Deno.env.get('STRIPE_PRICE_PACK_PLATINUM') || 'price_pack_platinum',
-      }
-
       if (!Object.keys(PACK_PRICES).includes(pack)) {
         return new Response('Invalid pack ID', { status: 400, headers: corsHeaders })
       }
 
       const priceId = PACK_PRICES[pack]
+      if (!priceId) {
+        console.error(`STRIPE_PRICE_PACK_${pack.toUpperCase()} non configuré`)
+        return new Response(JSON.stringify({ error: 'Configuration serveur manquante' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
 
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
@@ -101,6 +109,13 @@ serve(async (req: Request) => {
       }
 
       const priceId = PRICES[plan][period]
+      if (!priceId) {
+        console.error(`Prix Stripe non configuré pour ${plan}/${period}`)
+        return new Response(JSON.stringify({ error: 'Configuration serveur manquante' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
       const discounts: { coupon: string }[] = []
       const africaCountries = ['BJ','BF','CM','CI','SN','ML','TG','GN','NE','TD','GA','CG']
       if (africaCountries.includes(country)) {
@@ -117,7 +132,7 @@ serve(async (req: Request) => {
           trial_period_days: 7,
           metadata: { user_id, plan, period }
         },
-        metadata: { user_id, plan, price_id: priceId },
+        metadata: { user_id, plan, period, price_id: priceId },
         success_url: `${return_url}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${return_url}/subscribe`,
         allow_promotion_codes: true,
@@ -133,7 +148,7 @@ serve(async (req: Request) => {
     }
   } catch (err: unknown) {
     console.error('create-checkout error:', err)
-    return new Response(JSON.stringify({ error: (err as Error).message || 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })

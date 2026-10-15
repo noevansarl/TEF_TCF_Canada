@@ -916,6 +916,12 @@ const mockClient: any = {
         }
       }
 
+      if (name === 'fedapay-payment' && _options?.body?.action === 'check') {
+        const attempt = mockPaymentAttempts.find(pa => pa.fedapay_transaction_id === _options?.body?.transaction_id);
+        const status = attempt?.status === 'completed' ? 'approved' : (attempt?.status ?? 'unknown');
+        return { data: { status, pack_id: attempt?.pack_id }, error: null }
+      }
+
       if (name === 'fedapay-payment') {
         const packId = _options?.body?.pack_id || 'bronze';
         const method = _options?.body?.method || 'mtn_open';
@@ -953,6 +959,7 @@ const mockClient: any = {
         return {
           data: {
             success: true,
+            mode: 'push',
             transaction_id: txId,
             message: `Une demande de paiement ${method.replace('_', ' ')} a été envoyée sur votre téléphone. Confirmez avec votre code PIN Mobile Money.`,
             pack: {

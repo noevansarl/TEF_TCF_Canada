@@ -2,9 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../shared/providers/providers.dart';
 
-// Configuration des opérateurs et pays supportés par FedaPay
+// Configuration des opérateurs et pays supportés par FedaPay.
+// Modes « directs » (push USSD) : mtn_open, moov, sbin, mtn_ci, moov_tg, togocel, free_sn.
+// Les autres (Orange, Wave…) passent par la page de paiement sécurisée FedaPay.
 final Map<String, Map<String, dynamic>> countryConfig = {
   'BJ': {
     'name': 'Bénin',
@@ -12,7 +15,8 @@ final Map<String, Map<String, dynamic>> countryConfig = {
     'prefix': '229',
     'operators': [
       {'label': 'MTN Mobile Money', 'value': 'mtn_open'},
-      {'label': 'Moov Money', 'value': 'moov_money'},
+      {'label': 'Moov Money', 'value': 'moov'},
+      {'label': 'Celtiis Cash', 'value': 'sbin'},
     ]
   },
   'TG': {
@@ -20,7 +24,8 @@ final Map<String, Map<String, dynamic>> countryConfig = {
     'flag': '🇹🇬',
     'prefix': '228',
     'operators': [
-      {'label': 'Moov Money (TMoney)', 'value': 'moov_money'},
+      {'label': 'Moov Money (Flooz)', 'value': 'moov_tg'},
+      {'label': 'T-Money (Togocel)', 'value': 'togocel'},
     ]
   },
   'SN': {
@@ -28,8 +33,9 @@ final Map<String, Map<String, dynamic>> countryConfig = {
     'flag': '🇸🇳',
     'prefix': '221',
     'operators': [
-      {'label': 'Orange Money', 'value': 'orange_money_sn'},
-      {'label': 'Wave', 'value': 'wave_money'},
+      {'label': 'Free Money', 'value': 'free_sn'},
+      {'label': 'Orange Money', 'value': 'orange_sn'},
+      {'label': 'Wave', 'value': 'wave_sn'},
     ]
   },
   'CI': {
@@ -37,10 +43,10 @@ final Map<String, Map<String, dynamic>> countryConfig = {
     'flag': '🇨🇮',
     'prefix': '225',
     'operators': [
-      {'label': 'Orange Money', 'value': 'orange_money_ci'},
-      {'label': 'MTN Mobile Money', 'value': 'mtn_open'},
-      {'label': 'Moov Money', 'value': 'moov_money'},
-      {'label': 'Wave', 'value': 'wave_money'},
+      {'label': 'MTN Mobile Money', 'value': 'mtn_ci'},
+      {'label': 'Orange Money', 'value': 'orange_ci'},
+      {'label': 'Moov Money', 'value': 'moov_ci'},
+      {'label': 'Wave', 'value': 'wave_ci'},
     ]
   },
   'CM': {
@@ -48,7 +54,8 @@ final Map<String, Map<String, dynamic>> countryConfig = {
     'flag': '🇨🇲',
     'prefix': '237',
     'operators': [
-      {'label': 'MTN Mobile Money', 'value': 'mtn_open'},
+      {'label': 'MTN Mobile Money', 'value': 'mtn_cm'},
+      {'label': 'Orange Money', 'value': 'orange_cm'},
     ]
   },
   'ML': {
@@ -56,7 +63,8 @@ final Map<String, Map<String, dynamic>> countryConfig = {
     'flag': '🇲🇱',
     'prefix': '223',
     'operators': [
-      {'label': 'Orange Money', 'value': 'orange_money_ml'},
+      {'label': 'Orange Money', 'value': 'orange_ml'},
+      {'label': 'Moov Money', 'value': 'moov_ml'},
     ]
   }
 };
@@ -97,6 +105,15 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
       'desc': 'Maximisez vos chances de NCLC 9+',
       'features': ['300 tests CO & CE', '12 simulations officielles', '15 corrections IA EE/EO', 'Accès mobile hors-ligne'],
       'color': const Color(0xFFC55A11),
+    },
+    {
+      'id': 'platinum',
+      'name': '💎 Pack Champion',
+      'price': 52300,
+      'duration': '90 jours',
+      'desc': 'Préparation complète et illimitée',
+      'features': ['Tests CO & CE illimités', 'Simulations illimitées', '30 corrections IA EE/EO', 'Accès mobile hors-ligne'],
+      'color': const Color(0xFF6D28D9),
     },
   ];
 
@@ -193,7 +210,6 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
           'phone_number': fullPhone,
           'phone_country': _selectedCountryCode,
           'customer_name': name,
-          'customer_email': supabaseService.currentUser?.email ?? 'client@ayeprep.com',
         },
       );
 
@@ -211,6 +227,12 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
         _paymentStep = 'waiting';
       });
 
+      // Opérateur sans push direct : finalisation sur la page FedaPay (navigateur),
+      // le polling ci-dessous détecte la confirmation au retour dans l'app.
+      if (data['mode'] == 'checkout' && data['payment_url'] != null) {
+        await launchUrl(Uri.parse(data['payment_url'].toString()), mode: LaunchMode.externalApplication);
+      }
+
       _startPolling(data['transaction_id'].toString());
     } catch (e) {
       setState(() {
@@ -222,45 +244,42 @@ class _FedaPayPaymentScreenState extends ConsumerState<FedaPayPaymentScreen> {
 
   void _startPolling(String txId) {
     int attempts = 0;
-    const int maxAttempts = 20; // 60 secondes max
+    const int maxAttempts = 60; // 5 minutes max
 
-    _pollingTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       attempts++;
       if (attempts > maxAttempts) {
         timer.cancel();
         setState(() {
-          _errorMessage = 'Le délai de validation a expiré. Veuillez vérifier votre solde Mobile Money.';
+          _errorMessage = 'Le délai de validation a expiré. Si vous avez été débité, votre pack sera activé automatiquement dès confirmation de l\'opérateur.';
           _paymentStep = 'error';
         });
         return;
       }
 
       try {
+        // Vérifie le statut directement auprès de FedaPay (via l'Edge Function)
         final supabaseService = ref.read(supabaseServiceProvider);
-        final res = await supabaseService.client
-            .from('payment_attempts')
-            .select('status')
-            .eq('fedapay_transaction_id', txId)
-            .maybeSingle();
-
-        if (res != null) {
-          final status = res['status']?.toString();
-          if (status == 'completed') {
-            timer.cancel();
-            // Mettre à jour l'UI globale
-            ref.invalidate(userProfileProvider);
-            setState(() {
-              _paymentStep = 'success';
-            });
-          } else if (status == 'declined' || status == 'canceled') {
-            timer.cancel();
-            setState(() {
-              _errorMessage = status == 'declined'
-                  ? 'La transaction a été rejetée par l\'opérateur.'
-                  : 'La transaction a été annulée.';
-              _paymentStep = 'error';
-            });
-          }
+        final res = await supabaseService.client.functions.invoke(
+          'fedapay-payment',
+          body: {'action': 'check', 'transaction_id': txId},
+        );
+        final status = res.data?['status']?.toString();
+        if (status == 'approved') {
+          timer.cancel();
+          // Mettre à jour l'UI globale
+          ref.invalidate(userProfileProvider);
+          setState(() {
+            _paymentStep = 'success';
+          });
+        } else if (status == 'declined' || status == 'canceled') {
+          timer.cancel();
+          setState(() {
+            _errorMessage = status == 'declined'
+                ? 'La transaction a été rejetée par l\'opérateur.'
+                : 'La transaction a été annulée.';
+            _paymentStep = 'error';
+          });
         }
       } catch (e) {
         debugPrint('Polling error: $e');
