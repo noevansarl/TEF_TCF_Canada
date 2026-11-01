@@ -13,6 +13,12 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
 
+val releaseSigningAvailable: Boolean
+    get() {
+        val storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
+        return keystorePropertiesFile.exists() && storeFile?.exists() == true
+    }
+
 android {
     namespace = "com.ayeprep.app"
     compileSdk = flutter.compileSdkVersion
@@ -43,13 +49,24 @@ android {
 
     buildTypes {
         release {
-            val releaseStoreFile = keystoreProperties["storeFile"]?.let { file(it as String) }
-            signingConfig = if (keystorePropertiesFile.exists() && releaseStoreFile?.exists() == true) {
+            // La clé debug n'est utilisée pour une release que sur demande
+            // explicite (-PallowDebugSigning), sinon la compilation échoue.
+            signingConfig = if (releaseSigningAvailable) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")
             }
         }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    val buildsRelease = allTasks.any { it.name.contains("Release") && it.project == project }
+    if (buildsRelease && !releaseSigningAvailable && !project.hasProperty("allowDebugSigning")) {
+        throw GradleException(
+            "android/key.properties ou le keystore est introuvable : la release serait signée avec la clé debug. " +
+            "Configurez key.properties, ou ajoutez -PallowDebugSigning pour un test local."
+        )
     }
 }
 

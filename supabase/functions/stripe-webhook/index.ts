@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@14'
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
+import Stripe from 'https://esm.sh/stripe@14.25.0'
 import { PACKS, grantPack } from '../_shared/packs.ts'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-04-10' })

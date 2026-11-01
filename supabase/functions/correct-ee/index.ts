@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import OpenAI from 'https://esm.sh/openai@4'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
+import OpenAI from 'https://esm.sh/openai@4.104.0'
 import { authorizeAiCall, refundAiCall } from '../_shared/ai_access.ts'
 
 const ALLOWED_ORIGINS = ['https://ayeprep.com', 'https://www.ayeprep.com', 'http://localhost:5173']

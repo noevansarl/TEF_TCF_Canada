@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@14'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
+import Stripe from 'https://esm.sh/stripe@14.25.0'
 
 const ALLOWED_ORIGINS = ['https://ayeprep.com', 'https://www.ayeprep.com', 'http://localhost:5173']
 const VALID_PLANS = ['essentiel', 'avance', 'premium']
@@ -58,14 +58,20 @@ serve(async (req: Request) => {
     if (!authUser) return new Response('Unauthorized', { status: 401, headers: corsHeaders })
 
     const body = await req.json()
-    const { plan, period, pack, user_id, country, return_url } = body
+    const { plan, period, pack, user_id, return_url } = body
 
     if (user_id !== authUser.id) {
       return new Response('Forbidden', { status: 403, headers: corsHeaders })
     }
-    // Validation de l'URL de retour (anti open-redirect)
-    const isAllowedReturn = ALLOWED_ORIGINS.some(o => (return_url ?? '').startsWith(o))
-    if (!isAllowedReturn) {
+    // Validation de l'URL de retour (anti open-redirect) : l'origine doit être
+    // exactement autorisée (startsWith acceptait https://ayeprep.com.evil.com)
+    let returnOrigin: string
+    try {
+      returnOrigin = new URL(String(return_url)).origin
+    } catch {
+      return new Response('Invalid return URL', { status: 400, headers: corsHeaders })
+    }
+    if (!ALLOWED_ORIGINS.includes(returnOrigin)) {
       return new Response('Invalid return URL', { status: 400, headers: corsHeaders })
     }
 
@@ -91,8 +97,8 @@ serve(async (req: Request) => {
         payment_method_types: ['card'],
         line_items: [{ price: priceId, quantity: 1 }],
         metadata: { user_id, pack_id: pack, price_id: priceId },
-        success_url: `${return_url}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${return_url}/subscribe`,
+        success_url: `${returnOrigin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${returnOrigin}/subscribe`,
         locale: 'fr',
         customer_email: authUser.email,
       })
@@ -116,6 +122,14 @@ serve(async (req: Request) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
+      // Pays lu dans le profil (plus depuis la requête) pour le tarif Afrique
+      const { data: profile } = await supabase
+        .from('users')
+        .select('country')
+        .eq('id', authUser.id)
+        .maybeSingle()
+      const country = String(profile?.country ?? '').toUpperCase()
+
       const discounts: { coupon: string }[] = []
       const africaCountries = ['BJ','BF','CM','CI','SN','ML','TG','GN','NE','TD','GA','CG']
       if (africaCountries.includes(country)) {
@@ -123,19 +137,26 @@ serve(async (req: Request) => {
         if (africaCoupon) discounts.push({ coupon: africaCoupon })
       }
 
+      // Essai gratuit : uniquement pour un premier abonnement
+      const { count: previousSubscriptions } = await supabase
+        .from('subscriptions')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', authUser.id)
+      const trialDays = (previousSubscriptions ?? 0) === 0 ? 7 : undefined
+
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
         payment_method_types: ['card'],
         line_items: [{ price: priceId, quantity: 1 }],
-        discounts,
+        // Stripe refuse discounts + allow_promotion_codes dans la même session
+        ...(discounts.length > 0 ? { discounts } : { allow_promotion_codes: true }),
         subscription_data: {
-          trial_period_days: 7,
+          ...(trialDays ? { trial_period_days: trialDays } : {}),
           metadata: { user_id, plan, period }
         },
         metadata: { user_id, plan, period, price_id: priceId },
-        success_url: `${return_url}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${return_url}/subscribe`,
-        allow_promotion_codes: true,
+        success_url: `${returnOrigin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${returnOrigin}/subscribe`,
         billing_address_collection: 'auto',
         locale: 'fr',
         customer_email: authUser.email,

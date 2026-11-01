@@ -95,7 +95,7 @@ class NotificationService {
     try {
       String? token = await _fcm.getToken();
       if (token != null) {
-        debugPrint('FCM Token: $token');
+        debugPrint('FCM token obtenu.');
         
         // Mettre à jour dans Supabase
         final supabase = Supabase.instance.client;

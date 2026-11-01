@@ -1,4 +1,4 @@
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
 
 // ── Contrôle d'accès aux corrections IA (correct-ee, transcribe-eo) ────
 // 1. Limitation de débit par utilisateur (protège la facture OpenAI)

@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
 
 const ALLOWED_ORIGINS = ['https://ayeprep.com', 'https://www.ayeprep.com', 'http://localhost:5173']
 
@@ -54,6 +54,11 @@ serve(async (req: Request) => {
       .single()
 
     if (!session) return new Response('Session not found', { status: 404, headers: corsHeaders })
+
+    // Une session déjà notée ne peut pas être rejouée (XP / score à chaque appel)
+    if (session.status !== 'in_progress') {
+      return new Response('Session already completed', { status: 409, headers: corsHeaders })
+    }
 
     // Vérifier le délai côté serveur
     const elapsedSeconds = Math.floor(

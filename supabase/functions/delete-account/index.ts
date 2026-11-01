@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
 
 const ALLOWED_ORIGINS = ['https://ayeprep.com', 'https://www.ayeprep.com', 'http://localhost:5173']
 
@@ -31,21 +31,43 @@ serve(async (req: Request) => {
     const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
     if (!user) return new Response('Unauthorized', { status: 401, headers: corsHeaders })
 
+    const { data: userSessions } = await supabase.from('sessions').select('id').eq('user_id', user.id)
+    const sessionIds = (userSessions ?? []).map((s: { id: string }) => s.id)
+
+    // Supprimer les enregistrements audio EO (rangés par utilisateur ou par session)
+    for (const folder of [`eo/${user.id}`, ...sessionIds.map((id: string) => `eo/${id}`)]) {
+      try {
+        const { data: files } = await supabase.storage.from('audio-responses').list(folder)
+        if (files && files.length > 0) {
+          await supabase.storage.from('audio-responses').remove(files.map((f: { name: string }) => `${folder}/${f.name}`))
+        }
+      } catch (_storageErr) { /* non-bloquant */ }
+    }
+
+    // Corrections expertes et réponses (textes, transcriptions) : supprimées
+    const steps = [
+      supabase.from('expert_corrections').delete().eq('user_id', user.id),
+      supabase.from('cookie_consents').delete().eq('user_id', user.id),
+      // Données de tracking affilié : IP et user-agent effacés
+      supabase.from('affiliate_clicks')
+        .update({ ip_address: null, user_agent: null, converted_user_id: null })
+        .eq('converted_user_id', user.id),
+    ]
+    for (const step of steps) {
+      const { error } = await step
+      if (error) throw error
+    }
+    const { error: answersErr } = await supabase.from('answers').delete().eq('user_id', user.id)
+    if (answersErr) throw answersErr
+
     // Anonymiser les sessions pour les métriques globales
-    await supabase.from('sessions')
-      .update({ user_id: '00000000-0000-0000-0000-000000000000' })
+    const { error: sessionsErr } = await supabase.from('sessions')
+      .update({ user_id: '00000000-0000-0000-0000-000000000000', metadata: {} })
       .eq('user_id', user.id)
+    if (sessionsErr) throw sessionsErr
 
-    // Supprimer les enregistrements audio EO
-    try {
-      const { data: files } = await supabase.storage.from('audio-responses').list(`eo/${user.id}`)
-      if (files && files.length > 0) {
-        await supabase.storage.from('audio-responses').remove(files.map((f: { name: string }) => `eo/${user.id}/${f.name}`))
-      }
-    } catch (_storageErr) { /* non-bloquant */ }
-
-    await supabase.from('answers').delete().eq('user_id', user.id)
-    await supabase.from('users').delete().eq('id', user.id)
+    const { error: userErr } = await supabase.from('users').delete().eq('id', user.id)
+    if (userErr) throw userErr
 
     const { error: authErr } = await supabase.auth.admin.deleteUser(user.id)
     if (authErr) throw authErr

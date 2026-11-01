@@ -1,4 +1,4 @@
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
 
 // Packs — source de vérité unique côté serveur (FedaPay + Stripe)
 export interface PackDef {

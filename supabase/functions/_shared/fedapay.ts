@@ -1,4 +1,4 @@
-import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
 import { PACKS, grantPack } from './packs.ts'
 
 // ── Configuration FedaPay ─────────────────────────────────────────────
@@ -67,7 +67,15 @@ export const CHECKOUT_METHODS = new Set([
 // ── Vérification de signature webhook ─────────────────────────────────
 // En-tête X-FEDAPAY-SIGNATURE : "t=<timestamp>,s=<hmac_sha256_hex>"
 // Signature = HMAC-SHA256(secret, "<timestamp>.<payload brut>") en hexadécimal.
-export async function verifyFedapaySignature(rawBody: string, header: string, secret: string): Promise<boolean> {
+// Un timestamp de plus de 5 minutes est refusé (anti-rejeu, comme Stripe).
+const SIGNATURE_TOLERANCE_S = 300
+
+export async function verifyFedapaySignature(
+  rawBody: string,
+  header: string,
+  secret: string,
+  nowSeconds = Math.floor(Date.now() / 1000),
+): Promise<boolean> {
   let timestamp: string | null = null
   const signatures: string[] = []
   for (const item of header.split(',')) {
@@ -79,6 +87,7 @@ export async function verifyFedapaySignature(rawBody: string, header: string, se
     if (k === 's') signatures.push(v.toLowerCase())
   }
   if (!timestamp || signatures.length === 0) return false
+  if (!/^\d+$/.test(timestamp) || Math.abs(nowSeconds - Number(timestamp)) > SIGNATURE_TOLERANCE_S) return false
 
   const key = await crypto.subtle.importKey(
     'raw',
