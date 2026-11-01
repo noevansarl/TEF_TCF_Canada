@@ -62,10 +62,13 @@ export async function grantPack(supabase: SupabaseClient, input: GrantPackInput)
     throw subError
   }
 
+  // subscription_expires_at suit l'échéance du pack : sans elle, le tier de pack
+  // restait considéré comme actif indéfiniment (audit H5)
   const { error: userError } = await supabase.from('users').update({
-    active_pack_id:    input.packId,
-    pack_expires_at:   expiresAt.toISOString(),
-    subscription_tier: input.packId,
+    active_pack_id:          input.packId,
+    pack_expires_at:         expiresAt.toISOString(),
+    subscription_tier:       input.packId,
+    subscription_expires_at: expiresAt.toISOString(),
   }).eq('id', input.userId)
 
   if (userError) throw userError
