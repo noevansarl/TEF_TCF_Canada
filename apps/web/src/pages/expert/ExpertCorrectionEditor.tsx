@@ -236,7 +236,7 @@ export default function ExpertCorrectionEditor() {
             .eq('id', correction.session_id)
             .maybeSingle()
 
-          if (sessionData?.metadata?.lis_outcome_service_url) {
+          if (sessionData?.metadata?.lti === true) {
             await supabase.functions.invoke('lti-grade-sync', {
               body: { session_id: correction.session_id }
             })

@@ -1,181 +1,160 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { isSafeOutcomeUrl, oauthSignature, timingSafeEqual } from '../_shared/lti.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+// ── Lancement LTI 1.1 (Moodle, Canvas…) ───────────────────────────────
+// Appelé par le navigateur de l'élève via un formulaire POST signé par le LMS.
+// Sécurité :
+//  - signature OAuth 1.0 vérifiée avec le secret de l'établissement (table
+//    institution_lti_credentials, inaccessible aux clients)
+//  - anti-rejeu : oauth_timestamp (± 5 min) + oauth_nonce à usage unique
+//  - le compte ayePREP est identifié par (établissement, user_id LTI), jamais
+//    par l'email envoyé par le LMS : un lancement ne peut pas ouvrir la session
+//    d'un compte existant créé hors LTI, ni celle d'un expert / admin
+//  - connexion via un lien magique à usage unique (aucun jeton dans l'URL)
 
-// Vérifier la signature OAuth 1.0
-async function verifyOauthSignature(
-  method: string,
-  url: string,
-  params: Record<string, string>,
-  consumerSecret: string
-): Promise<boolean> {
-  const receivedSig = params['oauth_signature']
-  if (!receivedSig) return false
+const MAX_CLOCK_SKEW_S = 300
+const VALID_MODULES = ['CO', 'CE', 'EE', 'EO']
+const VALID_LEVELS = ['A2', 'B1', 'B2', 'C1', 'C2']
 
-  // Copier les paramètres et enlever la signature
-  const signParams = { ...params }
-  delete signParams['oauth_signature']
+const textResponse = (message: string, status: number) =>
+  new Response(message, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
 
-  // Trier les paramètres par clé et construire la chaîne de requête
-  const sortedKeys = Object.keys(signParams).sort()
-  const paramParts = sortedKeys.map(
-    k => `${encodeURIComponent(k)}=${encodeURIComponent(signParams[k])}`
-  )
-  const paramString = paramParts.join('&')
-
-  // Construire la base string
-  const parsedUrl = new URL(url)
-  const cleanUrl = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`
-  const baseString = `${method.toUpperCase()}&${encodeURIComponent(cleanUrl)}&${encodeURIComponent(paramString)}`
-
-  // Clé de signature : secret + "&"
-  const signingKey = `${encodeURIComponent(consumerSecret)}&`
-
-  const encoder = new TextEncoder()
-  const keyData = encoder.encode(signingKey)
-  const baseData = encoder.encode(baseString)
-
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    keyData,
-    { name: 'HMAC', hash: 'SHA-1' },
-    false,
-    ['sign']
-  )
-  const signatureBuffer = await crypto.subtle.sign('HMAC', cryptoKey, baseData)
-  
-  const signatureBytes = new Uint8Array(signatureBuffer)
-  let binary = ''
-  for (let i = 0; i < signatureBytes.byteLength; i++) {
-    binary += String.fromCharCode(signatureBytes[i])
-  }
-  const calculatedSig = btoa(binary)
-
-  return calculatedSig === decodeURIComponent(receivedSig) || calculatedSig === receivedSig
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
 serve(async (req: Request) => {
-  // CORS configuration
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  if (req.method !== 'POST') return textResponse('Method not allowed', 405)
 
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405, headers: corsHeaders })
-  }
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    )
-
-    // 1. Lire le corps encodé en URL
-    const bodyText = await req.text()
-    const formParams = new URLSearchParams(bodyText)
+    // 1. Paramètres du formulaire LTI
+    const formParams = new URLSearchParams(await req.text())
     const params: Record<string, string> = {}
-    for (const [key, value] of formParams.entries()) {
-      params[key] = value
-    }
+    for (const [key, value] of formParams.entries()) params[key] = value
 
     const consumerKey = params['oauth_consumer_key']
-    if (!consumerKey) {
-      return new Response('oauth_consumer_key is missing', { status: 400, headers: corsHeaders })
-    }
+    const ltiUserId = params['user_id']
+    if (!consumerKey || !ltiUserId) return textResponse('Paramètres LTI manquants', 400)
+    if (params['oauth_signature_method'] !== 'HMAC-SHA1') return textResponse('Méthode de signature non supportée', 400)
 
-    // 2. Récupérer l'établissement et son secret LTI
-    const { data: instData, error: instError } = await supabase
-      .from('institutions')
-      .select('*')
-      .eq('lti_consumer_key', consumerKey)
-      .eq('lti_enabled', true)
+    // 2. Identifiants LTI de l'établissement
+    const { data: cred } = await supabase
+      .from('institution_lti_credentials')
+      .select('institution_id, shared_secret')
+      .eq('consumer_key', consumerKey)
+      .eq('enabled', true)
       .maybeSingle()
+    if (!cred) return textResponse('Clé LTI invalide ou intégration désactivée', 403)
 
-    if (instError || !instData) {
-      console.error('Institution non trouvée ou LTI désactivé pour la clé:', consumerKey)
-      return new Response('Invalid consumer key or LTI disabled', { status: 403, headers: corsHeaders })
+    // 3. Signature : l'URL signée est l'URL publique de la fonction, construite
+    //    depuis la configuration (jamais depuis les en-têtes X-Forwarded-*).
+    const launchUrl = Deno.env.get('LTI_LAUNCH_URL') ?? `${Deno.env.get('SUPABASE_URL')}/functions/v1/lti-launch`
+    const expected = await oauthSignature('POST', launchUrl, params, cred.shared_secret)
+    if (!params['oauth_signature'] || !timingSafeEqual(expected, params['oauth_signature'])) {
+      console.error('Signature LTI invalide pour la clé', consumerKey)
+      return textResponse('Signature LTI invalide', 401)
     }
 
-    // 3. Reconstruire l'URL de requête pour valider la signature
-    const urlObj = new URL(req.url)
-    const proto = req.headers.get('x-forwarded-proto') || urlObj.protocol.replace(':', '')
-    const host = req.headers.get('x-forwarded-host') || urlObj.host
-    const requestUrl = `${proto}://${host}${urlObj.pathname}`
-
-    // 4. Vérifier la signature OAuth 1.0
-    const isValid = await verifyOauthSignature('POST', requestUrl, params, instData.lti_shared_secret)
-    if (!isValid) {
-      console.error('Signature LTI invalide pour le consumer:', consumerKey)
-      return new Response('OAuth signature validation failed', { status: 401, headers: corsHeaders })
+    // 4. Anti-rejeu
+    const timestamp = Number(params['oauth_timestamp'])
+    if (!Number.isFinite(timestamp) || Math.abs(Date.now() / 1000 - timestamp) > MAX_CLOCK_SKEW_S) {
+      return textResponse('Lancement LTI expiré', 401)
     }
+    const nonce = params['oauth_nonce']
+    if (!nonce || nonce.length > 128) return textResponse('oauth_nonce invalide', 400)
+    const { error: nonceError } = await supabase
+      .from('lti_nonces')
+      .insert({ institution_id: cred.institution_id, nonce })
+    if (nonceError) {
+      if (nonceError.code === '23505') return textResponse('Lancement LTI déjà utilisé', 401)
+      throw nonceError
+    }
+    // Purge opportuniste des nonces expirés
+    await supabase.from('lti_nonces').delete()
+      .lt('created_at', new Date(Date.now() - 24 * 3600 * 1000).toISOString())
 
-    // 5. Extraire les détails de l'utilisateur
-    const email = params['lis_person_contact_email_primary'] || `${params['user_id']}@lms.partner`
+    const { data: institution } = await supabase
+      .from('institutions')
+      .select('id, country')
+      .eq('id', cred.institution_id)
+      .single()
+    if (!institution) return textResponse('Établissement introuvable', 403)
+
+    // 5. Compte ayePREP lié à (établissement, user_id LTI)
     const givenName = params['lis_person_name_given'] || ''
     const familyName = params['lis_person_name_family'] || ''
-    const fullName = params['lis_person_name_full'] || `${givenName} ${familyName}`.trim() || 'LMS Student'
+    const fullName = (params['lis_person_name_full'] || `${givenName} ${familyName}`.trim() || 'Élève LMS').slice(0, 120)
 
-    // 6. Provisionner/trouver l'utilisateur
-    let { data: existingUser } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
+    let userId: string | undefined
+    let loginEmail: string | undefined
+
+    const { data: link } = await supabase
+      .from('lti_user_links')
+      .select('user_id')
+      .eq('institution_id', institution.id)
+      .eq('lti_user_id', ltiUserId)
       .maybeSingle()
 
-    let userId = existingUser?.id
+    if (link) {
+      const { data: linkedUser } = await supabase
+        .from('users')
+        .select('id, email, role')
+        .eq('id', link.user_id)
+        .single()
+      if (!linkedUser) return textResponse('Compte introuvable', 403)
+      // Un lancement LTI n'ouvre jamais de session à privilèges
+      if (linkedUser.role !== 'user') return textResponse('Compte non autorisé via LTI', 403)
+      userId = linkedUser.id
+      loginEmail = linkedUser.email
+    } else {
+      // Nouveau compte dédié au LMS, avec un email technique non routable :
+      // l'email du LMS n'est jamais utilisé pour retrouver un compte existant.
+      const digest = (await sha256Hex(`${institution.id}:${ltiUserId}`)).slice(0, 24)
+      loginEmail = `lti-${digest}@lti.ayeprep.com`
 
-    if (!userId) {
-      // Créer un utilisateur dans Supabase Auth
-      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-        email,
+      const { data: created, error: createError } = await supabase.auth.admin.createUser({
+        email: loginEmail,
         email_confirm: true,
-        user_metadata: {
-          full_name: fullName,
-          country: instData.country || 'Canada',
-        }
+        user_metadata: { full_name: fullName, country: institution.country || 'Canada', lti: true },
       })
+      if (createError || !created?.user) throw createError ?? new Error('Création du compte LTI impossible')
+      userId = created.user.id
 
-      if (createError) {
-        if (createError.message?.includes('already exists')) {
-          const { data: authUser } = await supabase
-            .from('users')
-            .select('id')
-            .eq('email', email)
-            .maybeSingle()
-          if (authUser) userId = authUser.id
-        }
-        if (!userId) throw createError
-      } else {
-        userId = newUser.user.id
-      }
+      const { error: linkError } = await supabase
+        .from('lti_user_links')
+        .insert({ institution_id: institution.id, lti_user_id: ltiUserId, user_id: userId })
+      if (linkError) throw linkError
     }
 
-    // Associer l'élève à l'établissement s'il n'y est pas déjà
-    const { data: isAssociated } = await supabase
+    // Rattachement à l'établissement (un élève n'appartient qu'à un établissement)
+    const { data: membership } = await supabase
       .from('institution_students')
-      .select('id')
-      .eq('institution_id', instData.id)
+      .select('institution_id')
       .eq('user_id', userId)
       .maybeSingle()
-
-    if (!isAssociated) {
-      await supabase.from('institution_students').insert({
-        institution_id: instData.id,
-        user_id: userId,
-      })
+    if (!membership) {
+      const { error } = await supabase.from('institution_students')
+        .insert({ institution_id: institution.id, user_id: userId })
+      if (error) throw error
+    } else if (membership.institution_id !== institution.id) {
+      return textResponse('Compte rattaché à un autre établissement', 403)
     }
 
-    // 7. Configurer la redirection et l'examen ciblé
-    const targetModule = (params['custom_module'] || 'CO').toUpperCase() // ex: CO, CE, EE, EO
-    const targetLevel = (params['custom_level'] || 'B2').toUpperCase() // ex: B1, B2, C1
+    // 6. Session d'examen
+    const targetModule = (params['custom_module'] || 'CO').toUpperCase()
+    const targetLevel = (params['custom_level'] || 'B2').toUpperCase()
+    if (!VALID_MODULES.includes(targetModule) || !VALID_LEVELS.includes(targetLevel)) {
+      return textResponse('Module ou niveau LTI invalide', 400)
+    }
     const classSessionId = params['custom_class_session_id'] || null
 
-    // Créer une session d'examen pré-configurée
-    // Nous récupérons un set de questions adapté
     let questionIds: string[] = []
     if (['CO', 'CE'].includes(targetModule)) {
       const { data: questions } = await supabase.rpc('select_questions_for_session', {
@@ -185,17 +164,8 @@ serve(async (req: Request) => {
         p_level: targetLevel,
         p_count: 39,
       })
-      if (questions) {
-        questionIds = questions.map((q: any) => q.question_id)
-      }
-    }
-
-    // Insérer la session d'examen
-    const ltiMetadata = {
-      lis_outcome_service_url: params['lis_outcome_service_url'] || null,
-      lis_result_sourcedid: params['lis_result_sourcedid'] || null,
-      lti_consumer_key: consumerKey,
-      class_session_id: classSessionId,
+      // deno-lint-ignore no-explicit-any
+      if (questions) questionIds = questions.map((q: any) => q.question_id)
     }
 
     const { data: examSession, error: examError } = await supabase
@@ -208,34 +178,50 @@ serve(async (req: Request) => {
         level: targetLevel,
         max_duration_s: targetModule === 'CO' || targetModule === 'CE' ? 35 * 60 : 60 * 60,
         question_ids: questionIds,
-        metadata: ltiMetadata,
+        metadata: { lti: true, institution_id: institution.id, class_session_id: classSessionId },
         status: 'in_progress',
       })
-      .select()
+      .select('id')
       .single()
-
     if (examError || !examSession) throw examError
 
-    // 8. Générer une session de connexion sécurisée (JWT) pour le rediriger
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSessionForUser({
-      userId
+    // Retour de notes : stocké côté serveur uniquement (table lti_session_outcomes)
+    const outcomeUrl = params['lis_outcome_service_url']
+    const sourcedId = params['lis_result_sourcedid']
+    if (outcomeUrl && sourcedId) {
+      if (!isSafeOutcomeUrl(outcomeUrl) || sourcedId.length > 512) {
+        console.error('URL de retour de notes LTI refusée:', outcomeUrl)
+      } else {
+        const { error } = await supabase.from('lti_session_outcomes').insert({
+          session_id: examSession.id,
+          institution_id: institution.id,
+          outcome_service_url: outcomeUrl,
+          result_sourcedid: sourcedId,
+        })
+        if (error) throw error
+      }
+    }
+
+    // 7. Connexion par lien magique à usage unique (vérifié par /auth/callback)
+    const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: loginEmail!,
     })
+    const tokenHash = linkData?.properties?.hashed_token
+    if (linkErr || !tokenHash) throw linkErr ?? new Error('Lien de connexion LTI indisponible')
 
-    if (sessionError || !sessionData) throw sessionError
-
-    // 9. Construire l'URL de redirection finale vers l'app React
-    const appUrl = Deno.env.get('APP_URL') || 'http://localhost:5173'
-    const redirectUrl = `${appUrl}/auth/callback?access_token=${sessionData.session.access_token}&refresh_token=${sessionData.session.refresh_token}&next=/session/${examSession.id}`
+    const appUrl = Deno.env.get('APP_URL') || 'https://ayeprep.com'
+    const redirect = new URL('/auth/callback', appUrl)
+    redirect.searchParams.set('token_hash', tokenHash)
+    redirect.searchParams.set('type', 'magiclink')
+    redirect.searchParams.set('next', `/session/${examSession.id}`)
 
     return new Response(null, {
       status: 303,
-      headers: {
-        ...corsHeaders,
-        Location: redirectUrl,
-      },
+      headers: { Location: redirect.toString(), 'Referrer-Policy': 'no-referrer', 'Cache-Control': 'no-store' },
     })
   } catch (error) {
-    console.error('LTI launch function error:', error)
-    return new Response(`LTI Launch error: ${error.message}`, { status: 500, headers: corsHeaders })
+    console.error('LTI launch error:', error)
+    return textResponse('Erreur lors du lancement LTI', 500)
   }
 })

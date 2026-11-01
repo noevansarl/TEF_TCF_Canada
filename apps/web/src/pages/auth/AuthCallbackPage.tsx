@@ -37,11 +37,25 @@ export default function AuthCallbackPage() {
           session = exchangeSession
         }
 
-        // 3. Check for query or hash tokens
-        let accessToken = searchParams.get('access_token')
-        let refreshToken = searchParams.get('refresh_token')
+        // 3. Lien magique à usage unique (lancement LTI) : ?token_hash=…&type=magiclink
+        const tokenHash = searchParams.get('token_hash')
+        if (!session && tokenHash && searchParams.get('type') === 'magiclink') {
+          const { data: { session: otpSession }, error: otpErr } =
+            await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' })
+          if (otpErr) {
+            setError("Lien de connexion invalide ou expiré.")
+            return
+          }
+          session = otpSession
+        }
 
-        if (!session && !accessToken && window.location.hash) {
+        // 4. Jetons dans le fragment (#access_token=…) émis par Supabase Auth.
+        //    Les jetons passés en query string ne sont plus acceptés (fuite dans
+        //    les logs / Referer et risque de connexion forcée à un autre compte).
+        let accessToken: string | null = null
+        let refreshToken: string | null = null
+
+        if (!session && window.location.hash) {
           const hash = window.location.hash.substring(1)
           const hashParams = new URLSearchParams(hash)
           accessToken = hashParams.get('access_token')

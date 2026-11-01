@@ -75,73 +75,41 @@ export default function InstitutionDashboard() {
   const [consumerKey, setConsumerKey] = useState('')
   const [sharedSecret, setSharedSecret] = useState('')
 
+  // Identifiants LTI : générés et stockés côté serveur (RPC set_institution_lti),
+  // visibles uniquement par les responsables de l'établissement.
+  type LtiConfig = { enabled: boolean, consumer_key: string, shared_secret: string }
+
+  const applyLtiConfig = (config: LtiConfig | null) => {
+    setLtiEnabled(config?.enabled ?? false)
+    setConsumerKey(config?.consumer_key ?? '')
+    setSharedSecret(config?.shared_secret ?? '')
+  }
+
+  const updateLti = async (enabled: boolean, regenerate: boolean) => {
+    if (!institution) return
+    const { data, error } = await supabase.rpc('set_institution_lti', {
+      p_institution_id: institution.id,
+      p_enabled: enabled,
+      p_regenerate: regenerate,
+    })
+    if (error) {
+      alert("Erreur lors de la mise à jour LTI : action réservée aux responsables de l'établissement.")
+      return false
+    }
+    applyLtiConfig((data as LtiConfig[] | null)?.[0] ?? null)
+    return true
+  }
+
   // Handle LTI Activation
   const handleToggleLti = async (enabled: boolean) => {
-    if (!institution) return
-    try {
-      let key = consumerKey
-      let secret = sharedSecret
-      if (enabled && (!key || !secret)) {
-        key = `key-${institution.id.substring(0, 8)}-${Math.random().toString(36).substring(2, 7)}`
-        secret = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-      }
-
-      const { error } = await supabase
-        .from('institutions')
-        .update({
-          lti_enabled: enabled,
-          lti_consumer_key: enabled ? key : null,
-          lti_shared_secret: enabled ? secret : null
-        })
-        .eq('id', institution.id)
-
-      if (!error) {
-        setLtiEnabled(enabled)
-        setConsumerKey(enabled ? key : '')
-        setSharedSecret(enabled ? secret : '')
-        setInstitution({
-          ...institution,
-          lti_enabled: enabled,
-          lti_consumer_key: enabled ? key : null,
-          lti_shared_secret: enabled ? secret : null
-        })
-      } else {
-        alert("Erreur lors de la mise à jour LTI: " + error.message)
-      }
-    } catch (e: any) {
-      alert("Erreur: " + e.message)
-    }
+    await updateLti(enabled, false)
   }
 
   // Regenerate LTI Credentials
   const handleRegenerateLtiKeys = async () => {
     if (!institution) return
     if (!confirm("Voulez-vous vraiment régénérer les clés LTI ? Les connexions LMS existantes cesseront de fonctionner jusqu'à leur mise à jour dans Moodle.")) return
-    const key = `key-${institution.id.substring(0, 8)}-${Math.random().toString(36).substring(2, 7)}`
-    const secret = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-
-    try {
-      const { error } = await supabase
-        .from('institutions')
-        .update({
-          lti_consumer_key: key,
-          lti_shared_secret: secret
-        })
-        .eq('id', institution.id)
-
-      if (!error) {
-        setConsumerKey(key)
-        setSharedSecret(secret)
-        setInstitution({
-          ...institution,
-          lti_consumer_key: key,
-          lti_shared_secret: secret
-        })
-        alert("Clés LTI régénérées avec succès !")
-      }
-    } catch (e: any) {
-      alert("Erreur: " + e.message)
-    }
+    if (await updateLti(true, true)) alert("Clés LTI régénérées avec succès !")
   }
 
   // Initialize live students
@@ -302,9 +270,9 @@ export default function InstitutionDashboard() {
 
       if (instData) {
         setInstitution(instData)
-        setLtiEnabled(instData.lti_enabled || false)
-        setConsumerKey(instData.lti_consumer_key || '')
-        setSharedSecret(instData.lti_shared_secret || '')
+        // Configuration LTI (refusée par le serveur si l'utilisateur n'est pas responsable)
+        const { data: ltiData } = await supabase.rpc('get_institution_lti_config', { p_institution_id: instData.id })
+        applyLtiConfig((ltiData as LtiConfig[] | null)?.[0] ?? null)
 
         // 2. Fetch student list with joined user profile details
         const { data: studs } = await supabase

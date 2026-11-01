@@ -145,7 +145,7 @@ serve(async (req: Request) => {
       .single()
 
     // Déclencher le sync LTI si c'est une session LMS
-    if (updatedSession?.metadata?.lis_outcome_service_url) {
+    if (updatedSession?.metadata?.lti === true) {
       try {
         await supabase.functions.invoke('lti-grade-sync', {
           body: { session_id }

@@ -27,3 +27,7 @@ verify_jwt = false
 
 [functions.fedapay-webhook]
 verify_jwt = false
+
+# Lancement LTI : formulaire POST signé OAuth 1.0 par le LMS, sans JWT Supabase
+[functions.lti-launch]
+verify_jwt = false
