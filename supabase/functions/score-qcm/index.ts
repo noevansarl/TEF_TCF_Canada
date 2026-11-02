@@ -16,7 +16,17 @@ function getCorsHeaders(req: Request) {
 
 interface ScoreRequest {
   session_id: string
-  answers: Record<string, string>    // questionId → réponse utilisateur
+  answers: Record<string, string>    // questionId → réponse utilisateur (A–D)
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const MAX_ANSWERS = 150
+const NCLC_RANK: Record<string, number> = { 'C2': 6, 'C1': 5, 'B2+': 4, 'B2': 3, 'B1+': 2, 'B1': 2, 'A2': 1, 'A1': 0 }
+
+// Nombre officiel de questions par épreuve (= contrainte check_question_count)
+function officialQuestionCount(module: string, testType: string): number {
+  if (testType === 'TEF_CANADA') return module === 'CO' ? 60 : 50
+  return 39
 }
 
 serve(async (req: Request) => {
@@ -44,6 +54,9 @@ serve(async (req: Request) => {
 
     const body: ScoreRequest = await req.json()
     const { session_id, answers } = body
+    if (typeof session_id !== 'string' || !UUID_RE.test(session_id)) {
+      return new Response('Invalid session_id', { status: 400, headers: corsHeaders })
+    }
 
     // Vérifier que la session appartient à l'utilisateur
     const { data: session } = await supabase
@@ -69,62 +82,83 @@ serve(async (req: Request) => {
       return new Response('Session expired', { status: 410, headers: corsHeaders })
     }
 
-    // Récupérer les bonnes réponses en vérifiant que les questions appartiennent à la session
-    const questionIds = Object.keys(answers)
-    if (questionIds.length === 0) {
+    // ── Réponses soumises : QCM uniquement, format strict ─────────────
+    if (!answers || typeof answers !== 'object' || Array.isArray(answers)) {
+      return new Response('Invalid answers', { status: 400, headers: corsHeaders })
+    }
+    const submitted = Object.entries(answers)
+      .filter(([id, value]) => UUID_RE.test(id) && typeof value === 'string' && /^[A-D]$/.test(value))
+    if (submitted.length === 0) {
       return new Response('No answers provided', { status: 400, headers: corsHeaders })
     }
-
-    const { data: sessionAnswers } = await supabase
-      .from('answers')
-      .select('question_id')
-      .eq('session_id', session_id)
-      .eq('user_id', user.id)
-
-    const authorizedQuestionIds = new Set((sessionAnswers ?? []).map((a: { question_id: string }) => a.question_id))
-    const unauthorizedIds = questionIds.filter(id => !authorizedQuestionIds.has(id))
-    if (unauthorizedIds.length > 0) {
-      return new Response('Unauthorized question_ids in submission', { status: 403, headers: corsHeaders })
+    if (submitted.length > MAX_ANSWERS) {
+      return new Response('Too many answers', { status: 400, headers: corsHeaders })
     }
 
-    const { data: questions } = await supabase
+    // ── Questions autorisées pour cette session ───────────────────────
+    // La session fixe le module et le type d'examen ; si elle a une liste de
+    // questions (sélection serveur, LTI), seules celles-ci sont acceptées.
+    const isFullSession = String(session.module).startsWith('FULL_')
+    const allowedModules = isFullSession ? ['CO', 'CE'] : [session.module]
+    const sessionQuestionIds: string[] = Array.isArray(session.question_ids) ? session.question_ids : []
+    const sessionQuestionSet = new Set(sessionQuestionIds)
+
+    const { data: questions, error: questionsError } = await supabase
       .from('questions')
-      .select('id, correct_answer, module')
-      .in('id', questionIds)
+      .select('id, correct_answer, module, test_type')
+      .in('id', submitted.map(([id]) => id))
+    if (questionsError) throw questionsError
 
-    if (!questions || questions.length === 0) {
-      return new Response('Questions not found', { status: 404, headers: corsHeaders })
+    const testType = session.test_type || 'TCF_CANADA'
+    const scorable = (questions ?? []).filter((q: { id: string; module: string; test_type: string; correct_answer: string | null }) =>
+      ['CO', 'CE'].includes(q.module)
+      && allowedModules.includes(q.module)
+      && [testType, 'BOTH'].includes(q.test_type)
+      && q.correct_answer
+      && (sessionQuestionSet.size === 0 || sessionQuestionSet.has(q.id))
+    )
+    if (scorable.length === 0) {
+      return new Response('No QCM answers for this session', { status: 400, headers: corsHeaders })
     }
 
-    // Calculer le score
-    let correct = 0
-    const answersToInsert = []
-
-    for (const question of questions) {
-      const userAnswer = answers[question.id]
+    // ── Score par module ──────────────────────────────────────────────
+    const answerMap = new Map(submitted)
+    const perModule: Record<string, { correct: number; answered: number }> = {}
+    const answersToInsert = scorable.map((question: { id: string; module: string; correct_answer: string }) => {
+      const userAnswer = answerMap.get(question.id)!
       const isCorrect = userAnswer === question.correct_answer
+      perModule[question.module] ??= { correct: 0, answered: 0 }
+      perModule[question.module].answered++
+      if (isCorrect) perModule[question.module].correct++
+      return { session_id, question_id: question.id, user_id: user.id, user_answer: userAnswer, is_correct: isCorrect }
+    })
 
-      if (isCorrect) correct++
-
-      answersToInsert.push({
-        session_id,
-        question_id: question.id,
-        user_id: user.id,
-        user_answer: userAnswer,
-        is_correct: isCorrect,
-      })
+    // Total par module : nombre officiel en simulation, sinon les questions de la
+    // session (non répondues = fausses) — répondre à une seule question juste ne
+    // donne pas 100 %.
+    const moduleTotal = (module: string, answered: number) => {
+      if (isFullSession) return Math.max(answered, officialQuestionCount(module, testType))
+      return Math.max(answered, sessionQuestionIds.length)
     }
 
-    // Le total est celui de la session (questions non répondues = fausses),
-    // sinon répondre à une seule question juste donnerait 100 %.
-    const sessionQuestionCount = Array.isArray(session.question_ids) ? session.question_ids.length : 0
-    const total = Math.max(questions.length, sessionQuestionCount)
+    let correct = 0
+    let total = 0
+    const moduleResults = Object.entries(perModule).map(([module, stats]) => {
+      const moduleTot = moduleTotal(module, stats.answered)
+      correct += stats.correct
+      total += moduleTot
+      const result = testType === 'TEF_CANADA'
+        ? calculateTEFScoreAndNCLC(stats.correct, moduleTot, module)
+        : calculateTCFScoreAndNCLC(stats.correct, moduleTot, module)
+      return { module, correct: stats.correct, total: moduleTot, ...result }
+    })
+
     const scoreRatio = total > 0 ? correct / total : 0
     const xpEarned = Math.round(scoreRatio * 200)  // 0–200 XP
 
-    const scoring = session.test_type === 'TEF_CANADA'
-      ? calculateTEFScoreAndNCLC(correct, total, session.module)
-      : calculateTCFScoreAndNCLC(correct, total, session.module)  // TCF par défaut
+    // NCLC global = le plus faible des modules (comme compute_simulation_nclc)
+    const weakest = moduleResults.reduce((min, r) => (NCLC_RANK[r.nclc] < NCLC_RANK[min.nclc] ? r : min))
+    const scoring = { score_699: Math.round(scoreRatio * 699), nclc: weakest.nclc }
 
     // Contraintes de la table sessions :
     //  - score_auto ∈ [0, 100] → pourcentage (le score /699 est renvoyé à part)
@@ -176,8 +210,10 @@ serve(async (req: Request) => {
       p_xp: xpEarned,
     })
 
-    // Mettre à jour progress_stats
-    await updateProgressStats(supabase, user.id, session, correct, total)
+    // Mettre à jour progress_stats (par module : la table n'accepte que CO/CE/EE/EO)
+    for (const r of moduleResults) {
+      await updateProgressStats(supabase, user.id, { ...session, module: r.module, test_type: testType }, r.correct, r.total)
+    }
 
     return new Response(JSON.stringify({
       score: scoring.score_699,       // échelle officielle /699
@@ -187,6 +223,7 @@ serve(async (req: Request) => {
       xp_earned: xpEarned,
       nclc: scoring.nclc,             // valeur fine (B2+) pour l'affichage
       nclc_estimate: nclcEstimate,    // valeur enregistrée
+      modules: moduleResults,
       session_id,
     }), {
       status: 200,

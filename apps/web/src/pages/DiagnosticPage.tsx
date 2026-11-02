@@ -19,8 +19,10 @@ interface DiagnosticQuestion {
     C: string
     D: string
   }
-  correct_answer: string
-  explanation: string
+  // Présents uniquement dans les questions de repli : le serveur ne renvoie
+  // jamais le corrigé avant la notation (submit_diagnostic)
+  correct_answer?: string
+  explanation?: string
 }
 
 // ── Questions de secours (utilisees uniquement si la recuperation des
@@ -609,66 +611,41 @@ export default function DiagnosticPage() {
     }
   }
 
+  const levelFromScore = (score: number, total: number): 'A2' | 'B1' | 'B2' | 'C1' => {
+    // Seuils historiques sur 16 questions (14 → C1, 10 → B2, 5 → B1), proportionnels
+    if (total <= 0) return 'A2'
+    if (score * 16 >= 14 * total) return 'C1'
+    if (score * 16 >= 10 * total) return 'B2'
+    if (score * 16 >= 5 * total) return 'B1'
+    return 'A2'
+  }
+
   const handleFinishTest = async (finalAnswers: Record<string, string>) => {
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current)
-    
-    // Calculate score
-    const score = questions.filter(q => finalAnswers[q.id] === q.correct_answer).length
 
-    // Determine CEFR level
-    let level: 'A2' | 'B1' | 'B2' | 'C1' = 'A2'
-    if (score >= 14) level = 'C1'
-    else if (score >= 10) level = 'B2'
-    else if (score >= 5) level = 'B1'
-
-    setAssessedLevel(level)
     setStep('results')
     setSaving(true)
 
-    // Save to database
+    // Questions de repli (hors ligne) : corrigé embarqué, notation locale
+    const isFallback = questions.some(q => !!q.correct_answer)
+
     try {
-      const userId = user?.id || 'mock-user-id'
-      if (user) {
-        // Update public.users level_assessed
-        await supabase
-          .from('users')
-          .update({ level_assessed: level })
-          .eq('id', userId)
-
-        // Save session in sessions table to record historical trace of diagnostic
-        // Colonnes alignées sur le schéma sessions (test_type ∈ TCF/TEF, score_auto 0–100,
-        // nclc_estimate A1–C2) ; total_questions omis : la contrainte check_question_count
-        // ne prévoit pas le module FULL_TCF.
-        const { data: session, error: sessionErr } = await supabase
-          .from('sessions')
-          .insert({
-            user_id: userId,
-            module: 'FULL_TCF',
-            session_type: 'DIAGNOSTIC',
-            test_type: 'TCF_CANADA',
-            level: 'MIXED',
-            status: 'completed',
-            score_auto: questions.length > 0 ? Math.round((score / questions.length) * 1000) / 10 : 0,
-            nclc_estimate: level,
-            max_duration_s: 1200,
-            duration_seconds: Math.max(0, 1200 - timeLeft),
-            device_type: 'web',
-            completed_at: new Date().toISOString()
-          })
-          .select()
-          .single()
-        if (sessionErr) console.error('Diagnostic session insert failed:', sessionErr)
-
-        if (session) {
-          // Insert questions records into public.answers
-          const answerInserts = questions.map(q => ({
-            session_id: session.id,
-            user_id: userId,
-            question_id: q.id,
-            user_answer: finalAnswers[q.id] || '',
-            is_correct: finalAnswers[q.id] === q.correct_answer
-          }))
-          await supabase.from('answers').insert(answerInserts)
+      if (user && !isFallback) {
+        // Questions réelles : le corrigé n'est pas envoyé au navigateur, la
+        // notation, la session et le niveau sont enregistrés par le serveur.
+        const { data, error } = await supabase.rpc('submit_diagnostic', {
+          p_answers: finalAnswers,
+          p_device: 'web',
+          p_duration_s: Math.max(0, 1200 - timeLeft),
+        })
+        if (error) throw error
+        if (data?.level) setAssessedLevel(data.level)
+      } else {
+        const score = questions.filter(q => q.correct_answer && finalAnswers[q.id] === q.correct_answer).length
+        const level = levelFromScore(score, questions.length)
+        setAssessedLevel(level)
+        if (user) {
+          await supabase.from('users').update({ level_assessed: level }).eq('id', user.id)
         }
       }
     } catch (dbErr) {
@@ -925,7 +902,7 @@ export default function DiagnosticPage() {
             <div className="space-y-1">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Votre niveau évalué</span>
               <h1 className="text-6xl font-black text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text font-display tracking-tighter">
-                {assessedLevel}
+                {saving ? '…' : assessedLevel}
               </h1>
               <p className="text-xs text-slate-500 font-semibold mt-1">
                 (Basé sur vos 30 questions de Compréhension Orale et Écrite)

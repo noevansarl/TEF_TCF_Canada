@@ -60,21 +60,27 @@ export default function ResultsPage() {
         }
         setSession(sessionData)
 
-        // Fetch answers with question details
-        const { data: answersData, error: answersErr } = await supabase
-          .from('answers')
-          .select('*, questions(*)')
-          .eq('session_id', sessionId)
+        // Réponses + corrigé : servis par le serveur une fois la session terminée
+        // (le corrigé n'est pas lisible directement dans la table questions)
+        const { data: reviewRows, error: answersErr } = await supabase
+          .rpc('get_session_review', { p_session_id: sessionId })
 
-        if (answersErr || !answersData) {
-          setError("Impossible de charger les détails des réponses.")
+        if (answersErr || !reviewRows) {
+          setError(answersErr?.message?.includes('fin de la session')
+            ? "Le corrigé sera disponible à la fin de la session."
+            : "Impossible de charger les détails des réponses.")
           setLoading(false)
           return
         }
 
-        setAnswers(answersData as unknown as AnswerWithQuestion[])
+        const answersData: AnswerWithQuestion[] = (reviewRows as any[]).map(row => ({
+          ...row,
+          id: row.answer_id,
+          questions: row.question,
+        }))
+        setAnswers(answersData)
 
-        const audioPaths = (answersData as unknown as AnswerWithQuestion[])
+        const audioPaths = answersData
           .map(a => a.audio_storage_path)
           .filter((p): p is string => !!p)
         if (audioPaths.length > 0) {

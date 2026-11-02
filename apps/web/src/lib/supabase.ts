@@ -916,7 +916,20 @@ const mockClient: any = {
       })
     })
   },
-  rpc: async (_name: string, _args: any) => ({ data: null, error: null }),
+  rpc: async (name: string, args: any) => {
+    // Corrigé de session (migration 025) : imite get_session_review à partir des réponses fictives
+    if (name === 'get_session_review') {
+      const { data } = await mockClient.from('answers').select('*').eq('id', args?.p_session_id)
+      return {
+        data: (data ?? []).map((a: any) => ({ ...a, answer_id: a.id, question: a.questions })),
+        error: null
+      }
+    }
+    if (name === 'admin_list_questions') {
+      return { data: mockQuestions, error: null }
+    }
+    return { data: null, error: null }
+  },
   functions: {
     invoke: async (name: string, _options?: any) => {
       if (name === 'create-checkout') {

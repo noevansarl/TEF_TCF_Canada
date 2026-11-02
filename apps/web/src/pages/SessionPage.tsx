@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase, mockQuestions } from '../lib/supabase'
+import { QUESTION_PUBLIC_COLUMNS } from '../lib/questionColumns'
 import { Timer } from '../components/Timer'
 import { AudioPlayer } from '../features/co/AudioPlayer'
 import { useSessionStore } from '../store/sessionStore'
@@ -11,7 +12,6 @@ import { AudioRecorder } from '../features/eo/AudioRecorder'
 import { BadgeUnlockToast } from '../components/BadgeUnlockToast'
 import { useNotificationStore } from '../store/notificationStore'
 import { BADGES_DEFINITION } from '../lib/badges'
-import { calculateTEFScoreAndNCLC, calculateTCFScoreAndNCLC, getGlobalNCLC } from '../lib/scoreUtils'
 import type { Question } from '../types/models'
 
 function getModuleDuration(module: string, testType: string): number {
@@ -118,7 +118,7 @@ export default function SessionPage() {
 
         const { data: questionsData, error: qErr } = await supabase
           .from('questions')
-          .select('*')
+          .select(QUESTION_PUBLIC_COLUMNS)
           .eq('module', targetModule)
           .eq('is_active', true)
           .in('test_type', [sessionData.test_type || 'TCF_CANADA', 'BOTH'])
@@ -305,7 +305,7 @@ export default function SessionPage() {
             question_id: qId,
             user_id: userId,
             user_answer: val,
-            is_correct: val === q.correct_answer
+            // is_correct est calculé par la base (le client n'a pas le corrigé)
           }
         }).filter(Boolean)
 
@@ -324,7 +324,7 @@ export default function SessionPage() {
         // Fetch questions for the next module
         const { data: nextQuestionsData, error: qErr } = await supabase
           .from('questions')
-          .select('*')
+          .select(QUESTION_PUBLIC_COLUMNS)
           .eq('module', nextMod)
           .eq('is_active', true)
           .in('test_type', [currentSession.test_type || 'TCF_CANADA', 'BOTH'])
@@ -359,45 +359,14 @@ export default function SessionPage() {
 
       // 3. Complete the entire session
       if (isSimulation) {
-        // Count total correct from the state `answers` dictionary which accumulates all answers
-        const coCorrect = Object.entries(answers).filter(([qId, val]) => {
-          const q = questions.find(question => question.id === qId)
-          return q?.module === 'CO' && q.correct_answer === val
-        }).length;
-        
-        const ceCorrect = Object.entries(answers).filter(([qId, val]) => {
-          const q = questions.find(question => question.id === qId)
-          return q?.module === 'CE' && q.correct_answer === val
-        }).length;
-
-        // Number of questions can be inferred from getModuleQuestionCount
-        const coTotal = getModuleQuestionCount('CO', currentSession.test_type || 'TCF_CANADA');
-        const ceTotal = getModuleQuestionCount('CE', currentSession.test_type || 'TCF_CANADA');
-
-        let coNclc = 'A1';
-        let ceNclc = 'A1';
-        
-        if (currentSession.test_type === 'TEF_CANADA') {
-           coNclc = calculateTEFScoreAndNCLC(coCorrect, coTotal, 'CO').nclc;
-           ceNclc = calculateTEFScoreAndNCLC(ceCorrect, ceTotal, 'CE').nclc;
-        } else {
-           coNclc = calculateTCFScoreAndNCLC(coCorrect, coTotal, 'CO').nclc;
-           ceNclc = calculateTCFScoreAndNCLC(ceCorrect, ceTotal, 'CE').nclc;
-        }
-
-        // For EE/EO we might not have the AI score yet, as it's async. We fallback to global QCM score if needed.
-        const globalNclc = getGlobalNCLC([
-          { module: 'CO', nclc: coNclc },
-          { module: 'CE', nclc: ceNclc }
-        ]);
-
+        // Le NCLC de la simulation est calculé par la base à la clôture
+        // (trigger enforce_session_integrity → compute_simulation_nclc).
         // Complete simulation session
         await supabase
           .from('sessions')
           .update({
             status: 'completed',
-            completed_at: new Date().toISOString(),
-            nclc_estimate: globalNclc
+            completed_at: new Date().toISOString()
           })
           .eq('id', sessionId)
 

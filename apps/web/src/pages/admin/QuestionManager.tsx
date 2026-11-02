@@ -65,7 +65,8 @@ export default function QuestionManager() {
   async function loadQuestions() {
     setLoading(true)
     try {
-      const { data, error } = await supabase.from('questions').select('*')
+      // Lecture complète (corrigé compris) réservée aux admins via RPC (migration 025)
+      const { data, error } = await supabase.rpc('admin_list_questions')
       if (data && !error) {
         setQuestions(data)
       }
