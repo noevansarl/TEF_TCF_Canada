@@ -636,21 +636,28 @@ export default function DiagnosticPage() {
           .eq('id', userId)
 
         // Save session in sessions table to record historical trace of diagnostic
-        const { data: session } = await supabase
+        // Colonnes alignées sur le schéma sessions (test_type ∈ TCF/TEF, score_auto 0–100,
+        // nclc_estimate A1–C2) ; total_questions omis : la contrainte check_question_count
+        // ne prévoit pas le module FULL_TCF.
+        const { data: session, error: sessionErr } = await supabase
           .from('sessions')
           .insert({
             user_id: userId,
-            module: 'FULL_TCF', // or custom tag
+            module: 'FULL_TCF',
             session_type: 'DIAGNOSTIC',
-            test_type: 'BOTH',
+            test_type: 'TCF_CANADA',
+            level: 'MIXED',
             status: 'completed',
-            score: score,
-            total_questions: questions.length,
-            started_at: new Date(Date.now() - (1200 - timeLeft) * 1000).toISOString(),
+            score_auto: questions.length > 0 ? Math.round((score / questions.length) * 1000) / 10 : 0,
+            nclc_estimate: level,
+            max_duration_s: 1200,
+            duration_seconds: Math.max(0, 1200 - timeLeft),
+            device_type: 'web',
             completed_at: new Date().toISOString()
           })
           .select()
           .single()
+        if (sessionErr) console.error('Diagnostic session insert failed:', sessionErr)
 
         if (session) {
           // Insert questions records into public.answers

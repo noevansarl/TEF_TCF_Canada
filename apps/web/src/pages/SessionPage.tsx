@@ -76,6 +76,9 @@ export default function SessionPage() {
     abandonSession
   } = useSessionStore()
 
+  // Chemin Storage réel de chaque enregistrement EO (questionId → chemin)
+  const eoAudioPathsRef = useRef<Record<string, string>>({})
+
   const isSimulation = currentSession?.module.startsWith('FULL_')
 
   // Load session and questions
@@ -256,7 +259,12 @@ export default function SessionPage() {
           const q = questions.find(question => question.id === qId)
           if (!q || q.module !== 'EO') continue
 
-          const audioPath = `eo/${sessionId}/task_${qId}.webm`
+          // Chemin exact du fichier envoyé par AudioRecorder (sinon transcribe-eo ne le trouve pas)
+          const audioPath = eoAudioPathsRef.current[qId]
+          if (!audioPath) {
+            console.error(`Aucun enregistrement EO trouvé pour la question ${qId}`)
+            continue
+          }
 
           const { data: ansRow, error: ansErr } = await supabase
             .from('answers')
@@ -264,7 +272,8 @@ export default function SessionPage() {
               session_id: sessionId,
               question_id: qId,
               user_id: userId,
-              user_answer: val, // contains the audio Url
+              user_answer: val, // URL de lecture de l'audio
+              audio_url: val,
               audio_storage_path: audioPath
             }, { onConflict: 'session_id,question_id' })
             .select()
@@ -690,7 +699,10 @@ export default function SessionPage() {
                       taskIndex={currentIndex + 1}
                       sessionId={sessionId || 'mock-session'}
                       taskDurationSeconds={currentQuestion.audio_duration_s || 120}
-                      onRecordingComplete={(audioUrl) => submitAnswer(currentQuestion.id, audioUrl)}
+                      onRecordingComplete={(audioUrl, storagePath) => {
+                        eoAudioPathsRef.current[currentQuestion.id] = storagePath
+                        submitAnswer(currentQuestion.id, audioUrl)
+                      }}
                     />
                   </div>
                 </div>

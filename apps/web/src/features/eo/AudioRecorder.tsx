@@ -7,7 +7,7 @@ interface AudioRecorderProps {
   taskIndex: number
   sessionId: string
   taskDurationSeconds: number
-  onRecordingComplete: (audioUrl: string) => void
+  onRecordingComplete: (audioUrl: string, storagePath: string) => void
 }
 
 export function AudioRecorder({ taskIndex, sessionId, taskDurationSeconds, onRecordingComplete }: AudioRecorderProps) {
@@ -56,7 +56,7 @@ export function AudioRecorder({ taskIndex, sessionId, taskDurationSeconds, onRec
         if (data) {
           const { data: { publicUrl } } = supabase.storage
             .from('audio-responses').getPublicUrl(data.path)
-          onRecordingComplete(publicUrl)
+          onRecordingComplete(publicUrl, data.path)
         }
       } catch (err: unknown) {
         console.error("Erreur de sauvegarde audio:", err)
