@@ -12,6 +12,7 @@ interface AnswerWithQuestion {
   question_id: string
   user_answer: string
   is_correct: boolean | null
+  audio_storage_path?: string | null
   audio_transcript?: string
   auto_feedback?: any
   questions: {
@@ -36,6 +37,8 @@ export default function ResultsPage() {
   const [session, setSession] = useState<any>(null)
   const [answers, setAnswers] = useState<AnswerWithQuestion[]>([])
   const [prevSession, setPrevSession] = useState<any>(null)
+  // Bucket audio privé : URL signées temporaires (chemin Storage → URL)
+  const [audioUrls, setAudioUrls] = useState<Record<string, string>>({})
 
   useEffect(() => {
     async function loadResults() {
@@ -70,6 +73,20 @@ export default function ResultsPage() {
         }
 
         setAnswers(answersData as unknown as AnswerWithQuestion[])
+
+        const audioPaths = (answersData as unknown as AnswerWithQuestion[])
+          .map(a => a.audio_storage_path)
+          .filter((p): p is string => !!p)
+        if (audioPaths.length > 0) {
+          const { data: signed } = await supabase.storage
+            .from('audio-responses')
+            .createSignedUrls(audioPaths, 3600)
+          const urls: Record<string, string> = {}
+          for (const item of signed ?? []) {
+            if (item.path && item.signedUrl) urls[item.path] = item.signedUrl
+          }
+          setAudioUrls(urls)
+        }
 
         // Fetch previous completed session for comparison
         try {
@@ -606,8 +623,10 @@ export default function ResultsPage() {
                     <div className="space-y-4">
                       <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex flex-col gap-3">
                         <h4 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider select-none">Votre Enregistrement :</h4>
-                        {answer.user_answer && (
-                          <audio src={answer.user_answer} controls className="max-w-md w-full h-10" />
+                        {answer.audio_storage_path && audioUrls[answer.audio_storage_path] ? (
+                          <audio src={audioUrls[answer.audio_storage_path]} controls className="max-w-md w-full h-10" />
+                        ) : (
+                          <span className="text-xs text-slate-500">Enregistrement indisponible.</span>
                         )}
                         {answer.audio_transcript && (
                           <div className="mt-2 border-t border-slate-800/60 pt-3">

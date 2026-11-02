@@ -29,7 +29,7 @@ interface CorrectionDetail {
   }
   answer: {
     user_answer: string | null
-    audio_url: string | null
+    audio_storage_path: string | null
     audio_transcript: string | null
     question: {
       question_text: string
@@ -57,6 +57,8 @@ export default function ExpertCorrectionEditor() {
   const [suggestionsList, setSuggestionsList] = useState<string[]>([])
   const [newSuggestion, setNewSuggestion] = useState('')
   const [expertNotes, setExpertNotes] = useState('')
+  // Bucket audio privé : URL signée temporaire
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadCorrection() {
@@ -81,7 +83,7 @@ export default function ExpertCorrectionEditor() {
             user:user_id ( id, full_name, email ),
             answer:answer_id (
               user_answer,
-              audio_url,
+              audio_storage_path,
               audio_transcript,
               question:question_id (
                 question_text
@@ -96,6 +98,14 @@ export default function ExpertCorrectionEditor() {
 
         const detail = data as any as CorrectionDetail
         setCorrection(detail)
+
+        const audioPath = detail.answer?.audio_storage_path
+        if (audioPath) {
+          const { data: signed } = await supabase.storage
+            .from('audio-responses')
+            .createSignedUrl(audioPath, 3600)
+          setAudioUrl(signed?.signedUrl ?? null)
+        }
 
         // Initialize form states from DB if they exist
         if (detail.score_criteria) {
@@ -368,10 +378,10 @@ export default function ExpertCorrectionEditor() {
             ) : (
               <div className="space-y-5">
                 {/* Audio player */}
-                {answer?.audio_url ? (
+                {audioUrl ? (
                   <div className="p-5 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-col gap-2.5 shadow-sm">
                     <span className="text-xs text-slate-500 font-bold">Enregistrement audio :</span>
-                    <audio src={answer.audio_url} controls className="w-full mt-1.5 focus:outline-none" />
+                    <audio src={audioUrl} controls className="w-full mt-1.5 focus:outline-none" />
                   </div>
                 ) : (
                   <div className="p-5 bg-slate-50 border border-slate-200/60 rounded-2xl text-center text-slate-400 text-sm">

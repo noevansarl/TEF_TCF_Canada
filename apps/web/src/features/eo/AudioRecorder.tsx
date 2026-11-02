@@ -54,9 +54,11 @@ export function AudioRecorder({ taskIndex, sessionId, taskDurationSeconds, onRec
         if (error) throw error
         
         if (data) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('audio-responses').getPublicUrl(data.path)
-          onRecordingComplete(publicUrl, data.path)
+          // Bucket privé : URL signée temporaire, uniquement pour la réécoute
+          const { data: signed, error: signError } = await supabase.storage
+            .from('audio-responses').createSignedUrl(data.path, 3600)
+          if (signError || !signed) throw signError ?? new Error('URL de lecture indisponible')
+          onRecordingComplete(signed.signedUrl, data.path)
         }
       } catch (err: unknown) {
         console.error("Erreur de sauvegarde audio:", err)

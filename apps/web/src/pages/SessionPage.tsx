@@ -255,7 +255,7 @@ export default function SessionPage() {
           })
         }
       } else if (activeMod === 'EO') {
-        for (const [qId, val] of Object.entries(answers)) {
+        for (const qId of Object.keys(answers)) {
           const q = questions.find(question => question.id === qId)
           if (!q || q.module !== 'EO') continue
 
@@ -272,8 +272,9 @@ export default function SessionPage() {
               session_id: sessionId,
               question_id: qId,
               user_id: userId,
-              user_answer: val, // URL de lecture de l'audio
-              audio_url: val,
+              // Bucket privé : on enregistre le chemin, jamais l'URL signée (temporaire)
+              user_answer: audioPath,
+              audio_url: null,
               audio_storage_path: audioPath
             }, { onConflict: 'session_id,question_id' })
             .select()

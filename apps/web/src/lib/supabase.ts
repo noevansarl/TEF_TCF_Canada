@@ -901,6 +901,18 @@ const mockClient: any = {
       upload: async (_path: string, _file: any) => ({ data: { path: _path }, error: null }),
       getPublicUrl: (_path: string) => ({
         data: { publicUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3' }
+      }),
+      createSignedUrl: async (_path: string, _expiresIn: number) => ({
+        data: { signedUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3' },
+        error: null
+      }),
+      createSignedUrls: async (paths: string[], _expiresIn: number) => ({
+        data: paths.map(path => ({
+          path,
+          signedUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3',
+          error: null
+        })),
+        error: null
       })
     })
   },
