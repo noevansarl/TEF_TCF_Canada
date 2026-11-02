@@ -14,7 +14,9 @@ class DiagnosticQuestion {
   final String? audioUrl;
   final String? passageText;
   final Map<String, String> options;
-  final String correctAnswer;
+  // Renseigné uniquement pour les questions de repli embarquées : le serveur
+  // ne renvoie jamais le corrigé avant la notation (submit_diagnostic).
+  final String? correctAnswer;
   final String explanation;
 
   const DiagnosticQuestion({
@@ -25,7 +27,7 @@ class DiagnosticQuestion {
     this.audioUrl,
     this.passageText,
     required this.options,
-    required this.correctAnswer,
+    this.correctAnswer,
     required this.explanation,
   });
 }
@@ -526,8 +528,9 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
             audioUrl: r['audio_url'] as String?,
             passageText: r['passage_text'] as String?,
             options: rawOptions.map((k, v) => MapEntry(k, v.toString())),
-            correctAnswer: r['correct_answer'] as String? ?? 'A',
-            explanation: (r['explanation'] as String?) ?? '',
+            // Corrigé jamais envoyé avant la notation serveur (submit_diagnostic)
+            correctAnswer: null,
+            explanation: '',
           );
         }).toList();
       }
@@ -650,86 +653,54 @@ class _DiagnosticScreenState extends ConsumerState<DiagnosticScreen> {
       _audioPlayer.stop();
     }
 
-    // Calculate score
-    int score = 0;
-    for (final q in _questions) {
-      if (_answers[q.id] == q.correctAnswer) {
-        score++;
-      }
-    }
-
-    // Determine CEFR Level (seuils proportionnels aux anciens, ramenés de 30 a 16 questions)
-    String level = 'A2';
-    if (score >= 14) {
-      level = 'C1';
-    } else if (score >= 10) {
-      level = 'B2';
-    } else if (score >= 5) {
-      level = 'B1';
-    }
-
     setState(() {
-      _assessedLevel = level;
       _step = 'results';
       _isSaving = true;
     });
 
-    // Save to Supabase
+    // Questions de repli (hors ligne) : corrigé embarqué, notation locale.
+    // Questions réelles : notation, session et niveau enregistrés par le serveur.
+    final isFallback = _questions.any((q) => q.correctAnswer != null);
+    String level = 'A2';
+
     try {
       final supabaseService = ref.read(supabaseServiceProvider);
       final userId = supabaseService.currentUser?.id;
 
-      if (userId != null && !supabaseService.useMock) {
-        final client = supabaseService.client;
-
-        // 1. Update user assessed level
-        await client.from('users').update({
-          'level_assessed': level,
-        }).eq('id', userId);
-
-        // 2. Create diagnostic session trace
-        final durationUsed = 1200 - _timeLeft;
-        final session = await client.from('sessions').insert({
-          'user_id': userId,
-          'module': 'FULL_TCF',
-          'session_type': 'DIAGNOSTIC',
-          'test_type': 'TCF_CANADA',
-          'level': 'MIXED',
-          'status': 'completed',
-          'score_auto': (score / _questions.length) * 100,
-          'nclc_estimate': level,
-          'duration_seconds': durationUsed,
-          'device_type': 'android',
-        }).select().single();
-
-        final String sessionId = session['id'];
-
-        // 3. Save individual question answers
-        final List<Map<String, dynamic>> answerInserts = _questions.map((q) {
-          final userAns = _answers[q.id] ?? '';
-          return {
-            'session_id': sessionId,
-            'user_id': userId,
-            'question_id': q.id,
-            'user_answer': userAns,
-            'is_correct': userAns == q.correctAnswer,
-          };
-        }).toList();
-
-        await client.from('answers').insert(answerInserts);
-
-        // Invalidate profile cache to update UI on dashboard
+      if (!isFallback && userId != null && !supabaseService.useMock) {
+        final result = await supabaseService.submitDiagnostic(
+          {for (final q in _questions) if (_answers[q.id] != null) q.id: _answers[q.id]!},
+          1200 - _timeLeft,
+        );
+        level = (result?['level'] as String?) ?? level;
         ref.invalidate(userProfileProvider);
+      } else {
+        final score = _questions.where((q) => q.correctAnswer != null && _answers[q.id] == q.correctAnswer).length;
+        level = _levelFromScore(score, _questions.length);
+        if (userId != null && !supabaseService.useMock) {
+          await supabaseService.client.from('users').update({'level_assessed': level}).eq('id', userId);
+          ref.invalidate(userProfileProvider);
+        }
       }
     } catch (e) {
       debugPrint('Failed to save diagnostic results to DB: $e');
     } finally {
       if (mounted) {
         setState(() {
+          _assessedLevel = level;
           _isSaving = false;
         });
       }
     }
+  }
+
+  // Seuils historiques sur 16 questions (14 → C1, 10 → B2, 5 → B1), proportionnels
+  String _levelFromScore(int score, int total) {
+    if (total <= 0) return 'A2';
+    if (score * 16 >= 14 * total) return 'C1';
+    if (score * 16 >= 10 * total) return 'B2';
+    if (score * 16 >= 5 * total) return 'B1';
+    return 'A2';
   }
 
   @override

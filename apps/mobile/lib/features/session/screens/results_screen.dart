@@ -43,13 +43,20 @@ class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final double finalScore = widget.score ?? 75.0;
-    final String finalNclc = widget.nclc ?? 'B2';
-    
+    // Score calculé par le serveur ; null tant que la session n'est pas
+    // synchronisée (hors ligne) ou s'il n'y a pas de QCM à noter (EE/EO).
+    final double? finalScore = widget.score;
+    final String? finalNclc = widget.nclc;
+
     Color nclcColor;
     String description;
 
-    if (finalNclc == 'C2' || finalNclc == 'C1') {
+    if (finalScore == null || finalNclc == null) {
+      nclcColor = const Color(0xFF64748B); // Gris
+      description = 'Vos réponses sont enregistrées. Le score sera calculé par nos serveurs '
+          'dès la synchronisation (connexion requise) ; les corrections d\'expression écrite '
+          'et orale arrivent dans votre historique.';
+    } else if (finalNclc == 'C2' || finalNclc == 'C1') {
       nclcColor = const Color(0xFF1E7145); // Green
       description = 'Excellent travail ! Vous avez le niveau idéal pour obtenir le maximum de points à l\'immigration Express Entry.';
     } else if (finalNclc == 'B2') {
@@ -111,12 +118,12 @@ class _ResultsScreenState extends State<ResultsScreen> with SingleTickerProvider
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '${finalScore.toInt()}%',
+                          finalScore == null ? '—' : '${finalScore.toInt()}%',
                           style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: nclcColor),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Niveau $finalNclc',
+                          finalNclc == null ? 'En attente' : 'Niveau $finalNclc',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         const SizedBox(height: 2),

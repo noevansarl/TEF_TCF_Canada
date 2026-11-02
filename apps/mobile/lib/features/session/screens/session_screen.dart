@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/models/question.dart';
 import '../../../shared/models/session.dart';
+import '../../../shared/services/sync_service.dart' show kMetaTestType, kMetaLevel;
 import '../widgets/qcm_question_widget.dart';
 import '../widgets/interactive_roleplay_widget.dart';
 
@@ -112,6 +113,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     super.initState();
     _loadQuestions();
     _initAudioPlayer();
+    // Session créée côté serveur dès le départ quand on est en ligne (chrono
+    // serveur) ; sinon elle le sera à la synchronisation.
+    if (!widget.isOffline) {
+      ref.read(syncServiceProvider).ensureServerSession(
+        sessionId: widget.sessionId,
+        module: widget.module,
+        testType: widget.testType,
+        level: widget.level,
+      );
+    }
   }
 
   @override
@@ -469,26 +480,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     _timer?.cancel();
     setState(() => _isLoading = true);
 
-    // Calculer le score auto pour QCM (CO, CE), sur toutes les épreuves
-    // accumulées en cas de simulation complète.
-    double score = 0;
-    int correctCount = 0;
-    int qcmCount = 0;
-
-    final scoredQuestions = _isSimulation ? _allQuestions : _questions;
-    for (final q in scoredQuestions) {
-      if (q.correctAnswer != null) {
-        qcmCount++;
-        if (_answers[q.id] == q.correctAnswer) {
-          correctCount++;
-        }
-      }
-    }
-
-    if (qcmCount > 0) {
-      score = (correctCount / qcmCount) * 100;
-    }
-
+    // Le score QCM est calculé par le serveur (score-qcm) : l'application ne
+    // reçoit plus le corrigé des questions.
     final int currentModuleElapsed =
         (_isSimulation ? moduleDurationSeconds(_currentModule, widget.testType) : 1800) - _timeLeftSeconds;
     final int totalDurationSeconds = _elapsedBeforeCurrentModule + currentModuleElapsed;
@@ -501,15 +494,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final session = SessionModel(
       id: widget.sessionId,
       userId: userId,
-      sessionType: 'TRAINING',
+      sessionType: _isSimulation ? 'SIMULATION' : 'TRAINING',
       module: widget.module,
       testType: widget.testType,
       startedAt: DateTime.now().subtract(Duration(seconds: totalDurationSeconds)),
       completedAt: DateTime.now(),
       durationSeconds: totalDurationSeconds,
-      scoreAuto: score,
       status: 'completed',
-      answers: _answers,
+      answers: {
+        ..._answers,
+        kMetaTestType: widget.testType,
+        kMetaLevel: widget.level,
+      },
     );
 
     try {
@@ -518,25 +514,22 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       // 1. Sauvegarder localement dans SQLite Drift cache
       await localDb.savePendingSession(session);
       
-      // 2. Déclencher synchronisation en arrière plan si connecté
+      // 2. Notation serveur immédiate si connecté (sinon à la reconnexion)
       final syncService = ref.read(syncServiceProvider);
-      await syncService.syncPendingSessions();
-      
+      final result = await syncService.syncSession(widget.sessionId);
+
       if (mounted) {
-        // Estimer le niveau NCLC
-        final String nclc = score >= 80 ? 'C1' : score >= 50 ? 'B2' : 'B1';
-        
-        // Rediriger vers l'écran des résultats
         context.go('/results/${widget.sessionId}', extra: {
-          'score': score,
-          'nclc': nclc,
+          'score': (result?['score_percent'] as num?)?.toDouble(),
+          'nclc': result?['nclc_estimate'] as String?,
         });
       }
     } catch (e) {
+      debugPrint('Erreur de fin de session : $e');
       if (mounted) {
         context.go('/results/${widget.sessionId}', extra: {
-          'score': score,
-          'nclc': 'MIXED',
+          'score': null,
+          'nclc': null,
         });
       }
     }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/utils/paywall.dart';
+import '../../../shared/utils/uuid.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -425,7 +426,8 @@ class DashboardScreen extends ConsumerWidget {
                 return;
               }
               // Créer une simulation en base et lancer
-              final String mockSessionId = 'sim-${DateTime.now().millisecondsSinceEpoch}';
+              // UUID généré sur l'appareil = identifiant serveur de la session
+              final String mockSessionId = generateUuidV4();
               context.push('/session/$mockSessionId', extra: {
                 'module': testType == 'TEF_CANADA' ? 'FULL_TEF' : 'FULL_TCF',
                 'testType': testType,

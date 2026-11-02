@@ -2,6 +2,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// Colonnes de public.questions lisibles par les comptes clients (migration 025)
+const String kQuestionPublicColumns =
+    'id, module, test_type, level, question_text, audio_url, audio_duration_s, max_listens, '
+    'passage_text, options, theme, sub_theme, difficulty_score, is_active, is_premium, '
+    'is_topical, topical_badge, task_type, target_words';
+
 class SupabaseService {
   // Détecter automatiquement si la clé est de type mock ou tronquée
   bool get useMock {
@@ -122,6 +128,19 @@ class SupabaseService {
     }
   }
 
+  // Note le test diagnostique côté serveur (corrigé, session, niveau).
+  // p_answers : {question_id: 'A'|'B'|'C'|'D'}
+  Future<Map<String, dynamic>?> submitDiagnostic(
+      Map<String, String> answers, int durationSeconds) async {
+    if (useMock) return null;
+    final response = await client.rpc('submit_diagnostic', params: {
+      'p_answers': answers,
+      'p_device': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+      'p_duration_s': durationSeconds,
+    });
+    return response is Map ? Map<String, dynamic>.from(response) : null;
+  }
+
   // Questions réelles pour le test diagnostique gratuit (accessible sans
   // abonnement, via une fonction SECURITY DEFINER dédiée).
   Future<List<Map<String, dynamic>>> fetchDiagnosticQuestions(
@@ -188,14 +207,22 @@ class SupabaseService {
     }
 
     try {
+      // Colonnes publiques uniquement : le corrigé n'est pas lisible par
+      // l'application (migration 025), il est servi après la session.
       final response = await client
           .from('questions')
-          .select()
+          .select(kQuestionPublicColumns)
           .eq('module', module)
           .eq('test_type', testType)
           .eq('level', level)
           .eq('is_active', true);
-      return List<Map<String, dynamic>>.from(response);
+      // Le modèle Question exige explanation / difficulty_score : valeurs neutres,
+      // l'explication réelle n'est disponible qu'après la session.
+      return List<Map<String, dynamic>>.from(response).map((row) => {
+            ...row,
+            'explanation': row['explanation'] ?? '',
+            'difficulty_score': row['difficulty_score'] ?? 5,
+          }).toList();
     } catch (e) {
       debugPrint('Error fetching questions online: $e. Falling back to mock data.');
       return [
@@ -298,11 +325,14 @@ class SupabaseService {
     }
 
     try {
-      final response = await client
-          .from('answers')
-          .select('*, question:questions(*)')
-          .eq('session_id', sessionId);
-      return List<Map<String, dynamic>>.from(response);
+      // Réponses + corrigé, disponibles une fois la session terminée
+      final response = await client.rpc('get_session_review', params: {
+        'p_session_id': sessionId,
+      });
+      return List<Map<String, dynamic>>.from(response).map((row) => {
+            ...row,
+            'id': row['answer_id'],
+          }).toList();
     } catch (e) {
       debugPrint('Error fetching answers online: $e');
       return [];

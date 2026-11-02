@@ -5,6 +5,7 @@ import '../../../shared/providers/providers.dart';
 import '../../../shared/models/question.dart';
 import '../../../shared/services/file_downloader.dart';
 import '../../../shared/utils/paywall.dart';
+import '../../../shared/utils/uuid.dart';
 
 class CatalogueScreen extends ConsumerStatefulWidget {
   const CatalogueScreen({super.key});
@@ -156,7 +157,8 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
     }
 
     if (!mounted) return;
-    final String mockSessionId = 'sess-${DateTime.now().millisecondsSinceEpoch}';
+    // UUID généré sur l'appareil = identifiant serveur de la session
+    final String mockSessionId = generateUuidV4();
 
     // Redirection vers le lecteur de session
     context.push('/session/$mockSessionId', extra: {
