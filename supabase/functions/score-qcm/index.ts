@@ -115,39 +115,47 @@ serve(async (req: Request) => {
       })
     }
 
-    const scorePercent = questions.length > 0 ? (correct / questions.length) : 0
-    const xpEarned = Math.round(scorePercent * 200)  // 0–200 XP
+    // Le total est celui de la session (questions non répondues = fausses),
+    // sinon répondre à une seule question juste donnerait 100 %.
+    const sessionQuestionCount = Array.isArray(session.question_ids) ? session.question_ids.length : 0
+    const total = Math.max(questions.length, sessionQuestionCount)
+    const scoreRatio = total > 0 ? correct / total : 0
+    const xpEarned = Math.round(scoreRatio * 200)  // 0–200 XP
 
-    let officialScore = Math.round(scorePercent * 100);
-    let finalNclc = 'A1';
+    const scoring = session.test_type === 'TEF_CANADA'
+      ? calculateTEFScoreAndNCLC(correct, total, session.module)
+      : calculateTCFScoreAndNCLC(correct, total, session.module)  // TCF par défaut
 
-    if (session.test_type === 'TEF_CANADA') {
-      const result = calculateTEFScoreAndNCLC(correct, questions.length, session.module);
-      officialScore = result.score_699;
-      finalNclc = result.nclc;
-    } else {
-      // Default to TCF if unknown
-      const result = calculateTCFScoreAndNCLC(correct, questions.length, session.module);
-      officialScore = result.score_699;
-      finalNclc = result.nclc;
-    }
+    // Contraintes de la table sessions :
+    //  - score_auto ∈ [0, 100] → pourcentage (le score /699 est renvoyé à part)
+    //  - nclc_estimate ∈ A1…C2 → 'B2+' / 'B1+' ramenés à 'B2' / 'B1'
+    const scorePercent = Math.round(scoreRatio * 1000) / 10
+    const nclcEstimate = scoring.nclc.replace('+', '')
 
-    // Insérer les réponses en batch
-    await supabase.from('answers').upsert(answersToInsert)
+    // Réponses : mise à jour des lignes enregistrées pendant la session
+    const { error: answersError } = await supabase
+      .from('answers')
+      .upsert(answersToInsert, { onConflict: 'session_id,question_id' })
+    if (answersError) throw answersError
 
-    // Mettre à jour la session
-    const { data: updatedSession } = await supabase
+    // Clôture de la session — conditionnée au statut pour empêcher une double notation
+    const { data: updatedSession, error: sessionError } = await supabase
       .from('sessions')
       .update({
         status: 'completed',
         completed_at: new Date().toISOString(),
         duration_seconds: elapsedSeconds,
-        score_auto: officialScore,
-        nclc_estimate: finalNclc,
+        score_auto: scorePercent,
+        nclc_estimate: nclcEstimate,
       })
       .eq('id', session_id)
+      .eq('status', 'in_progress')
       .select()
-      .single()
+      .maybeSingle()
+    if (sessionError) throw sessionError
+    if (!updatedSession) {
+      return new Response('Session already completed', { status: 409, headers: corsHeaders })
+    }
 
     // Déclencher le sync LTI si c'est une session LMS
     if (updatedSession?.metadata?.lti === true) {
@@ -169,14 +177,16 @@ serve(async (req: Request) => {
     })
 
     // Mettre à jour progress_stats
-    await updateProgressStats(supabase, user.id, session, correct, questions.length)
+    await updateProgressStats(supabase, user.id, session, correct, total)
 
     return new Response(JSON.stringify({
-      score: officialScore,
+      score: scoring.score_699,       // échelle officielle /699
+      score_percent: scorePercent,
       correct,
-      total: questions.length,
+      total,
       xp_earned: xpEarned,
-      nclc: updatedSession?.nclc_estimate,
+      nclc: scoring.nclc,             // valeur fine (B2+) pour l'affichage
+      nclc_estimate: nclcEstimate,    // valeur enregistrée
       session_id,
     }), {
       status: 200,

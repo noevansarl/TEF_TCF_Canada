@@ -229,7 +229,7 @@ export default function SessionPage() {
               question_id: qId,
               user_id: userId,
               user_answer: val,
-            })
+            }, { onConflict: 'session_id,question_id' })
             .select()
             .single()
 
@@ -266,7 +266,7 @@ export default function SessionPage() {
               user_id: userId,
               user_answer: val, // contains the audio Url
               audio_storage_path: audioPath
-            })
+            }, { onConflict: 'session_id,question_id' })
             .select()
             .single()
 
@@ -300,7 +300,7 @@ export default function SessionPage() {
         }).filter(Boolean)
 
         if (answersToInsert.length > 0) {
-          await supabase.from('answers').upsert(answersToInsert)
+          await supabase.from('answers').upsert(answersToInsert, { onConflict: 'session_id,question_id' })
         }
       }
 

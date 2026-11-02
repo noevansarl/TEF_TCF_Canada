@@ -15,7 +15,7 @@ import { isSafeOutcomeUrl, oauthSignature, timingSafeEqual } from '../_shared/lt
 
 const MAX_CLOCK_SKEW_S = 300
 const VALID_MODULES = ['CO', 'CE', 'EE', 'EO']
-const VALID_LEVELS = ['A2', 'B1', 'B2', 'C1', 'C2']
+const VALID_LEVELS = ['B1', 'B2', 'C1', 'C2']  // = contrainte sessions.level
 
 const textResponse = (message: string, status: number) =>
   new Response(message, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
