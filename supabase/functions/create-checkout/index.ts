@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
 import Stripe from 'https://esm.sh/stripe@14.25.0'
+import { isAfricaDiscountCountry } from '../_shared/africa.ts'
 
 const ALLOWED_ORIGINS = ['https://ayeprep.com', 'https://www.ayeprep.com', 'http://localhost:5173']
 const VALID_PLANS = ['essentiel', 'avance', 'premium']
@@ -128,14 +129,15 @@ serve(async (req: Request) => {
         .select('country')
         .eq('id', authUser.id)
         .maybeSingle()
-      const country = String(profile?.country ?? '').toUpperCase()
-
+      // Le pays du profil n'est qu'une déclaration : la réduction est confirmée
+      // (ou retirée avant le premier prélèvement) par stripe-webhook d'après le
+      // pays de facturation de la carte.
       const discounts: { coupon: string }[] = []
-      const africaCountries = ['BJ','BF','CM','CI','SN','ML','TG','GN','NE','TD','GA','CG']
-      if (africaCountries.includes(country)) {
+      if (isAfricaDiscountCountry(profile?.country)) {
         const africaCoupon = Deno.env.get('STRIPE_COUPON_AFRICA40')
         if (africaCoupon) discounts.push({ coupon: africaCoupon })
       }
+      const africaDiscount = discounts.length > 0 ? 'true' : 'false'
 
       // Essai gratuit : uniquement pour un premier abonnement
       const { count: previousSubscriptions } = await supabase
@@ -152,12 +154,13 @@ serve(async (req: Request) => {
         ...(discounts.length > 0 ? { discounts } : { allow_promotion_codes: true }),
         subscription_data: {
           ...(trialDays ? { trial_period_days: trialDays } : {}),
-          metadata: { user_id, plan, period }
+          metadata: { user_id, plan, period, africa_discount: africaDiscount }
         },
-        metadata: { user_id, plan, period, price_id: priceId },
+        metadata: { user_id, plan, period, price_id: priceId, africa_discount: africaDiscount },
         success_url: `${returnOrigin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${returnOrigin}/subscribe`,
-        billing_address_collection: 'auto',
+        // Adresse de facturation exigée pour vérifier l'éligibilité au tarif Afrique
+        billing_address_collection: discounts.length > 0 ? 'required' : 'auto',
         locale: 'fr',
         customer_email: authUser.email,
       })

@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.118.0'
 import Stripe from 'https://esm.sh/stripe@14.25.0'
 import { PACKS, grantPack } from '../_shared/packs.ts'
+import { isAfricaDiscountCountry } from '../_shared/africa.ts'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-04-10' })
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
@@ -164,7 +165,20 @@ serve(async (req: Request) => {
         }
         // ── Abonnement ───────────────────────────────────────────────────
         else if (session.mode === 'subscription' && session.subscription) {
-          const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+          let sub = await stripe.subscriptions.retrieve(session.subscription as string)
+
+          // Tarif Afrique : accordé sur la base du pays déclaré, confirmé ici par le
+          // pays de facturation. Sinon la réduction est retirée de l'abonnement
+          // (avant le premier prélèvement, qui suit l'essai gratuit).
+          if (session.metadata?.africa_discount === 'true' && sub.discount) {
+            const billingCountry = session.customer_details?.address?.country
+            if (!isAfricaDiscountCountry(billingCountry)) {
+              console.warn(`Tarif Afrique retiré : facturation ${billingCountry ?? 'inconnue'} pour l'abonnement ${sub.id}`)
+              await stripe.subscriptions.deleteDiscount(sub.id)
+              sub = await stripe.subscriptions.retrieve(sub.id)
+            }
+          }
+
           await syncSubscription(supabase, sub, userId)
         }
         break
